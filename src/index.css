@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-headline: "Sora", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Apple visionOS & iOS Liquid Glass Dark Palette (Pitch Black, Slate Grey, Crisp White, Khaki / Sage Accent #c1cc94) */
+  --color-background: #000000;
+  --color-surface-dim: #09090b;
+  --color-surface-bright: #18181b;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #0c0c0e;
+  --color-surface-container: #141417;
+  --color-surface-container-high: #1c1c21;
+  --color-surface-container-highest: #27272d;
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #a1a1aa;
+  --color-inverse-surface: #ffffff;
+  --color-inverse-on-surface: #09090b;
+  --color-outline: #52525b;
+  --color-outline-variant: #27272a;
+  --color-surface-tint: #c1cc94;
+  
+  --color-primary: #c1cc94;
+  --color-on-primary: #181b11;
+  --color-primary-container: #4d572a;
+  --color-on-primary-container: #dee9ae;
+  --color-inverse-primary: #5a6335;
+  
+  --color-secondary: #e4e4e7;
+  --color-on-secondary: #18181b;
+  --color-secondary-container: #27272a;
+  --color-on-secondary-container: #f4f4f5;
+  
+  --color-tertiary: #a1a1aa;
+  --color-on-tertiary: #09090b;
+  --color-tertiary-container: #27272a;
+  --color-on-tertiary-container: #e4e4e7;
+  
+  --color-error: #ff453a;
+  --color-on-error: #450a06;
+  --color-error-container: #7f1d1d;
+  --color-on-error-container: #fecaca;
+
+  --color-primary-fixed: #dde8ae;
+  --color-primary-fixed-dim: #c1cc94;
+  --color-on-primary-fixed: #222714;
+  --color-on-primary-fixed-variant: #4d572a;
+
+  --color-secondary-fixed: #f4f4f5;
+  --color-secondary-fixed-dim: #e4e4e7;
+  --color-on-secondary-fixed: #18181b;
+  --color-on-secondary-fixed-variant: #3f3f46;
+
+  --color-tertiary-fixed: #d4d4d8;
+  --color-tertiary-fixed-dim: #a1a1aa;
+  --color-on-tertiary-fixed: #18181b;
+  --color-on-tertiary-fixed-variant: #52525b;
+
+  --color-primary-dim: #b3be87;
+  --color-secondary-dim: #a1a1aa;
+  --color-tertiary-dim: #71717a;
+  --color-error-dim: #ef4444;
+}
+
+/* Base custom definitions with Apple Liquid Glass ambient depth */
+body {
+  background-color: #000000;
+  background-image: 
+    radial-gradient(at 18% 18%, rgba(193, 204, 148, 0.08) 0px, transparent 55%),
+    radial-gradient(at 82% 22%, rgba(255, 255, 255, 0.04) 0px, transparent 50%),
+    radial-gradient(at 50% 88%, rgba(193, 204, 148, 0.06) 0px, transparent 65%);
+  background-attachment: fixed;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Apple Liquid Glass System Utilities (visionOS style) */
+.glass-panel {
+  background: rgba(22, 22, 26, 0.62);
+  backdrop-filter: blur(44px) saturate(190%);
+  -webkit-backdrop-filter: blur(44px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.18);
+}
+
+.glass-panel-hover {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(32, 32, 38, 0.72);
+  border-color: rgba(193, 204, 148, 0.38);
+  box-shadow: 0 28px 65px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(193, 204, 148, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+  transform: translateY(-3px);
+}
+
+.glass-card {
+  background: rgba(26, 26, 31, 0.55);
+  backdrop-filter: blur(36px) saturate(180%);
+  -webkit-backdrop-filter: blur(36px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.glass-navbar {
+  background: rgba(10, 10, 13, 0.75);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+}
+
+.glass-player {
+  background: rgba(14, 14, 17, 0.84);
+  backdrop-filter: blur(48px) saturate(200%);
+  -webkit-backdrop-filter: blur(48px) saturate(200%);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.25s ease;
+}
+.glass-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(193, 204, 148, 0.45);
+  box-shadow: 0 0 25px rgba(193, 204, 148, 0.2);
+}
+
+/* Apple Liquid Glow effects */
+.glow-primary {
+  box-shadow: 0 0 45px rgba(193, 204, 148, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.glow-primary-hover:hover {
+  box-shadow: 0 0 65px rgba(193, 204, 148, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(193, 204, 148, 0.4);
+}
+
+/* Fluid snap scroll utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Glowing text */
+.glow-text {
+  text-shadow: 0 0 24px rgba(193, 204, 148, 0.5);
+}
+
+/* Aurora background blob animations */
+@keyframes aurora-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(40px, -30px) scale(1.1) rotate(120deg);
+  }
+  66% {
+    transform: translate(-30px, 40px) scale(0.95) rotate(240deg);
+  }
+}
+
+.animate-aurora {
+  animation: aurora-float 20s ease-in-out infinite;
+}

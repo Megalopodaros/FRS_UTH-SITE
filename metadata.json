@@ -1,0 +1,6 @@
+{
+  "name": "Foititika Radio Show FRS",
+  "description": "A premium, fully interactive student-led campus radio web application featuring live streams, weekly schedules, show portfolios, Mixcloud archives and persistent community live chat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
