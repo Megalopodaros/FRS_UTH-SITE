@@ -47,7 +47,6 @@ import {
 
 import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
-import UthLogo from "./components/UthLogo";
 
 export default function App() {
   const [activeTab, setActiveTabState] = useState<"home" | "program" | "descriptions" | "archive" | "events" | "contact">("home");
