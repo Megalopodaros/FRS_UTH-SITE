@@ -13,6 +13,7 @@ interface MainPlayerProps {
   stationPlaying: boolean;
   setStationPlaying: (playing: boolean) => void;
   activeTrackId?: string;
+  currentLiveShow?: any;
 }
 
 // Default high-reliability 24/7 live electronic, ambient, and indie streams
@@ -54,7 +55,7 @@ const DEFAULT_CHANNELS: RadioChannel[] = [
 const STREAM_URL_KEY = "frs_custom_stream_url";
 const STREAM_NAME_KEY = "frs_custom_station_name";
 
-export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying, activeTrackId }: MainPlayerProps) {
+export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying, activeTrackId, currentLiveShow }: MainPlayerProps) {
   const [currentChannelIndex, setCurrentChannelIndex] = useState(0);
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
@@ -103,6 +104,28 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
 
   // Ensure currentChannelIndex remains valid
   const activeChannel = allChannels[currentChannelIndex] || allChannels[0];
+
+  // Dynamically compute display details (title, host, genre) when listening to the main FRS channel
+  const displayChannel = React.useMemo(() => {
+    if (currentChannelIndex === 0 && !activeChannel.isCustom) {
+      if (currentLiveShow) {
+        return {
+          ...activeChannel,
+          name: currentLiveShow.title,
+          dj: currentLiveShow.host,
+          genre: `${currentLiveShow.time} • FRS UTH Live`
+        };
+      } else {
+        return {
+          ...activeChannel,
+          name: isGreek ? "Αυτόματη Ροή FRS UTH 24/7" : "FRS UTH 24/7 Automated Stream",
+          dj: isGreek ? "Μουσική Επιλογή 24/7" : "24/7 Curated Tracks",
+          genre: "Non-Stop Music Rotation"
+        };
+      }
+    }
+    return activeChannel;
+  }, [activeChannel, currentChannelIndex, currentLiveShow, isGreek]);
 
   // Sync index from activeTrackId (when clicked from schedule/cards)
   useEffect(() => {
@@ -247,42 +270,42 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
                 stationPlaying && audioStatus === "playing" ? "animate-spin [animation-duration:8s]" : ""
               }`}
             >
-              <Disc className="w-5 h-5 md:w-6 md:h-6 text-[#c1cc94] drop-shadow-[0_0_8px_rgba(193,204,148,0.7)]" />
+              <Disc className="w-5 h-5 md:w-6 md:h-6 text-primary" />
             </div>
             {stationPlaying && audioStatus === "playing" && !isMuted && (
               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c1cc94] opacity-75" />
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#c1cc94] border-2 border-[#000000]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-primary border-2 border-background" />
               </span>
             )}
           </div>
 
           <div className="min-w-0 flex flex-col justify-center">
             <div className="flex items-center gap-2">
-              <span className="inline-block px-2 py-0.5 text-[9px] md:text-[10px] text-[#181b11] bg-[#c1cc94] font-black tracking-widest rounded uppercase shadow-[0_0_12px_rgba(193,204,148,0.4)]">
+              <span className="inline-block px-2.5 py-0.5 text-[9px] md:text-[10px] text-white bg-primary font-bold tracking-widest rounded-full uppercase shadow-xs">
                 {audioStatus === "connecting" ? (isGreek ? "ΣΥΝΔΕΣΗ..." : "CONNECTING...") : "ON AIR"}
               </span>
 
               {/* Animated Equalizer Bars when playing */}
               {stationPlaying && audioStatus === "playing" && !isMuted && (
                 <div className="flex items-end gap-0.5 h-3 px-1">
-                  <span className="w-1 bg-[#c1cc94] rounded-t animate-[bounce_0.6s_infinite_0.1s] h-full shadow-[0_0_6px_rgba(193,204,148,0.6)]" />
-                  <span className="w-1 bg-[#c1cc94] rounded-t animate-[bounce_0.6s_infinite_0.3s] h-2/3 shadow-[0_0_6px_rgba(193,204,148,0.6)]" />
-                  <span className="w-1 bg-[#c1cc94] rounded-t animate-[bounce_0.6s_infinite_0.2s] h-full shadow-[0_0_6px_rgba(193,204,148,0.6)]" />
-                  <span className="w-1 bg-[#c1cc94] rounded-t animate-[bounce_0.6s_infinite_0.4s] h-1/2 shadow-[0_0_6px_rgba(193,204,148,0.6)]" />
+                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.1s] h-full" />
+                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.3s] h-2/3" />
+                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.2s] h-full" />
+                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.4s] h-1/2" />
                 </div>
               )}
 
               <span className="text-xs text-on-surface-variant font-semibold truncate hidden sm:inline">
-                {activeChannel.dj}
+                {displayChannel.dj}
               </span>
             </div>
 
             <h4 className="font-headline text-xs md:text-sm font-bold text-white truncate mt-0.5">
-              {isGreek ? activeChannel.greekName : activeChannel.name}
+              {displayChannel.name}
             </h4>
             <p className="text-[10px] md:text-[11px] text-on-surface-variant/80 truncate font-mono">
-              {activeChannel.genre}
+              {displayChannel.genre}
             </p>
           </div>
         </div>
@@ -292,27 +315,25 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
           {audioStatus === "error" ? (
             <button
               onClick={handleRetryStream}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-error text-on-error text-xs font-bold hover:brightness-110 transition-all shadow-md cursor-pointer animate-pulse"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-error text-on-error text-xs font-bold hover:brightness-110 transition-all shadow-md cursor-pointer animate-pulse"
               title={isGreek ? "Σφάλμα Ροής - Κλικ για Επανασύνδεση" : "Stream Error - Click to Retry"}
             >
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              <RefreshCw className="w-4 h-4 animate-spin" />
               <span className="hidden sm:inline">{isGreek ? "Επανασύνδεση" : "Retry Stream"}</span>
             </button>
           ) : (
             <button
               onClick={togglePlay}
               id="control-play-pause"
-              className="w-13 h-13 md:w-15 md:h-15 rounded-full bg-gradient-to-b from-white/25 to-white/5 p-[1px] flex items-center justify-center hover:scale-106 active:scale-95 transition-all duration-300 cursor-pointer shadow-[0_12px_32px_rgba(0,0,0,0.8),_0_0_30px_rgba(193,204,148,0.3)] group"
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary text-white hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-lg shadow-primary/30 flex items-center justify-center border border-white/20 group"
             >
-              <div className="w-full h-full rounded-full bg-[#141417]/90 backdrop-blur-3xl group-hover:bg-[#1c1c21]/95 flex items-center justify-center transition-colors border border-white/10">
-                {audioStatus === "connecting" ? (
-                  <div className="w-6 h-6 border-2 border-[#c1cc94] border-t-transparent rounded-full animate-spin" />
-                ) : stationPlaying ? (
-                  <Pause className="w-6 h-6 md:w-7 md:h-7 text-[#c1cc94] fill-[#c1cc94] drop-shadow-[0_0_12px_rgba(193,204,148,0.7)]" />
-                ) : (
-                  <Play className="w-6 h-6 md:w-7 md:h-7 text-[#c1cc94] fill-[#c1cc94] drop-shadow-[0_0_12px_rgba(193,204,148,0.7)] ml-0.5" />
-                )}
-              </div>
+              {audioStatus === "connecting" ? (
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : stationPlaying ? (
+                <Pause className="w-7 h-7 text-white fill-white" />
+              ) : (
+                <Play className="w-7 h-7 text-white fill-white ml-0.5" />
+              )}
             </button>
           )}
         </div>
@@ -323,9 +344,9 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
           <div className="flex items-center gap-2">
             <button
               onClick={toggleMute}
-              className="text-on-surface-variant hover:text-[#c1cc94] transition-colors p-1 cursor-pointer"
+              className="text-on-surface-variant hover:text-primary transition-colors p-1 cursor-pointer"
             >
-              {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-error" /> : <Volume2 className="w-4 h-4 text-[#c1cc94]" />}
+              {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-error" /> : <Volume2 className="w-4 h-4 text-primary" />}
             </button>
             <input
               type="range"
@@ -334,7 +355,7 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
               step="0.02"
               value={isMuted ? 0 : volume}
               onChange={handleVolumeChange}
-              className="w-16 md:w-24 accent-[#c1cc94] bg-surface-container-highest rounded-lg appearance-auto h-1.5 cursor-pointer"
+              className="w-16 md:w-24 accent-primary bg-surface-container-highest rounded-lg appearance-auto h-1.5 cursor-pointer"
             />
           </div>
         </div>

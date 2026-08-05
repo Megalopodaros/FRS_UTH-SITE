@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from "react";
-import { Send, X, Settings, MessageSquare, ShieldAlert, CheckCircle2, UserCheck, Edit3, Sparkles, Smile, ArrowDown, Users } from "lucide-react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Send, X, ShieldAlert, CheckCircle2, Edit3, Sparkles, Smile, ArrowDown, Users } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChatMessage } from "../types";
-import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, where, getDocs, deleteDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore";
+import { db, rtdb } from "../lib/firebase";
+import { ref, onValue, onDisconnect, set } from "firebase/database";
 
 interface LiveChatProps {
   isGreek: boolean;
@@ -16,15 +17,15 @@ interface LiveChatProps {
   onClose: () => void;
   onActiveTrackTrigger: (trackId: string) => void;
   isInline?: boolean;
+  currentLiveShow?: any;
 }
 
 const TAB_NAME_KEY = "frs_tab_user_name";
 const TAB_COLOR_KEY = "frs_tab_avatar_color";
 const TAB_SESSION_KEY = "frs_tab_session_id";
-const STATUS_KEY = "frs_online_status";
 
 const AVATAR_COLORS = [
-  "#c1cc94", // Primary Green-yellow
+  "#ff5a36", // Primary Green-yellow
   "#e0e6c3", // Light Olive
   "#fce09b", // Golden Amber
   "#f97758", // Vibrant Coral
@@ -58,36 +59,78 @@ const getMsUntilNext3AM = (): number => {
   return next.getTime() - now.getTime();
 };
 
-// Prune old messages before 3:00 AM from Firestore in the background
+// Prune old messages before cutoff from Firestore in the background
 const pruneOldMessages = async (cutoff: Date) => {
   try {
-    const oldQ = query(
-      collection(db, "messages"),
-      where("createdAt", "<", cutoff),
-      limit(50)
-    );
-    const snap = await getDocs(oldQ);
+    const cutoffMillis = cutoff.getTime();
+    const snap = await getDocs(query(collection(db, "messages"), limit(50)));
     snap.forEach((docSnap) => {
-      deleteDoc(docSnap.ref).catch(() => {});
+      const data = docSnap.data();
+      const msgMillis = data.createdAt?.toMillis ? data.createdAt.toMillis() : (data.createdAt instanceof Date ? data.createdAt.getTime() : null);
+      if (msgMillis && msgMillis < cutoffMillis) {
+        deleteDoc(docSnap.ref).catch(() => {});
+      }
     });
   } catch (err) {
     console.error("Error pruning old messages:", err);
   }
 };
 
-export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigger, isInline = false }: LiveChatProps) {
+export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigger, isInline = false, currentLiveShow }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputText, setInputText] = useState("");
   const [cutoffDate, setCutoffDate] = useState<Date>(() => getMostRecent3AM());
-  
+
+  // Helper to calculate exact start time for the current live show today
+  const getShowStartTime = (show: any): Date | null => {
+    if (!show || !show.time) return null;
+    const parts = show.time.split("-").map((s: string) => s.trim());
+    if (parts.length > 0) {
+      const [startH, startM] = parts[0].split(":").map(Number);
+      if (!isNaN(startH)) {
+        const now = new Date();
+        const startTime = new Date(now);
+        startTime.setHours(startH, isNaN(startM) ? 0 : startM, 0, 0);
+        if (startTime > now) {
+          startTime.setDate(startTime.getDate() - 1);
+        }
+        return startTime;
+      }
+    }
+    return null;
+  };
+
+  // Track live show transitions to clear/reset chat every time a new show starts
+  const currentShowId = currentLiveShow?.id || "auto_stream";
+  const prevShowIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const showStart = getShowStartTime(currentLiveShow);
+    const effectiveCutoff = showStart || getMostRecent3AM();
+    setCutoffDate(effectiveCutoff);
+
+    // When show changes or ends (transition to a new show)
+    if (prevShowIdRef.current !== currentShowId) {
+      prevShowIdRef.current = currentShowId;
+
+      // Prune all chat messages created prior to this show's start
+      const clearPreviousShowMessages = async () => {
+        try {
+          pruneOldMessages(effectiveCutoff);
+        } catch (err) {
+          console.error("Error clearing chat for show transition:", err);
+        }
+      };
+
+      clearPreviousShowMessages();
+    }
+  }, [currentShowId, currentLiveShow]);
+
   // Per-Tab session & identity state (so multiple tabs = 2 different listeners!)
   const [userName, setUserName] = useState("Student_101");
   const [userColor, setUserColor] = useState(AVATAR_COLORS[0]);
   const [tabSessionId, setTabSessionId] = useState("");
-  const [isOnline, setIsOnline] = useState(true);
+  const isOnline = true;
   
-  // UI Tabs & Inline Editor
-  const [activeTab, setActiveTab] = useState<"chat" | "settings">("chat");
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
   const [tempColor, setTempColor] = useState("");
@@ -99,12 +142,61 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // Use Firebase Realtime Database (RTDB) for Native Presence (Zero Firestore Quota Usage)
+  const [siteUsersCount, setSiteUsersCount] = useState(1);
+
+  useEffect(() => {
+    if (!tabSessionId || !rtdb) return;
+
+    let unsubConnected = () => {};
+    let unsubPresence = () => {};
+
+    try {
+      // The current tab's presence node
+      const myPresenceRef = ref(rtdb, `presence/${tabSessionId}`);
+      
+      // Connected status listener (Firebase built-in connection state)
+      const connectedRef = ref(rtdb, ".info/connected");
+      unsubConnected = onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+          onDisconnect(myPresenceRef).remove().then(() => {
+            set(myPresenceRef, true).catch(() => {});
+          }).catch(() => {});
+        }
+      }, (err) => console.warn("RTDB connected error:", err));
+
+      // Listen to all active presence nodes to count how many viewers are online
+      const allPresenceRef = ref(rtdb, "presence");
+      unsubPresence = onValue(allPresenceRef, (snap) => {
+        if (snap.exists()) {
+          const count = Object.keys(snap.val()).length;
+          setSiteUsersCount(Math.max(1, count));
+        } else {
+          setSiteUsersCount(1);
+        }
+      }, (err) => console.warn("RTDB presence error:", err));
+    } catch (e) {
+      console.warn("RTDB initialization error:", e);
+    }
+
+    return () => {
+      try {
+        unsubConnected();
+        unsubPresence();
+        if (rtdb && tabSessionId) {
+          const myPresenceRef = ref(rtdb, `presence/${tabSessionId}`);
+          set(myPresenceRef, null).catch(() => {});
+        }
+      } catch (e) {}
+    };
+  }, [tabSessionId]);
+
   // Initialize Per-Tab Session (`sessionStorage` ensures each tab is completely independent)
   useEffect(() => {
     // Session ID
     let sid = sessionStorage.getItem(TAB_SESSION_KEY);
     if (!sid) {
-      sid = "tab_" + Math.random().toString(36).substring(2, 9);
+      sid = "tab_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
       sessionStorage.setItem(TAB_SESSION_KEY, sid);
     }
     setTabSessionId(sid);
@@ -121,19 +213,13 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
 
     // Avatar Color (independent for this exact tab!)
     let storedColor = sessionStorage.getItem(TAB_COLOR_KEY);
-    if (!storedColor) {
+    if (!storedColor || !isReload) {
       const randomColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
       storedColor = randomColor;
       sessionStorage.setItem(TAB_COLOR_KEY, storedColor);
     }
     setUserColor(storedColor);
     setTempColor(storedColor);
-
-    // Online Status
-    const storedStatus = localStorage.getItem(STATUS_KEY);
-    if (storedStatus !== null) {
-      setIsOnline(storedStatus === "true");
-    }
   }, []);
 
   // 3:00 AM Daily Cutoff Timer & Automatic Background Pruning
@@ -151,76 +237,80 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     return () => clearTimeout(timer);
   }, [cutoffDate]);
 
-  // Listen to Firestore real-time updates (filtered to today's 3:00 AM cutoff!)
+  // Listen to Firestore real-time updates (fail-safe in-memory cutoff filtering!)
   useEffect(() => {
-    const q = query(
-      collection(db, "messages"),
-      where("createdAt", ">=", cutoffDate),
-      orderBy("createdAt", "asc"),
-      limit(100)
-    );
+    let unsubscribe = () => {};
+    try {
+      const q = query(
+        collection(db, "messages"),
+        limit(100)
+      );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (snapshot.empty) {
-        // Fallback welcome messages if collection is empty after 3:00 AM cutoff
-        const defaults: ChatMessage[] = [
-          {
-            id: "sys1",
-            user: "DJ Nova",
-            text: isGreek 
-              ? "Καλώς ήρθατε στο FRS! Ετοιμάζω μερικά φρέσκα Techno κομμάτια για απόψε. Ποιος ακούει;" 
-              : "Dropping some fresh techno tracks tonight! Who's tuning in?",
-            timestamp: "19:42",
-            avatarColor: "#c1cc94"
-          },
-          {
-            id: "sys2",
-            user: "Sarah V.",
-            text: isGreek 
-              ? "Ανυπομονώ για το αυριανό Indie Hour! Στείλτε παραγγελίες 🎧" 
-              : "Can't wait for Indie Hour tomorrow! Send your requests 🎧",
-            timestamp: "19:44",
-            avatarColor: "#f97758"
-          }
-        ];
-        setMessages(defaults);
-      } else {
-        const cutoffMillis = cutoffDate.getTime();
-        const fetched: ChatMessage[] = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const msgMillis = data.createdAt?.toMillis ? data.createdAt.toMillis() : (data.createdAt instanceof Date ? data.createdAt.getTime() : null);
-          if (msgMillis === null || msgMillis >= cutoffMillis) {
-            fetched.push({
-              id: doc.id,
-              user: data.user || "Guest",
-              text: data.text || "",
-              timestamp: data.timestamp || "",
-              isSystem: !!data.isSystem,
-              avatarColor: data.avatarColor || "#c1cc94",
-              sessionId: data.sessionId || ""
-            });
-          }
-        });
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        const defaults: ChatMessage[] = currentLiveShow
+          ? [
+              {
+                id: `sys_live_${currentLiveShow.id}`,
+                user: currentLiveShow.host || "FRS UTH",
+                text: isGreek 
+                  ? `🎙️ Νέα Εκπομπή: "${currentLiveShow.title}" (${currentLiveShow.time}) με παραγωγό ${currentLiveShow.host}. Καλώς ήρθατε στη ζωντανή συνομιλία!` 
+                  : `🎙️ New Show: "${currentLiveShow.title}" (${currentLiveShow.time}) hosted by ${currentLiveShow.host}. Welcome to the live chat!`,
+                timestamp: currentLiveShow.time?.split("-")[0]?.trim() || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                isSystem: true,
+                avatarColor: "#b73229"
+              }
+            ]
+          : [
+              {
+                id: "sys_default",
+                user: "FRS UTH",
+                text: isGreek 
+                  ? "Καλώς ήρθατε στο FRS UTH! Συντονιστείτε για τις καλύτερες φοιτητικές ραδιοφωνικές εκπομπές." 
+                  : "Welcome to FRS UTH! Tune in for the best student radio broadcasts.",
+                timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                isSystem: true,
+                avatarColor: "#b73229"
+              }
+            ];
 
-        setMessages(prev => {
-          if (containerRef.current) {
-            const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-            const isNearBottom = scrollHeight - scrollTop - clientHeight < 80;
-            if (!isNearBottom && fetched.length > prev.length) {
-              setNewMsgCount(c => c + (fetched.length - prev.length));
-              setIsScrolledUp(true);
+        if (snapshot.empty) {
+          setMessages(defaults);
+        } else {
+          const cutoffMillis = cutoffDate.getTime();
+          const fetched: (ChatMessage & { rawTime: number })[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const msgMillis = data.createdAt?.toMillis ? data.createdAt.toMillis() : (data.createdAt instanceof Date ? data.createdAt.getTime() : Date.now());
+            if (msgMillis >= cutoffMillis) {
+              fetched.push({
+                id: docSnap.id,
+                user: data.user || "Guest",
+                text: data.text || "",
+                timestamp: data.timestamp || "",
+                isSystem: !!data.isSystem,
+                avatarColor: data.avatarColor || "#ff5a36",
+                sessionId: data.sessionId || "",
+                rawTime: msgMillis
+              });
             }
+          });
+
+          if (fetched.length === 0) {
+            setMessages(defaults);
+          } else {
+            fetched.sort((a, b) => a.rawTime - b.rawTime);
+            setMessages(fetched);
           }
-          return fetched;
-        });
-      }
-    }, (error) => {
-      console.error("Firestore live chat error:", error);
-    });
+        }
+      }, (error) => {
+        console.error("Firestore live chat error:", error);
+      });
+    } catch (err) {
+      console.error("Error setting up Firestore listener:", err);
+    }
 
     return () => unsubscribe();
-  }, [isGreek, cutoffDate]);
+  }, [isGreek, cutoffDate, currentLiveShow]);
 
   // Soft Auto-scroll to bottom if user is not scrolled up
   useEffect(() => {
@@ -266,9 +356,6 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     setUserColor(tempColor);
     setIsEditingName(false);
     
-    // Also update general settings status if in settings
-    localStorage.setItem(STATUS_KEY, String(isOnline));
-    
     setSaveSuccess(true);
     setTimeout(() => {
       setSaveSuccess(false);
@@ -309,19 +396,27 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
       id={isInline ? "inline-live-chat" : "chat-sliding-sidebar"}
       className={
         isInline
-          ? "w-full max-w-4xl glass-panel rounded-3xl flex flex-col shadow-2xl overflow-hidden h-[540px] relative transition-all"
-          : "fixed top-0 right-0 h-[calc(100%-144px)] md:h-[calc(100%-84px)] w-full sm:w-[420px] glass-panel border-l border-white/15 z-[55] rounded-none flex flex-col shadow-2xl overflow-hidden transition-all"
+          ? "w-full max-w-4xl glass-panel rounded-3xl flex flex-col shadow-2xl overflow-hidden h-[640px] relative transition-all"
+          : "fixed top-0 right-0 h-[calc(100%-144px)] md:h-[calc(100%-84px)] w-full sm:w-[460px] glass-panel border-l border-white/15 z-[55] rounded-none flex flex-col shadow-2xl overflow-hidden transition-all"
       }
     >
       {/* Header section */}
       <div className="p-4 border-b border-white/10 bg-white/[0.04] backdrop-blur-md flex flex-col gap-3 flex-shrink-0">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? "bg-primary animate-pulse" : "bg-outline"}`} />
-            <div>
+            <div className="flex items-center gap-2">
               <h2 className="font-headline text-sm font-bold text-primary flex items-center gap-2">
                 <span>{isGreek ? "Ζωντανή Συνομιλία" : "Live Chat"}</span>
               </h2>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-[11px] font-mono font-bold shadow-xs">
+                <Users className="w-3 h-3 text-primary animate-pulse" />
+                <span>{siteUsersCount} Online</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-[11px] font-mono font-bold shadow-xs">
+                <Users className="w-3 h-3 text-primary animate-pulse" />
+                <span>{siteUsersCount} Online</span>
+              </span>
             </div>
           </div>
           {!isInline && (
@@ -333,39 +428,12 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
             </button>
           )}
         </div>
-
-        {/* Navigation Selector inside Side Panel */}
-        <div className="flex bg-surface-container-low p-1 rounded-xl border border-outline-variant/20">
-          <button
-            onClick={() => setActiveTab("chat")}
-            className={`flex-1 py-1.5 px-3 text-[11px] font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === "chat"
-                ? "bg-primary text-on-primary shadow-sm"
-                : "text-on-surface-variant hover:text-primary"
-            }`}
-          >
-            <MessageSquare className="w-3 h-3" />
-            <span>{isGreek ? "Μηνύματα" : "Messages"}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`flex-1 py-1.5 px-3 text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activeTab === "settings"
-                ? "bg-primary text-on-primary shadow-sm"
-                : "text-on-surface-variant hover:text-primary"
-            }`}
-          >
-            <Settings className="w-3 h-3" />
-            <span>{isGreek ? "Ρυθμίσεις / Όνομα" : "Settings / Identity"}</span>
-          </button>
-        </div>
       </div>
 
       {/* Switchable views */}
       <div className="flex-grow relative overflow-hidden bg-transparent">
-        {activeTab === "chat" ? (
-          /* MESSAGES CHANNEL VIEW */
-          <div className="absolute inset-0 flex flex-col">
+        {/* MESSAGES CHANNEL VIEW */}
+        <div className="absolute inset-0 flex flex-col">
             
             {/* Top Interactive User Presence & Instant Edit Pill */}
             <div className="px-3.5 py-2 bg-white/[0.03] backdrop-blur-md border-b border-white/10 flex items-center justify-between flex-shrink-0 text-xs">
@@ -475,7 +543,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
               {messages.map((msg) => {
                 // If sessionId matches this tab's sessionId, OR username matches (and not system), treat as own message
                 const isMe = !msg.isSystem && (msg.sessionId ? msg.sessionId === tabSessionId : msg.user === userName);
-                const color = msg.avatarColor || "#c1cc94";
+                const color = msg.avatarColor || "#ff5a36";
 
                 if (msg.isSystem) {
                   return (
@@ -485,16 +553,12 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
                       whileInView={{ opacity: 1, scale: 1, y: 0 }}
                       viewport={{ once: true, amount: 0.1 }}
                       transition={{ duration: 0.35, ease: "easeOut" }}
-                      className="self-center my-2 max-w-[90%] bg-primary/15 backdrop-blur-md border border-primary/40 rounded-2xl p-3 text-center flex flex-col gap-1 shadow-md"
+                      className="self-center my-2 max-w-[90%] bg-primary/15 backdrop-blur-md border border-primary/40 rounded-2xl py-2.5 px-4 text-center shadow-md flex items-center justify-center gap-2"
                     >
-                      <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-primary uppercase tracking-widest">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                        <span>ON AIR • ANNOUNCEMENT</span>
-                      </div>
-                      <p className="text-xs font-semibold text-on-surface leading-relaxed">
+                      <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
+                      <span className="text-xs font-bold text-white">
                         {msg.text}
-                      </p>
-                      <span className="text-[9px] text-on-surface-variant/60">{msg.timestamp}</span>
+                      </span>
                     </motion.div>
                   );
                 }
@@ -604,114 +668,6 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
               </form>
             </div>
           </div>
-        ) : (
-          /* PROFILE & SESSION SETTINGS VIEW */
-          <div className="absolute inset-0 p-6 flex flex-col gap-6 overflow-y-auto">
-            <div className="flex items-center gap-3 pb-3 border-b border-outline-variant/20">
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center text-base font-extrabold shadow-lg"
-                style={{ backgroundColor: userColor, color: "#181b11" }}
-              >
-                {userName.slice(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <h3 className="font-headline text-base font-bold text-primary">
-                  {userName}
-                </h3>
-                <p className="text-xs text-on-surface-variant flex items-center gap-1.5 mt-0.5">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                  <span>{isGreek ? "Ανεξάρτητη Συνεδρία Tab" : "Independent Tab Session"}</span>
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={(e) => {
-              handleSaveIdentity(e);
-              setTempName(userName);
-            }} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="settings-name-input" className="text-xs font-bold text-primary tracking-wider uppercase flex items-center gap-1.5">
-                  <UserCheck className="w-4 h-4" />
-                  <span>{isGreek ? "Όνομα Χρήστη σε Αυτή την Καρτέλα (Tab)" : "Username in this Tab"}</span>
-                </label>
-                <input
-                  type="text"
-                  id="settings-name-input"
-                  value={tempName}
-                  onChange={(e) => setTempName(e.target.value)}
-                  maxLength={20}
-                  className="w-full bg-surface-container border border-outline-variant/50 rounded-xl py-3 px-4 text-sm text-on-surface font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                />
-                <p className="text-[11px] text-on-surface-variant leading-relaxed">
-                  {isGreek 
-                    ? "Μπορείτε να ανοίξετε πολλαπλές καρτέλες στο πρόγραμμα περιήγησης και κάθε καρτέλα να έχει δικό της ανεξάρτητο όνομα και χρώμα!"
-                    : "You can open multiple browser tabs and give each tab its own independent username and avatar color!"}
-                </p>
-              </div>
-
-              {/* Avatar Color Choice */}
-              <div className="flex flex-col gap-2.5">
-                <label className="text-xs font-bold text-primary tracking-wider uppercase">
-                  {isGreek ? "Χρώμα Εικονιδίου" : "Avatar Badge Color"}
-                </label>
-                <div className="flex gap-2.5 flex-wrap p-3 bg-surface-container/50 border border-outline-variant/30 rounded-2xl">
-                  {AVATAR_COLORS.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setTempColor(color)}
-                      className={`w-9 h-9 rounded-xl transition-all cursor-pointer flex items-center justify-center shadow-sm ${
-                        tempColor === color ? "scale-115 ring-2 ring-primary ring-offset-2 ring-offset-background font-bold text-black" : "hover:scale-105 opacity-85"
-                      }`}
-                      style={{ backgroundColor: color }}
-                    >
-                      {tempColor === color && <span className="text-xs text-black">✓</span>}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <label className="text-xs font-bold text-primary tracking-wider uppercase">
-                  {isGreek ? "Κατάσταση" : "Online Presence"}
-                </label>
-                <div className="flex items-center justify-between p-4 bg-surface-container/50 border border-outline-variant/30 rounded-2xl">
-                  <span className="text-sm font-medium">
-                    {isGreek ? "Εμφάνιση ως Online στο Campus" : "Appear Online to Campus"}
-                  </span>
-                  <button
-                    onClick={() => setIsOnline(!isOnline)}
-                    className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${
-                      isOnline ? "bg-primary" : "bg-outline-variant"
-                    }`}
-                    type="button"
-                  >
-                    <motion.div
-                      layout
-                      className="bg-surface-container-lowest w-4 h-4 rounded-full shadow-md"
-                      animate={{ x: isOnline ? 20 : 0 }}
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {/* Save Feedback Button */}
-              <button
-                type="submit"
-                className="w-full bg-primary text-on-primary font-bold py-3.5 px-4 rounded-2xl hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/15 cursor-pointer mt-2"
-              >
-                {saveSuccess ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span>{isGreek ? "Οι αλλαγές αποθηκεύτηκαν!" : "Saved Successfully!"}</span>
-                  </>
-                ) : (
-                  <span>{isGreek ? "Αποθήκευση Ταυτότητας" : "Save Tab Identity"}</span>
-                )}
-              </button>
-            </form>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -735,7 +691,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
             animate={{ translateX: 0 }}
             exit={{ translateX: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full sm:w-[420px] z-50 flex flex-col shadow-2xl overflow-hidden"
+            className="fixed top-0 right-0 h-full w-full sm:w-[460px] z-50 flex flex-col shadow-2xl overflow-hidden"
           >
             {chatContent}
           </motion.div>

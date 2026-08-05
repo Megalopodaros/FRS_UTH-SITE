@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { doc, setDoc, deleteDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "./lib/firebase";
 import { 
   Radio, 
   Calendar, 
@@ -22,10 +24,16 @@ import {
   ExternalLink,
   Plus,
   Play,
-  Pause
+  Pause,
+  X,
+  PartyPopper,
+  MapPin,
+  CalendarDays,
+  Users
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
+import UthLogo from "./components/UthLogo";
 import { 
   WEEKLY_SCHEDULE_GR, 
   WEEKLY_SCHEDULE_EN, 
@@ -39,10 +47,11 @@ import {
 
 import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
+import UthLogo from "./components/UthLogo";
 
 export default function App() {
-  const [activeTab, setActiveTabState] = useState<"home" | "program" | "descriptions" | "archive">("home");
-  const setActiveTab = (tab: "home" | "program" | "descriptions" | "archive") => {
+  const [activeTab, setActiveTabState] = useState<"home" | "program" | "descriptions" | "archive" | "events" | "contact">("home");
+  const setActiveTab = (tab: "home" | "program" | "descriptions" | "archive" | "events" | "contact") => {
     setActiveTabState(tab);
     setSelectedShowId(null);
   };
@@ -52,6 +61,164 @@ export default function App() {
   
   const [activeTrackId, setActiveTrackId] = useState<string>("");
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
+
+  // Light / Dark Theme toggle state
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    return (localStorage.getItem("frs_theme") as "dark" | "light") || "dark";
+  });
+
+  useEffect(() => {
+    if (theme === "light") {
+      document.documentElement.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+    }
+    localStorage.setItem("frs_theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  // Contact form state
+  const [contactSubmitted, setContactSubmitted] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", email: "", category: "general", message: "" });
+
+  // Prevent background scrolling on mobile/desktop when show description modal is open
+  useEffect(() => {
+    if (selectedShowId) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedShowId]);
+
+  // Global site presence: registers exactly once per browser tab instance
+  const siteTabId = useMemo(() => {
+    const navEntries = window.performance?.getEntriesByType?.("navigation") as PerformanceNavigationTiming[];
+    const isReload = navEntries && navEntries.length > 0 && navEntries[0].type === "reload";
+    
+    let id = sessionStorage.getItem("frs_global_site_tab_id");
+    if (!id || !isReload) {
+      id = "site_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
+      sessionStorage.setItem("frs_global_site_tab_id", id);
+    }
+    return id;
+  }, []);
+
+  useEffect(() => {
+    const presenceRef = doc(db, "site_presence", siteTabId);
+    
+    const registerPresence = () => {
+      setDoc(presenceRef, {
+        sessionId: siteTabId,
+        timestamp: Date.now(),
+        lastActive: serverTimestamp()
+      }, { merge: true }).catch(() => {});
+    };
+    
+    registerPresence();
+    const interval = setInterval(registerPresence, 15000); // Heartbeat every 15s
+
+    const handleUnload = () => {
+      deleteDoc(presenceRef).catch(() => {});
+    };
+    window.addEventListener("beforeunload", handleUnload);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("beforeunload", handleUnload);
+      deleteDoc(presenceRef).catch(() => {});
+    };
+  }, [siteTabId]);
+
+  // Ticker to re-evaluate live show status every 10 seconds (so show transitions happen immediately)
+  const [nowTick, setNowTick] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNowTick(Date.now()), 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Dynamically compute live, next, and later shows according to current day and exact time
+  const { currentLiveShow, nextShow, laterShow } = useMemo(() => {
+    const now = new Date();
+    const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const todayAbbr = daysMap[now.getDay()];
+    
+    // Always use original show titles (WEEKLY_SCHEDULE_EN) so show names are NEVER translated
+    const todayProgram = WEEKLY_SCHEDULE_EN.find(d => d.day === todayAbbr) || WEEKLY_SCHEDULE_EN[0];
+    const shows = todayProgram.shows;
+    
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    let active: any = null;
+    let next: any = null;
+    let later: any = null;
+    
+    for (let i = 0; i < shows.length; i++) {
+      const show = shows[i];
+      const parts = show.time.split("-").map(s => s.trim());
+      if (parts.length === 2) {
+        const [startH, startM] = parts[0].split(":").map(Number);
+        const [endH, endM] = parts[1].split(":").map(Number);
+        let startMin = startH * 60 + startM;
+        let endMin = endH * 60 + endM;
+        if (endMin <= startMin) endMin += 24 * 60; // handles past midnight
+        
+        if (nowMinutes >= startMin && nowMinutes < endMin) {
+          active = show;
+          next = shows[i + 1] || null;
+          later = shows[i + 2] || null;
+          break;
+        } else if (startMin > nowMinutes && !next) {
+          next = show;
+          later = shows[i + 1] || null;
+        } else if (startMin > nowMinutes && next && !later) {
+          later = show;
+        }
+      }
+    }
+    
+    // If next or later is null (no more shows today), look ahead to tomorrow and subsequent days
+    if (!next || !later) {
+      for (let offset = 1; offset <= 7; offset++) {
+        const nextDayIdx = (now.getDay() + offset) % 7;
+        const nextDayAbbr = daysMap[nextDayIdx];
+        const nextDayProgram = WEEKLY_SCHEDULE_EN.find(d => d.day === nextDayAbbr);
+        const nextDayProgramGR = WEEKLY_SCHEDULE_GR.find(d => d.day === (["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"][nextDayIdx]));
+        
+        if (nextDayProgram && nextDayProgram.shows && nextDayProgram.shows.length > 0) {
+          const nextDayShows = nextDayProgram.shows;
+          for (let j = 0; j < nextDayShows.length; j++) {
+            const candidate = nextDayShows[j];
+            const isTomorrow = offset === 1;
+            const dayName = isTomorrow 
+              ? (isGreek ? "Αύριο" : "Tomorrow") 
+              : (isGreek ? (nextDayProgramGR?.fullName || nextDayAbbr) : nextDayProgram.fullName);
+              
+            const candidateWithLabel = {
+              ...candidate,
+              timeLabel: `${dayName} • ${candidate.time}`
+            };
+
+            if (!next) {
+              next = candidateWithLabel;
+            } else if (!later) {
+              later = candidateWithLabel;
+              break;
+            }
+          }
+          if (next && later) break;
+        }
+      }
+    }
+    
+    return { currentLiveShow: active, nextShow: next, laterShow: later };
+  }, [isGreek, nowTick]);
 
   // Grid filter state for Weekly Program day selector on mobile
   const [selectedMobileDay, setSelectedMobileDay] = useState(0);
@@ -66,8 +233,7 @@ export default function App() {
   const t = {
     gr: {
       navHome: "Αρχική",
-      navProgram: "Εβδομαδιαίο Πρόγραμμα",
-      navDesc: "Περιγραφές Εκπομπών",
+      navProgram: "Πρόγραμμα & Εκπομπές",
       navArchive: "Αρχείο Mixcloud",
       listenBtn: "Ακρόαση",
       playingBtn: "Σε αναπαραγωγή",
@@ -78,8 +244,8 @@ export default function App() {
       liveIndicator: "ΖΩΝΤΑΝΑ",
       nextIndicator: "ΕΠΟΜΕΝΟ",
       studentsOnline: "142 Φοιτητές Online",
-      joinedCommunity: "Συνομιλήστε με κοινότητα",
-      secUnder: "Εξερευνήστε το FRS Ecosystem",
+      joinedCommunity: "Live Chat",
+      secUnder: "Εξερευνήστε το FRS UTH Ecosystem",
       leadDesc: "Βουτήξτε βαθιά στα ηχητικά τοπία των φοιτητών μας. Ανακαλύψτε τις φωνές που διαμορφώνουν τον ηλεκτρικό μας παλμό.",
       archiveHeader: "Αρχείο Εκπομπών",
       archiveSub: "Βουτήξτε στο αρχείο μας. Παλιές εκπομπές, θρύλικά sets και αυθεντική φοιτητική ενέργεια, αποθηκευμένα στο Mixcloud.",
@@ -89,24 +255,28 @@ export default function App() {
       loadMore: "Φόρτωση Περισσότερων",
       loading: "Φόρτωση...",
       noResults: "Δεν βρέθηκαν αποτελέσματα.",
-      listenMixcloud: "Ακούστε στο Mixcloud"
+      listenMixcloud: "Ακούστε στο Mixcloud",
+      navEvents: "Εκδηλώσεις",
+      eventsHeader: "Εκδηλώσεις",
+      eventsSub: "Μάθε τι συμβαίνει στην πανεπιστημιακή κοινότητα. Πάρτι, live sets, workshops και πολλά ακόμα.",
+      eventsUpcoming: "Επερχόμενες",
+      eventsPast: "Προηγούμενες"
     },
     en: {
       navHome: "Home",
-      navProgram: "Weekly Program",
-      navDesc: "Show Descriptions",
+      navProgram: "Schedule & Shows",
       navArchive: "Mixcloud Archive",
       listenBtn: "Listen Live",
       playingBtn: "Playing",
-      undergroundSub: "Foititika Radio Show. Built for students, by students. Tune in for underground beats, campus news, and raw energy.",
+      undergroundSub: "Foititika Radio Show UTH. Built for students, by students. Tune in for underground beats, campus news, and raw energy.",
       pulseTitle: "The Sonic Pulse of Campus.",
       todaysSchedule: "Today's Schedule",
       fullProgram: "View Full Program",
       liveIndicator: "LIVE",
       nextIndicator: "NEXT",
       studentsOnline: "142 Students Online",
-      joinedCommunity: "Chat with community",
-      secUnder: "Explore the FRS Ecosystem",
+      joinedCommunity: "Live Chat",
+      secUnder: "Explore the FRS UTH Ecosystem",
       leadDesc: "Dive deep into the sonic landscapes curated by our student broadcasters. Discover the voices shaping our electric pulse.",
       archiveHeader: "Archive Vault",
       archiveSub: "Dive into the vault. Past broadcasts, legendary sets, and raw student energy, preserved on Mixcloud.",
@@ -116,7 +286,12 @@ export default function App() {
       loadMore: "Load More Archives",
       loading: "Loading...",
       noResults: "No archives found.",
-      listenMixcloud: "Listen on Mixcloud"
+      listenMixcloud: "Listen on Mixcloud",
+      navEvents: "Events",
+      eventsHeader: "Events",
+      eventsSub: "Find out what's happening in the campus community. Parties, live sets, workshops, and more.",
+      eventsUpcoming: "Upcoming",
+      eventsPast: "Past"
     }
   };
 
@@ -127,7 +302,7 @@ export default function App() {
     setIsGreek(!isGreek);
   };
 
-  const handleTabChange = (tab: "home" | "program" | "descriptions" | "archive") => {
+  const handleTabChange = (tab: "home" | "program" | "archive" | "events" | "contact") => {
     setActiveTab(tab);
     setSelectedShowId(null);
   };
@@ -136,6 +311,52 @@ export default function App() {
   const handleTuneChannel = (trackId: string) => {
     setActiveTrackId(trackId);
     setStationPlaying(true);
+  };
+
+  // Helper function to resolve any show ID or title to a guaranteed ShowDescription object
+  const getShowDetails = (idOrTitle: string) => {
+    const showsData = isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN;
+    if (!idOrTitle) return showsData[0];
+
+    // 1. Direct ID match in SHOWS_DESCRIPTIONS
+    let show = showsData.find(s => s.id === idOrTitle);
+    if (show) return show;
+
+
+    // 3. Match by title substring
+    show = showsData.find(s => 
+      s.title.toLowerCase().trim() === idOrTitle.toLowerCase().trim() ||
+      s.title.toLowerCase().includes(idOrTitle.toLowerCase()) ||
+      idOrTitle.toLowerCase().includes(s.title.toLowerCase())
+    );
+    if (show) return show;
+
+    // 4. Fallback lookup in WEEKLY_SCHEDULE to dynamically generate a show description
+    const allWeeklyShows = (isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).flatMap(d => d.shows);
+    const weeklyShow = allWeeklyShows.find(s => s.id === idOrTitle || s.title === idOrTitle);
+
+    if (weeklyShow) {
+      return {
+        id: weeklyShow.id,
+        title: weeklyShow.title,
+        host: weeklyShow.host,
+        description: isGreek 
+          ? `Ζωντανή εκπομπή "${weeklyShow.title}" στο FRS UTH με παραγωγό ${weeklyShow.host}. Συντονιστείτε για τις καλύτερες μουσικές επιλογές.`
+          : `Live show "${weeklyShow.title}" on FRS UTH hosted by ${weeklyShow.host}. Tune in for the finest music rotation.`,
+        tags: weeklyShow.tags || ["#Radio", "#FRSUTH"],
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
+      };
+    }
+
+    // 5. Default fallback to first description
+    return showsData[0];
+  };
+
+  // Navigate to Show Descriptions page when clicking any podcast card
+  const handleOpenShowDescription = (show: { id: string; title: string; host?: string }) => {
+    if (!show) return;
+    setSelectedShowId(show.id || show.title);
+    setActiveTabState("program");
   };
 
   // Archive data logic
@@ -173,7 +394,7 @@ export default function App() {
             scale: [1, 1.25, 0.9, 1],
           }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-20 left-[15%] w-[480px] h-[480px] bg-[#c1cc94]/12 rounded-full filter blur-[140px]"
+          className="absolute -top-20 left-[15%] w-[480px] h-[480px] bg-[#d2f34c]/12 rounded-full filter blur-[140px] animate-aurora"
         />
         <motion.div
           animate={{
@@ -182,7 +403,7 @@ export default function App() {
             scale: [1, 0.85, 1.15, 1],
           }}
           transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[35%] right-[10%] w-[550px] h-[550px] bg-white/[0.04] rounded-full filter blur-[140px]"
+          className="absolute top-[35%] right-[10%] w-[550px] h-[550px] bg-white/[0.04] rounded-full filter blur-[140px] animate-aurora"
         />
         <motion.div
           animate={{
@@ -191,7 +412,7 @@ export default function App() {
             scale: [1, 1.1, 0.95, 1],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[10%] left-[25%] w-[500px] h-[500px] bg-[#b3be87]/10 rounded-full filter blur-[150px]"
+          className="absolute bottom-[10%] left-[25%] w-[500px] h-[500px] bg-[#c1e436]/10 rounded-full filter blur-[150px] animate-aurora"
         />
       </div>
 
@@ -200,10 +421,9 @@ export default function App() {
         <div className="flex justify-between items-center px-6 py-4 max-w-screen-xl mx-auto w-full">
           <div 
             onClick={() => handleTabChange("home")}
-            className="font-headline text-2xl font-bold text-primary tracking-tighter cursor-pointer flex items-center gap-2"
+            className="cursor-pointer"
           >
-            <Radio className="w-6 h-6 text-primary animate-pulse" />
-            <span>FRS</span>
+            <UthLogo size={34} showText={true} />
           </div>
           
           <ul className="hidden md:flex gap-8 font-semibold text-sm">
@@ -258,6 +478,18 @@ export default function App() {
           </ul>
 
           <div className="flex items-center gap-3">
+            {/* LIGHT / DARK MODE TOGGLE BUTTON */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center w-9 h-9 rounded-full glass-pill text-on-surface-variant hover:text-primary transition-all cursor-pointer shadow-xs"
+              title={theme === "dark" ? (isGreek ? "Αλλαγή σε Φωτεινό Θέμα" : "Switch to Light Mode") : (isGreek ? "Αλλαγή σε Σκοτεινό Θέμα" : "Switch to Dark Mode")}
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-600" />
+              )}
+            </button>
             {/* LINGUAL TOGGLE BUTTON */}
             <button 
               onClick={toggleLanguage}
@@ -326,21 +558,47 @@ export default function App() {
                 {/* CENTRAL PLAY EMBLEM - APPLE LIQUID GLASS STYLE */}
                 <div className="relative mt-6 flex flex-col items-center gap-7">
                   <div className="relative flex justify-center items-center">
-                    <div className="absolute -inset-4 rounded-full bg-[#c1cc94]/25 filter blur-3xl animate-pulse"></div>
+                    {stationPlaying && (
+                      <>
+                        <div className="absolute -inset-6 rounded-full border-2 border-primary/45 animate-ping opacity-40"></div>
+                        <div className="absolute -inset-10 rounded-full border border-primary/30 animate-pulse opacity-30"></div>
+                      </>
+                    )}
+                    <div className="absolute -inset-4 rounded-full bg-[#d2f34c]/25 filter blur-3xl animate-pulse"></div>
                     <motion.button
                       whileHover={{ scale: 1.06 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setStationPlaying(!stationPlaying)}
                       id="hero-play-accent"
-                      className="w-26 h-26 rounded-full bg-gradient-to-b from-white/25 to-white/5 p-[1px] flex items-center justify-center shadow-[0_24px_50px_rgba(0,0,0,0.8),_0_0_40px_rgba(193,204,148,0.3)] cursor-pointer relative z-10 group"
+                      className="w-26 h-26 rounded-full bg-gradient-to-b from-white/25 to-white/5 p-[1px] flex items-center justify-center shadow-[0_24px_50px_rgba(0,0,0,0.8),_0_0_40px_rgba(210,243,76,0.35)] cursor-pointer relative z-10 group"
                     >
                       <div className="w-full h-full rounded-full bg-[#141418]/90 backdrop-blur-3xl group-hover:bg-[#1f1f25]/95 transition-all flex items-center justify-center border border-white/10">
                         {stationPlaying ? (
-                          <Pause className="w-10 h-10 text-[#c1cc94] fill-[#c1cc94] drop-shadow-[0_0_15px_rgba(193,204,148,0.7)]" />
+                          <Pause className="w-10 h-10 text-[#d2f34c] fill-[#d2f34c] drop-shadow-[0_0_15px_rgba(210,243,76,0.7)]" />
                         ) : (
-                          <Play className="w-10 h-10 text-[#c1cc94] fill-[#c1cc94] drop-shadow-[0_0_15px_rgba(193,204,148,0.7)] ml-1" />
+                          <Play className="w-10 h-10 text-[#d2f34c] fill-[#d2f34c] drop-shadow-[0_0_15px_rgba(210,243,76,0.7)] ml-1" />
                         )}
-                      </div>
+                      <div className="glass-card p-5 rounded-2xl border border-white/10 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                      <Instagram className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white">Social Media</h4>
+                      <p className="text-xs text-on-surface-variant mt-1">
+                        <a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1 font-semibold">
+                          <span>Instagram (@frsvolou.gr)</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </p>
+                      <p className="text-xs text-on-surface-variant mt-1">
+                        <a href="https://www.mixcloud.com/frs-volou/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1 font-semibold">
+                          <span>Mixcloud (frs-volou)</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
                     </motion.button>
                   </div>
 
@@ -348,11 +606,7 @@ export default function App() {
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
-                      onClick={() => {
-                        const el = document.getElementById("inline-live-chat");
-                        if (el) el.scrollIntoView({ behavior: "smooth" });
-                        else setChatOpen(true);
-                      }}
+                      onClick={() => setChatOpen(true)}
                       className="flex items-center gap-2 px-4 py-2.5 rounded-full glass-pill text-xs font-bold text-primary transition-all cursor-pointer shadow-sm"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
@@ -368,7 +622,7 @@ export default function App() {
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <h2 className="font-headline text-xl font-bold text-primary tracking-tight flex items-center gap-2">
                     <Clock className="w-5 h-5 text-primary" />
-                    <span>{isGreek ? "Εβδομαδιαίο Πρόγραμμα & Σήμερα" : "Weekly & Today's Schedule"}</span>
+                    <span>{isGreek ? "Επόμενες εκπομπές" : "Up next"}</span>
                   </h2>
                   <button 
                     onClick={() => handleTabChange("program")}
@@ -381,55 +635,154 @@ export default function App() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {/* LIVE CARD */}
-                  <div className="glass-card p-5 rounded-2xl border border-primary/50 relative overflow-hidden glow-primary shadow-xl group transition-all duration-200">
+                  <div 
+                    onClick={() => currentLiveShow && handleOpenShowDescription(currentLiveShow)}
+                    className="glass-card p-5 rounded-2xl border border-primary/50 relative overflow-hidden glow-primary shadow-xl group transition-all duration-200 cursor-pointer hover:border-primary hover:scale-[1.01]"
+                  >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent pointer-events-none" />
                     <div className="relative z-10 flex flex-col gap-2.5">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-bold text-primary font-mono">18:00 - 20:00</span>
-                        <div className="flex items-center gap-1.5 bg-primary/25 px-2.5 py-0.5 rounded-full text-[10px] text-primary font-bold uppercase backdrop-blur-md shadow-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                          <span>{currentT.liveIndicator}</span>
-                        </div>
-                      </div>
-                      <h3 className="font-headline text-lg font-bold text-primary mt-1">Electric Avenue</h3>
-                      <p className="text-xs text-on-surface-variant font-medium">DJ Nova • Techno</p>
+                      {currentLiveShow ? (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-bold text-primary font-mono">{currentLiveShow.time}</span>
+                            <div className="flex items-center gap-1.5 bg-primary/25 px-2.5 py-0.5 rounded-full text-[10px] text-primary font-bold uppercase backdrop-blur-md shadow-xs">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                              <span>{currentT.liveIndicator}</span>
+                            </div>
+                          </div>
+                          <h3 className="font-headline text-lg font-bold text-primary mt-1 group-hover:underline">{currentLiveShow.title}</h3>
+                          <p className="text-xs text-on-surface-variant font-medium">{currentLiveShow.host}</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-bold text-on-surface-variant font-mono">24/7 Non-Stop</span>
+                            <div className="flex items-center gap-1.5 bg-outline-variant/30 px-2.5 py-0.5 rounded-full text-[10px] text-on-surface-variant font-bold uppercase backdrop-blur-md">
+                              <span>{isGreek ? "ΑΥΤΟΜΑΤΗ ΡΟΗ" : "AUTO STREAM"}</span>
+                            </div>
+                          </div>
+                          <h3 className="font-headline text-base md:text-lg font-bold text-primary mt-1">
+                            {isGreek ? "Δεν μεταδίδεται ζωντανή εκπομπή αυτή τη στιγμή" : "No Live Show Broadcast Right Now"}
+                          </h3>
+                          <p className="text-xs text-on-surface-variant font-medium">
+                            {isGreek ? "Αυτόματη μουσική ροή FRS UTH 24/7" : "FRS UTH 24/7 Automated Music Rotation"}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
 
                   {/* NEXT CARD */}
-                  <div className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group">
+                  <div 
+                    onClick={() => nextShow && handleOpenShowDescription(nextShow)}
+                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer hover:border-primary/50 hover:scale-[1.01]"
+                  >
                     <div className="flex flex-col gap-2.5">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-semibold text-on-surface-variant font-mono">21:00 - 23:00</span>
-                        <span className="text-[10px] font-bold text-on-surface-variant/80 border border-white/15 px-2 py-0.5 rounded uppercase glass-pill">
-                          {currentT.nextIndicator}
-                        </span>
-                      </div>
-                      <h3 className="font-headline text-lg font-bold text-primary mt-1">Deep Space</h3>
-                      <p className="text-xs text-on-surface-variant font-medium">The Cosmonaut • Ambient</p>
+                      {nextShow ? (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-on-surface-variant font-mono">{nextShow.timeLabel || nextShow.time}</span>
+                            <span className="text-[10px] font-bold text-on-surface-variant/80 border border-white/15 px-2 py-0.5 rounded uppercase glass-pill">
+                              {currentT.nextIndicator}
+                            </span>
+                          </div>
+                          <h3 className="font-headline text-lg font-bold text-primary mt-1 group-hover:underline">{nextShow.title}</h3>
+                          <p className="text-xs text-on-surface-variant font-medium">{nextShow.host}</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-on-surface-variant font-mono">--:--</span>
+                            <span className="text-[10px] font-bold text-on-surface-variant/80 border border-white/15 px-2 py-0.5 rounded uppercase glass-pill">
+                              {currentT.nextIndicator}
+                            </span>
+                          </div>
+                          <h3 className="font-headline text-lg font-bold text-primary mt-1">
+                            {isGreek ? "Καμία επόμενη για σήμερα" : "No More Shows Today"}
+                          </h3>
+                          <p className="text-xs text-on-surface-variant font-medium">
+                            {isGreek ? "Δείτε το εβδομαδιαίο πρόγραμμα" : "Check weekly schedule"}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
 
                   {/* LATER CARD */}
-                  <div className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group">
+                  <div 
+                    onClick={() => laterShow && handleOpenShowDescription(laterShow)}
+                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer hover:border-primary/50 hover:scale-[1.01]"
+                  >
                     <div className="flex flex-col gap-2.5">
-                      <span className="text-xs font-semibold text-on-surface-variant font-mono">00:00 - 02:00</span>
-                      <h3 className="font-headline text-lg font-bold text-primary mt-1">Midnight Sessions</h3>
-                      <p className="text-xs text-on-surface-variant font-medium">DJ Kyriakos • Lofi / Chill</p>
+                      {laterShow ? (
+                        <>
+                          <span className="text-xs font-semibold text-on-surface-variant font-mono">{laterShow.timeLabel || laterShow.time}</span>
+                          <h3 className="font-headline text-lg font-bold text-primary mt-1 group-hover:underline">{laterShow.title}</h3>
+                          <p className="text-xs text-on-surface-variant font-medium">{laterShow.host}</p>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-xs font-semibold text-on-surface-variant font-mono">24/7</span>
+                          <h3 className="font-headline text-lg font-bold text-primary mt-1">
+                            {isGreek ? "Αυτόματη Ροή Μουσικής" : "Auto Rotation Continues"}
+                          </h3>
+                          <p className="text-xs text-on-surface-variant font-medium">
+                            {isGreek ? "Μουσικές επιλογές 24/7" : "24/7 Curated Tracks"}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
               </section>
 
-              {/* INTEGRATED LIVE STREAM CHAT INLINE - PLACED BELOW SCHEDULE */}
+              {/* LIVE COMMUNITY TICKER & PREVIEW CARD - REPLACING BULKY INLINE CHAT */}
               <section className="w-full max-w-4xl flex flex-col mt-4">
-                <LiveChat 
-                  isGreek={isGreek}
-                  isOpen={true}
-                  onClose={() => {}}
-                  onActiveTrackTrigger={handleTuneChannel}
-                  isInline={true}
-                />
+                <div 
+                  onClick={() => setChatOpen(true)}
+                  className="glass-panel p-6 md:p-8 rounded-3xl border border-white/15 hover:border-primary/50 transition-all duration-300 shadow-xl cursor-pointer group relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent pointer-events-none" />
+                  
+                  <div className="flex flex-col gap-3 max-w-xl relative z-10 text-center md:text-left">
+                    <div className="flex items-center justify-center md:justify-start gap-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                      <span className="text-xs font-bold font-mono text-primary uppercase tracking-widest">
+                        {isGreek ? "ΖΩΝΤΑΝΗ ΚΟΙΝΟΤΗΤΑ FRS" : "LIVE FRS COMMUNITY"}
+                      </span>
+                      <span className="tag-badge ml-1">
+                        142 {isGreek ? "Φοιτητές Online" : "Students Online"}
+                      </span>
+                    </div>
+                    
+                    <h3 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+                      {isGreek ? "Συντονιστείτε & Μιλήστε On-Air με τους Παραγωγούς" : "Tune In & Chat On-Air With Our Broadcasters"}
+                    </h3>
+                    
+                    {/* Simulated live ticker comments */}
+                    <div className="flex flex-col gap-2 mt-1">
+                      <div className="flex items-center gap-2 text-xs bg-white/[0.04] px-3.5 py-2 rounded-xl border border-white/10 text-on-surface-variant">
+                        <span className="font-bold text-primary font-mono">DJ Nova:</span>
+                        <span className="truncate">{isGreek ? "Ετοιμάζω μερικά φρέσκα Techno κομμάτια για απόψε! ⚡" : "Dropping some fresh techno tracks tonight! Who's ready? ⚡"}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs bg-white/[0.04] px-3.5 py-2 rounded-xl border border-white/10 text-on-surface-variant">
+                        <span className="font-bold text-[#f97758] font-mono">Sarah V.:</span>
+                        <span className="truncate">{isGreek ? "Ανυπομονώ για το αυριανό Indie Hour! Στείλτε παραγγελίες 🎧" : "Can't wait for Indie Hour tomorrow! Send your requests 🎧"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={(e) => { e.stopPropagation(); setChatOpen(true); }}
+                    className="flex items-center gap-3 bg-primary text-on-primary font-bold text-sm px-7 py-4 rounded-full shadow-lg shadow-primary/20 flex-shrink-0 cursor-pointer group-hover:brightness-105 transition-all"
+                  >
+                    <MessageSquare className="w-4 h-4 fill-on-primary" />
+                    <span>{isGreek ? "Άνοιγμα Συνομιλίας" : "Open Community Chat"}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                </div>
               </section>
             </motion.div>
           )}
@@ -455,16 +808,16 @@ export default function App() {
                 </p>
               </header>
 
-              {/* MOBILE DAY HORIZONTAL SCROLL SELECTOR */}
-              <div className="md:hidden flex overflow-x-auto gap-2 pb-3 w-full no-scrollbar snap-x">
+              {/* UNIFIED DAY HORIZONTAL SCROLL SELECTOR (DESKTOP & MOBILE) */}
+              <div className="flex overflow-x-auto gap-2 pb-3 w-full no-scrollbar justify-start md:justify-center snap-x">
                 {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg, idx) => (
                   <button
                     key={dayProg.day}
                     onClick={() => setSelectedMobileDay(idx)}
-                    className={`snap-start flex-shrink-0 px-6 py-2.5 rounded-full font-bold text-xs transition-all border cursor-pointer ${
+                    className={`snap-start flex-shrink-0 px-6 py-3 rounded-full font-bold text-xs transition-all border cursor-pointer ${
                       selectedMobileDay === idx
-                        ? "bg-primary text-on-primary border-primary shadow-lg shadow-primary/20"
-                        : "glass-pill hover:border-primary/50"
+                        ? "bg-primary text-on-primary border-primary shadow-lg shadow-primary/25 scale-105"
+                        : "glass-pill text-on-surface hover:border-primary/50"
                     }`}
                   >
                     {dayProg.day}
@@ -472,86 +825,54 @@ export default function App() {
                 ))}
               </div>
 
-              {/* DESKTOP 7-COLUMN GRID */}
-              <div className="hidden md:grid grid-cols-7 gap-4 w-full items-start mt-4">
-                {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg) => (
-                  <div 
-                    key={dayProg.day}
-                    className="flex flex-col gap-4"
-                  >
-                    <div className="font-headline text-sm font-bold text-primary border-b border-white/15 pb-2 uppercase tracking-widest text-center glass-pill py-1.5 rounded-xl">
-                      {dayProg.day}
-                    </div>
-                    
-                    <div className="flex flex-col gap-3">
-                      {dayProg.shows.map((show) => (
-                        <div
-                          key={show.id}
-                          className={`p-3.5 rounded-2xl border flex flex-col gap-2 text-left transition-all duration-200 shadow-md ${
-                            show.isLive
-                              ? "glass-card border-primary/70 bg-primary/20 relative overflow-hidden glow-primary shadow-primary/20"
-                              : "glass-card border-white/10"
-                          }`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-mono text-on-surface-variant">{show.time}</span>
-                            {show.isLive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-primary">
-                              {show.title}
-                            </h4>
-                            <p className="text-[10px] text-on-surface-variant mt-0.5">{show.host}</p>
-                          </div>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {show.tags.map(tag => (
-                              <span key={tag} className="text-[9px] px-1.5 py-0.5 bg-primary/20 rounded-full text-primary font-semibold truncate">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* MOBILE SINGLE SELECTED DAY LAYOUT */}
-              <div className="md:hidden w-full flex flex-col gap-4">
-                <div className="font-headline text-base font-bold text-primary border-b border-white/15 pb-2">
-                  {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].fullName}
+              {/* SPACIOUS SHOWS GRID FOR SELECTED DAY */}
+              <div className="w-full flex flex-col gap-4 mt-2 max-w-5xl">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3 px-1">
+                  <h3 className="font-headline text-xl font-bold text-primary tracking-tight">
+                    {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].fullName}
+                  </h3>
+                  <span className="text-xs font-mono text-on-surface-variant font-semibold">
+                    {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.length} {isGreek ? "Εκπομπές" : "Shows"}
+                  </span>
                 </div>
-                <div className="flex flex-col gap-3">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full items-stretch">
                   {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.map((show) => (
                     <div
                       key={show.id}
-                      className={`p-4 rounded-2xl border flex justify-between items-center transition-all duration-200 shadow-md ${
+                      onClick={() => handleTuneChannel(show.id)}
+                      className={`p-6 rounded-3xl border flex flex-col justify-between gap-5 transition-all duration-300 shadow-xl cursor-pointer group ${
                         show.isLive
-                          ? "glass-card border-primary/70 bg-primary/20 glow-primary"
-                          : "glass-card border-white/10"
+                          ? "glass-card border-primary/80 bg-primary/20 glow-primary"
+                          : "glass-card border-white/15 hover:border-primary/50 hover:-translate-y-1"
                       }`}
                     >
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-on-surface-variant/85 bg-white/[0.06] px-2 py-0.5 rounded">
+                      <div className="flex flex-col gap-3.5">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-mono font-bold text-on-surface-variant/95 bg-white/[0.06] px-3 py-1 rounded-lg border border-white/10">
                             {show.time}
                           </span>
                           {show.isLive && (
-                            <span className="flex items-center gap-1 text-[9px] text-primary font-bold bg-primary/20 px-2 py-0.5 rounded-full uppercase">
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
+                            <span className="flex items-center gap-1.5 text-[10px] text-primary font-bold bg-primary/25 px-2.5 py-1 rounded-full uppercase border border-primary/40 shadow-xs">
+                              <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
                               <span>{currentT.liveIndicator}</span>
                             </span>
                           )}
                         </div>
-                        <h4 className="text-sm font-bold text-primary">{show.title}</h4>
-                        <p className="text-xs text-on-surface-variant">{show.host}</p>
+
+                        <div>
+                          <h4 className="font-headline text-lg font-bold text-on-surface group-hover:text-primary transition-colors">
+                            {show.title}
+                          </h4>
+                          <p className="text-xs text-on-surface-variant font-semibold mt-1">
+                            {show.host}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1">
+
+                      <div className="flex flex-wrap gap-1.5 pt-3.5 border-t border-white/10">
                         {show.tags.map(tag => (
-                          <span key={tag} className="text-[9px] px-2.5 py-1 bg-primary/20 rounded-full text-primary font-semibold">
+                          <span key={tag} className="tag-badge">
                             {tag}
                           </span>
                         ))}
@@ -656,7 +977,7 @@ export default function App() {
                           <div>
                             <div className="flex flex-wrap gap-1.5 mb-2.5">
                               {selectedShow.tags.map(tag => (
-                                <span key={tag} className="text-[10px] bg-primary/20 text-primary px-3 py-0.5 rounded-full font-bold">
+                                <span key={tag} className="tag-badge">
                                   {tag}
                                 </span>
                               ))}
@@ -770,7 +1091,7 @@ export default function App() {
 
                           <div className="flex flex-wrap gap-1.5 pt-2">
                             {desc.tags.map(tag => (
-                              <span key={tag} className="text-[10px] bg-primary/20 text-primary px-2.5 py-0.5 rounded-full font-semibold">
+                              <span key={tag} className="tag-badge">
                                 {tag}
                               </span>
                             ))}
@@ -802,9 +1123,9 @@ export default function App() {
                   {currentT.archiveSub}
                 </p>
 
-                {/* SEARCH AND CAPABILITY FILTER Row */}
-                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl justify-center items-center mt-3">
-                  <div className="relative w-full sm:flex-grow">
+                {/* SEARCH Row */}
+                <div className="flex gap-3 w-full max-w-md justify-center items-center mt-3">
+                  <div className="relative w-full">
                     <Search className="w-4 h-4 text-primary absolute left-4 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
@@ -814,14 +1135,6 @@ export default function App() {
                       className="w-full glass-pill rounded-full py-2.5 pl-11 pr-4 text-sm text-on-surface focus:outline-none focus:border-primary placeholder:text-on-surface-variant/50 transition-all shadow-inner"
                     />
                   </div>
-                  <select
-                    value={archiveFilter}
-                    onChange={(e) => setArchiveFilter(e.target.value)}
-                    className="glass-pill rounded-full py-2.5 px-5 text-sm text-on-surface focus:outline-none focus:border-primary appearance-none cursor-pointer font-semibold shadow-xs"
-                  >
-                    <option value="newest" className="bg-background text-on-surface">{currentT.sortNewest}</option>
-                    <option value="popular" className="bg-background text-on-surface">{currentT.sortPopular}</option>
-                  </select>
                 </div>
               </header>
 
@@ -843,7 +1156,7 @@ export default function App() {
                         />
                         <div className="absolute bottom-3 left-3 flex gap-1">
                           {item.tags.map(tag => (
-                            <span key={tag} className="bg-primary/30 text-primary text-[10px] px-2.5 py-0.5 rounded-full font-bold backdrop-blur-md shadow-xs border border-primary/20">
+                            <span key={tag} className="tag-badge backdrop-blur-md">
                               {tag}
                             </span>
                           ))}
@@ -898,22 +1211,356 @@ export default function App() {
               )}
             </motion.div>
           )}
+
+          {activeTab === "events" && (
+            <motion.div
+              key="events"
+              id="view-events"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-full flex flex-col items-center gap-8"
+            >
+              <header className="text-center max-w-3xl glass-panel p-8 rounded-3xl flex flex-col items-center gap-3 border border-white/15 shadow-xl">
+                <h1 className="font-headline text-4xl md:text-5xl tracking-tight text-primary font-bold glow-text">
+                  {currentT.eventsHeader}
+                </h1>
+                <p className="text-base text-on-surface-variant max-w-xl">
+                  {currentT.eventsSub}
+                </p>
+              </header>
+
+              {/* UPCOMING EVENTS */}
+              <div className="w-full max-w-4xl flex flex-col gap-5">
+                <h2 className="font-headline text-lg font-bold text-primary flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-primary" />
+                  {currentT.eventsUpcoming}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Event Card 1 */}
+                  <div className="glass-card rounded-2xl border border-primary/40 overflow-hidden shadow-xl group hover:border-primary transition-all duration-200 hover:scale-[1.01]">
+                    <div className="h-40 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent flex items-center justify-center relative">
+                      <PartyPopper className="w-16 h-16 text-primary/60" />
+                      <div className="absolute top-3 right-3 bg-primary text-on-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-lg">
+                        {isGreek ? "ΣΥΝΤΟΜΑ" : "SOON"}
+                      </div>
+                    </div>
+                    <div className="p-5 flex flex-col gap-2.5">
+                      <h3 className="font-headline text-lg font-bold text-white">
+                        {isGreek ? "FRS UTH Opening Party 2026" : "FRS UTH Opening Party 2026"}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <CalendarDays className="w-3.5 h-3.5 text-primary" />
+                        <span>{isGreek ? "15 Οκτωβρίου 2026 • 21:00" : "October 15, 2026 • 9:00 PM"}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <MapPin className="w-3.5 h-3.5 text-primary" />
+                        <span>{isGreek ? "Κεντρική Πλατεία Πανεπιστημίου" : "University Central Square"}</span>
+                      </div>
+                      <p className="text-xs text-on-surface-variant/80 leading-relaxed mt-1">
+                        {isGreek
+                          ? "Το μεγάλο πάρτι έναρξης της νέας ραδιοφωνικής σεζόν! Live DJs, δωρεάν είσοδος και ατελείωτη ενέργεια."
+                          : "The grand opening party for the new radio season! Live DJs, free entry, and endless energy."}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Users className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] text-primary font-bold">{isGreek ? "200+ ενδιαφερόμενοι" : "200+ interested"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Event Card 2 */}
+                  <div className="glass-card rounded-2xl border border-white/10 overflow-hidden shadow-xl group hover:border-primary/50 transition-all duration-200 hover:scale-[1.01]">
+                    <div className="h-40 bg-gradient-to-br from-[#b3be87]/20 via-transparent to-transparent flex items-center justify-center relative">
+                      <Mic className="w-16 h-16 text-[#b3be87]/40" />
+                      <div className="absolute top-3 right-3 bg-black/60 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-white/15">
+                        {isGreek ? "ΕΓΓΡΑΦΕΣ" : "SIGN UP"}
+                      </div>
+                    </div>
+                    <div className="p-5 flex flex-col gap-2.5">
+                      <h3 className="font-headline text-lg font-bold text-white">
+                        {isGreek ? "Workshop: Πώς να Φτιάξεις τη Δική σου Εκπομπή" : "Workshop: Build Your Own Radio Show"}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <CalendarDays className="w-3.5 h-3.5 text-primary" />
+                        <span>{isGreek ? "22 Οκτωβρίου 2026 • 17:00" : "October 22, 2026 • 5:00 PM"}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <MapPin className="w-3.5 h-3.5 text-primary" />
+                        <span>{isGreek ? "Studio FRS UTH, Κτίριο Β" : "FRS UTH Studio, Building B"}</span>
+                      </div>
+                      <p className="text-xs text-on-surface-variant/80 leading-relaxed mt-1">
+                        {isGreek
+                          ? "Μάθε τα βασικά της ραδιοφωνικής παραγωγής. Από τεχνικά μέχρι παρουσίαση, σου δείχνουμε πώς να ξεκινήσεις."
+                          : "Learn radio production basics. From technical setup to on-air presentation, we show you how to get started."}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Users className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] text-primary font-bold">{isGreek ? "30 θέσεις διαθέσιμες" : "30 spots available"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Event Card 3 */}
+                  <div className="glass-card rounded-2xl border border-white/10 overflow-hidden shadow-xl group hover:border-primary/50 transition-all duration-200 hover:scale-[1.01]">
+                    <div className="h-40 bg-gradient-to-br from-purple-500/15 via-transparent to-transparent flex items-center justify-center relative">
+                      <Music className="w-16 h-16 text-purple-400/40" />
+                      <div className="absolute top-3 right-3 bg-black/60 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-white/15">
+                        {isGreek ? "ΔΩΡΕΑΝ" : "FREE"}
+                      </div>
+                    </div>
+                    <div className="p-5 flex flex-col gap-2.5">
+                      <h3 className="font-headline text-lg font-bold text-white">
+                        {isGreek ? "Live Acoustic Night" : "Live Acoustic Night"}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <CalendarDays className="w-3.5 h-3.5 text-primary" />
+                        <span>{isGreek ? "5 Νοεμβρίου 2026 • 20:00" : "November 5, 2026 • 8:00 PM"}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <MapPin className="w-3.5 h-3.5 text-primary" />
+                        <span>{isGreek ? "Αίθουσα Εκδηλώσεων, Κτίριο Γ" : "Events Hall, Building C"}</span>
+                      </div>
+                      <p className="text-xs text-on-surface-variant/80 leading-relaxed mt-1">
+                        {isGreek
+                          ? "Βραδιά ζωντανής ακουστικής μουσικής με φοιτητικά συγκροτήματα. Ανοιχτή σκηνή για όλους!"
+                          : "Live acoustic music night with student bands. Open stage for everyone!"}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Users className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] text-primary font-bold">{isGreek ? "85+ ενδιαφερόμενοι" : "85+ interested"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* PAST EVENTS */}
+              <div className="w-full max-w-4xl flex flex-col gap-5 mt-4">
+                <h2 className="font-headline text-lg font-bold text-on-surface-variant flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-on-surface-variant" />
+                  {currentT.eventsPast}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="glass-card rounded-2xl border border-white/5 p-4 flex flex-col gap-2 opacity-70">
+                    <span className="text-[10px] font-mono text-on-surface-variant/60">{isGreek ? "12 Μαΐου 2026" : "May 12, 2026"}</span>
+                    <h4 className="text-sm font-bold text-on-surface-variant">{isGreek ? "End of Season Party" : "End of Season Party"}</h4>
+                    <p className="text-[10px] text-on-surface-variant/50">{isGreek ? "Κεντρική Πλατεία" : "Central Square"}</p>
+                  </div>
+                  <div className="glass-card rounded-2xl border border-white/5 p-4 flex flex-col gap-2 opacity-70">
+                    <span className="text-[10px] font-mono text-on-surface-variant/60">{isGreek ? "28 Μαρτίου 2026" : "March 28, 2026"}</span>
+                    <h4 className="text-sm font-bold text-on-surface-variant">{isGreek ? "DJ Battle Night" : "DJ Battle Night"}</h4>
+                    <p className="text-[10px] text-on-surface-variant/50">{isGreek ? "Studio FRS UTH" : "FRS UTH Studio"}</p>
+                  </div>
+                  <div className="glass-card rounded-2xl border border-white/5 p-4 flex flex-col gap-2 opacity-70">
+                    <span className="text-[10px] font-mono text-on-surface-variant/60">{isGreek ? "14 Φεβρουαρίου 2026" : "February 14, 2026"}</span>
+                    <h4 className="text-sm font-bold text-on-surface-variant">{isGreek ? "Valentine's Music Marathon" : "Valentine's Music Marathon"}</h4>
+                    <p className="text-[10px] text-on-surface-variant/50">{isGreek ? "Online Stream" : "Online Stream"}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "contact" && (
+            <motion.div
+              key="contact"
+              id="view-contact"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-full flex flex-col items-center gap-8"
+            >
+              <header className="text-center max-w-3xl glass-panel p-8 rounded-3xl flex flex-col items-center gap-3 border border-white/15 shadow-xl">
+                <h1 className="font-headline text-4xl md:text-5xl tracking-tight text-primary font-bold glow-text">
+                  {isGreek ? "Επικοινωνία" : "Contact Us"}
+                </h1>
+                <p className="text-base text-on-surface-variant max-w-xl">
+                  {isGreek 
+                    ? "Έχετε κάποια ερώτηση, μουσική πρόταση ή θέλετε να γίνετε μέλος της ομάδας του FRS UTH; Στείλτε μας μήνυμα!"
+                    : "Have a question, music suggestion, or want to join the FRS UTH team? Send us a message!"}
+                </p>
+              </header>
+
+              <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-6">
+                {/* Contact Info Cards */}
+                <div className="md:col-span-5 flex flex-col gap-4">
+                  <div className="glass-card p-5 rounded-2xl border border-white/10 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white">{isGreek ? "Το Studio Μας" : "Our Studio"}</h4>
+                      <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
+                        {isGreek ? "Πανεπιστήμιο Θεσσαλίας" : "University of Thessaly"}<br />
+                        {isGreek ? "Βόλος, Ελλάδα" : "Volos, Greece"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="glass-card p-5 rounded-2xl border border-white/10 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white">Email</h4>
+                      <p className="text-xs text-on-surface-variant mt-1">
+                        <a href="mailto:info@frsvolou.gr" className="hover:text-primary transition-colors">info@frsvolou.gr</a>
+                      </p>
+                      <p className="text-xs text-on-surface-variant">
+                        <a href="mailto:studio@frsvolou.gr" className="hover:text-primary transition-colors">studio@frsvolou.gr</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Form */}
+                <div className="md:col-span-7 glass-panel p-6 md:p-8 rounded-3xl border border-white/15 shadow-xl">
+                  {contactSubmitted ? (
+                    <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
+                      <CheckCircle2 className="w-14 h-14 text-primary animate-bounce" />
+                      <h3 className="font-headline text-2xl font-bold text-white">
+                        {isGreek ? "Το μήνυμά σας στάλθηκε!" : "Message Sent!"}
+                      </h3>
+                      <p className="text-xs text-on-surface-variant max-w-sm">
+                        {isGreek
+                          ? "Ευχαριστούμε για την επικοινωνία. Η ομάδα του FRS UTH θα σας απαντήσει σύντομα!"
+                          : "Thank you for reaching out. The FRS UTH team will get back to you soon!"}
+                      </p>
+                      <button
+                        onClick={() => {
+                          setContactSubmitted(false);
+                          setContactForm({ name: "", email: "", category: "general", message: "" });
+                        }}
+                        className="mt-4 px-6 py-2.5 rounded-full bg-primary/20 text-primary font-bold text-xs hover:bg-primary hover:text-white transition-all cursor-pointer"
+                      >
+                        {isGreek ? "Σύνταξη νέου μηνύματος" : "Send Another Message"}
+                      </button>
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        setContactLoading(true);
+                        try {
+                          await addDoc(collection(db, "contact_messages"), {
+                            name: contactForm.name,
+                            email: contactForm.email,
+                            category: contactForm.category,
+                            message: contactForm.message,
+                            createdAt: serverTimestamp()
+                          });
+                        } catch (err) {
+                          console.error("Error saving contact message:", err);
+                        }
+                        
+                        const subject = encodeURIComponent(`[FRS UTH Contact] ${contactForm.category.toUpperCase()} - ${contactForm.name}`);
+                        const body = encodeURIComponent(`Όνομα: ${contactForm.name}\nEmail: ${contactForm.email}\nΚατηγορία: ${contactForm.category}\n\nΜήνυμα:\n${contactForm.message}`);
+                        window.location.href = `mailto:info@frsvolou.gr?subject=${subject}&body=${body}`;
+
+                        setContactLoading(false);
+                        setContactSubmitted(true);
+                      }}
+                      className="flex flex-col gap-4"
+                    >
+                      <h3 className="font-headline text-xl font-bold text-white mb-1">
+                        {isGreek ? "Στείλτε Μήνυμα" : "Send a Message"}
+                      </h3>
+
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mb-1 font-mono">
+                          {isGreek ? "Όνομα" : "Name"}
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                          placeholder={isGreek ? "Το όνομά σας" : "Your name"}
+                          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mb-1 font-mono">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                          placeholder="your.email@example.com"
+                          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mb-1 font-mono">
+                          {isGreek ? "Κατηγορία" : "Category"}
+                        </label>
+                        <select
+                          value={contactForm.category}
+                          onChange={(e) => setContactForm({ ...contactForm, category: e.target.value })}
+                          className="w-full bg-surface-container-high border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary transition-all cursor-pointer"
+                        >
+                          <option value="general">{isGreek ? "Γενική Ερώτηση" : "General Query"}</option>
+                          <option value="join">{isGreek ? "Συμμετοχή στο Ραδιόφωνο" : "Join the Radio Team"}</option>
+                          <option value="technical">{isGreek ? "Τεχνικό Θέμα" : "Technical Issue"}</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mb-1 font-mono">
+                          {isGreek ? "Μήνυμα" : "Message"}
+                        </label>
+                        <textarea
+                          required
+                          rows={4}
+                          value={contactForm.message}
+                          onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                          placeholder={isGreek ? "Γράψτε το μήνυμά σας εδώ..." : "Write your message here..."}
+                          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-all resize-none"
+                        />
+                      </div>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={contactLoading}
+                        className="w-full bg-primary text-on-primary font-bold py-3 px-6 rounded-xl hover:brightness-105 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/25 mt-2"
+                      >
+                        {contactLoading ? (
+                          <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            <span>{isGreek ? "Αποστολή Μηνύματος" : "Send Message"}</span>
+                          </>
+                        )}
+                      </motion.button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
       {/* FOOTER */}
       <footer className="w-full py-12 flex flex-col items-center gap-4 px-6 relative z-10 mt-auto border-t border-outline-variant/10 bg-transparent">
-        <div className="font-headline text-lg font-bold text-primary/50 tracking-tighter">
-          FRS
-        </div>
-        <ul className="flex gap-6 text-xs text-on-surface-variant/60 font-semibold">
-          <li><a href="#" className="hover:text-primary transition-all">Instagram</a></li>
-          <li><a href="#" className="hover:text-primary transition-all">Mixcloud</a></li>
-          <li><a href="#" className="hover:text-primary transition-all">Contact</a></li>
-          <li><a href="#" className="hover:text-primary transition-all">Privacy</a></li>
+        <UthLogo size={36} showText={true} />
+        <ul className="flex gap-6 text-xs text-on-surface-variant/60 font-semibold mt-2">
+          <li><a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-all">Instagram</a></li>
+          <li><button onClick={() => handleTabChange("contact")} className="hover:text-primary transition-all cursor-pointer">Contact</button></li>
+          <li><a href="https://www.mixcloud.com/frs-volou/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-all">Mixcloud</a></li>
         </ul>
         <div className="text-[10px] text-on-surface-variant/40 mt-1">
-          © {new Date().getFullYear()} Foititika Radio Show. Built for students, by students.
+          © FRS-UTH. Foititika Radio Show. Built for students, by students.
         </div>
       </footer>
 
@@ -927,10 +1574,10 @@ export default function App() {
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
           onClick={() => setChatOpen(true)}
           id="persistent-chat-trigger"
-          className="fixed bottom-[145px] md:bottom-[88px] right-6 z-[55] w-14 h-14 bg-[#c1cc94] text-[#181b11] rounded-full shadow-[0_15px_35px_rgba(193,204,148,0.45)] hover:shadow-[0_20px_45px_rgba(193,204,148,0.65)] flex items-center justify-center cursor-pointer border border-white/40"
+          className="fixed bottom-[145px] md:bottom-[88px] right-6 z-[55] w-14 h-14 bg-[#d2f34c] text-[#181c08] rounded-full shadow-[0_15px_35px_rgba(210,243,76,0.45)] hover:shadow-[0_20px_45px_rgba(210,243,76,0.65)] flex items-center justify-center cursor-pointer border border-white/40"
           title={isGreek ? "Άνοιγμα Συνομιλίας" : "Open Chat"}
         >
-          <MessageSquare className="w-6 h-6 text-[#181b11] fill-[#181b11]" />
+          <MessageSquare className="w-6 h-6 text-[#181c08] fill-[#181c08]" />
         </motion.button>
       )}
 
@@ -939,7 +1586,7 @@ export default function App() {
         <button 
           onClick={() => { handleTabChange("home"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "home" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(193,204,148,0.6)]" : "text-on-surface-variant"
+            activeTab === "home" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
           }`}
         >
           <Radio className="w-5 h-5" />
@@ -947,7 +1594,7 @@ export default function App() {
         <button 
           onClick={() => { handleTabChange("program"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "program" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(193,204,148,0.6)]" : "text-on-surface-variant"
+            activeTab === "program" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
           }`}
         >
           <Calendar className="w-5 h-5" />
@@ -955,7 +1602,7 @@ export default function App() {
         <button 
           onClick={() => { handleTabChange("descriptions"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "descriptions" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(193,204,148,0.6)]" : "text-on-surface-variant"
+            activeTab === "descriptions" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
           }`}
         >
           <Mic className="w-5 h-5" />
@@ -963,12 +1610,120 @@ export default function App() {
         <button 
           onClick={() => { handleTabChange("archive"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "archive" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(193,204,148,0.6)]" : "text-on-surface-variant"
+            activeTab === "archive" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
           }`}
         >
           <Music className="w-5 h-5" />
         </button>
       </nav>
+
+      {/* TOP-LEVEL SHOW DESCRIPTION MODAL OVERLAY */}
+      <AnimatePresence>
+        {selectedShowId && (() => {
+          const selectedShow = getShowDetails(selectedShowId);
+          if (!selectedShow) return null;
+          return (
+            <div 
+              onClick={() => setSelectedShowId(null)}
+              className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6 overflow-y-auto overscroll-contain"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-2xl bg-[#181112] border border-white/20 rounded-3xl p-5 md:p-7 shadow-2xl relative max-h-[82vh] md:max-h-[85vh] overflow-y-auto my-auto overscroll-contain"
+              >
+                {/* Close button */}
+                <button
+                  onClick={() => setSelectedShowId(null)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-primary text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 z-20"
+                  title={isGreek ? "Κλείσιμο" : "Close"}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                {/* Show Details Content */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                  {/* Image & Tune CTA */}
+                  <div className="md:col-span-5 flex flex-col gap-4">
+                    <div className="aspect-square w-full rounded-2xl overflow-hidden border border-white/15 relative group shadow-lg bg-surface-container-highest max-w-[260px] mx-auto md:max-w-none">
+                      <img
+                        src={selectedShow.image}
+                        alt={selectedShow.title}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        handleTuneChannel(selectedShow.id);
+                        setSelectedShowId(null);
+                      }}
+                      className="w-full bg-primary text-on-primary font-bold py-3 px-5 rounded-xl hover:brightness-105 transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-lg shadow-primary/25"
+                    >
+                      <Play className="w-4 h-4 fill-on-primary" />
+                      <span>{isGreek ? "Συντονισμός & Ακρόαση" : "Tune & Listen"}</span>
+                    </motion.button>
+                  </div>
+
+                  {/* Text Info */}
+                  <div className="md:col-span-7 flex flex-col gap-4">
+                    <div>
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {selectedShow.tags.map(tag => (
+                          <span key={tag} className="text-[10px] bg-primary/20 text-primary px-2.5 py-0.5 rounded-full font-bold">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <h2 className="font-headline text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                        {selectedShow.title}
+                      </h2>
+                      <p className="text-xs text-primary font-semibold mt-1">
+                        {isGreek ? "Παραγωγός" : "Hosted by"}: {selectedShow.host}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-mono">
+                        {isGreek ? "Σχετικά με την Εκπομπή" : "About the Show"}
+                      </h4>
+                      <p className="text-xs text-on-surface-variant leading-relaxed">
+                        {selectedShow.description}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 bg-white/[0.04] p-3.5 rounded-xl border border-white/10">
+                      <h4 className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant font-mono flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-primary" />
+                        <span>{isGreek ? "Ημέρα & Ώρα Μετάδοσης" : "Broadcasting Schedule"}</span>
+                      </h4>
+                      <p className="text-xs font-bold text-white">
+                        {(() => {
+                          const schedule = isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
+                          for (const day of schedule) {
+                            const match = day.shows.find(s => s.id === selectedShow.id);
+                            if (match) {
+                              return isGreek
+                                ? `Κάθε ${day.fullName} στις ${match.time}`
+                                : `Every ${day.fullName} at ${match.time}`;
+                            }
+                          }
+                          return isGreek ? "Ειδική Εκπομπή" : "Special Broadcast";
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
 
       {/* INTEGRATED SLIDING SIDEBAR CHAT PANEL */}
       <LiveChat 
@@ -976,6 +1731,7 @@ export default function App() {
         isOpen={chatOpen} 
         onClose={() => setChatOpen(false)} 
         onActiveTrackTrigger={handleTuneChannel}
+        currentLiveShow={currentLiveShow}
       />
 
       {/* PERSISTENT LIVE AUDIO STREAM CONTROLLER */}
@@ -984,6 +1740,7 @@ export default function App() {
         stationPlaying={stationPlaying} 
         setStationPlaying={setStationPlaying} 
         activeTrackId={activeTrackId}
+        currentLiveShow={currentLiveShow}
       />
 
     </div>
