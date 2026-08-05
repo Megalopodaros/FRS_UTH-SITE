@@ -1,195 +1,226 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-headline: "Outfit", sans-serif;
-  --font-serif: "Cinzel", Georgia, serif;
-  --font-mono: "Plus Jakarta Sans", sans-serif;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-headline: "Sora", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 
-  /* Official UTH (University of Thessaly / Πανεπιστήμιο Θεσσαλίας) Theme */
-  --color-background: #0b0e14;
-  --color-surface-dim: #0d111a;
-  --color-surface-bright: #151b29;
-  --color-surface-container-lowest: #07090d;
-  --color-surface-container-low: #0f131d;
-  --color-surface-container: #151b29;
-  --color-surface-container-high: #1c2437;
-  --color-surface-container-highest: #252f47;
+  /* Apple visionOS & iOS Liquid Glass Dark Palette (Chartreuse / Electric Lime Accent #d2f34c) */
+  --color-background: #090c15;
+  --color-surface-dim: #0c101d;
+  --color-surface-bright: #161c2e;
+  --color-surface-container-lowest: #05070d;
+  --color-surface-container-low: #0f1424;
+  --color-surface-container: #151b2f;
+  --color-surface-container-high: #1d253f;
+  --color-surface-container-highest: #283254;
   --color-on-surface: #ffffff;
-  --color-on-surface-variant: #94a3b8;
+  --color-on-surface-variant: #a1a1aa;
   --color-inverse-surface: #ffffff;
-  --color-inverse-on-surface: #0b0e14;
-  --color-outline: #475569;
-  --color-outline-variant: #1e293b;
-  --color-surface-tint: #b73229;
+  --color-inverse-on-surface: #090c15;
+  --color-outline: #52525b;
+  --color-outline-variant: #27272a;
+  --color-surface-tint: #d2f34c;
   
-  /* UTH Official Chiron Crimson Red (#b73229 / #a62b2b) */
-  --color-primary: #b73229;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #42120e;
-  --color-on-primary-container: #ffdcd8;
-  --color-inverse-primary: #d63d33;
+  --color-primary: #d2f34c;
+  --color-on-primary: #181c08;
+  --color-primary-container: #4d572a;
+  --color-on-primary-container: #e4f890;
+  --color-inverse-primary: #5a6335;
   
-  --color-secondary: #f8fafc;
-  --color-on-secondary: #0f172a;
-  --color-secondary-container: #1e293b;
-  --color-on-secondary-container: #f1f5f9;
+  --color-secondary: #e4e4e7;
+  --color-on-secondary: #18181b;
+  --color-secondary-container: #27272a;
+  --color-on-secondary-container: #f4f4f5;
   
-  --color-tertiary: #94a3b8;
-  --color-on-tertiary: #0f172a;
-  --color-tertiary-container: #1e293b;
-  --color-on-tertiary-container: #f1f5f9;
+  --color-tertiary: #a1a1aa;
+  --color-on-tertiary: #09090b;
+  --color-tertiary-container: #27272a;
+  --color-on-tertiary-container: #e4e4e7;
   
-  --color-error: #ef4444;
+  --color-error: #ff453a;
   --color-on-error: #450a06;
   --color-error-container: #7f1d1d;
   --color-on-error-container: #fecaca;
 
-  --color-primary-fixed: #ffdcd8;
-  --color-primary-fixed-dim: #b73229;
-  --color-on-primary-fixed: #2f0b08;
-  --color-on-primary-fixed-variant: #42120e;
+  --color-primary-fixed: #e4f890;
+  --color-primary-fixed-dim: #d2f34c;
+  --color-on-primary-fixed: #181c08;
+  --color-on-primary-fixed-variant: #4d572a;
 
-  --color-secondary-fixed: #f8fafc;
-  --color-secondary-fixed-dim: #e2e8f0;
-  --color-on-secondary-fixed: #0f172a;
-  --color-on-secondary-fixed-variant: #334155;
+  --color-secondary-fixed: #f4f4f5;
+  --color-secondary-fixed-dim: #e4e4e7;
+  --color-on-secondary-fixed: #18181b;
+  --color-on-secondary-fixed-variant: #3f3f46;
 
-  --color-tertiary-fixed: #cbd5e1;
-  --color-tertiary-fixed-dim: #94a3b8;
-  --color-on-tertiary-fixed: #0f172a;
-  --color-on-tertiary-fixed-variant: #475569;
+  --color-tertiary-fixed: #d4d4d8;
+  --color-tertiary-fixed-dim: #a1a1aa;
+  --color-on-tertiary-fixed: #18181b;
+  --color-on-tertiary-fixed-variant: #52525b;
 
-  --color-primary-dim: #9e2a22;
-  --color-secondary-dim: #94a3b8;
-  --color-tertiary-dim: #64748b;
-  --color-error-dim: #dc2626;
+  --color-primary-dim: #b8db3b;
+  --color-secondary-dim: #a1a1aa;
+  --color-tertiary-dim: #71717a;
+  --color-error-dim: #ef4444;
 }
 
-/* Base definitions with UTH Crimson ambient depth */
+/* Base custom definitions with enhanced animated gradient background */
 body {
-  background-color: #0b0e14;
-  background-image: 
-    radial-gradient(at 15% 15%, rgba(183, 50, 41, 0.12) 0px, transparent 60%),
-    radial-gradient(at 85% 20%, rgba(30, 41, 59, 0.2) 0px, transparent 55%),
-    radial-gradient(at 50% 85%, rgba(183, 50, 41, 0.08) 0px, transparent 65%);
+  background: linear-gradient(135deg, #090c15 0%, #151b2f 25%, #0d1222 50%, #19102c 75%, #090c15 100%);
   background-attachment: fixed;
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
   color: #ffffff;
   font-family: var(--font-sans);
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* UTH Refined Glass Utilities */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Apple Liquid Glass System Utilities with enhanced styling */
 .glass-panel {
-  background: rgba(15, 19, 29, 0.75);
-  backdrop-filter: blur(36px) saturate(180%);
-  -webkit-backdrop-filter: blur(36px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  background: rgba(20, 24, 50, 0.55);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(210, 243, 76, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
 }
 
 .glass-panel-hover {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-panel-hover:hover {
-  background: rgba(23, 29, 44, 0.85);
-  border-color: rgba(183, 50, 41, 0.35);
-  box-shadow: 0 24px 55px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(183, 50, 41, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+  background: rgba(25, 30, 60, 0.7);
+  border-color: rgba(210, 243, 76, 0.5);
+  box-shadow: 0 16px 40px rgba(210, 243, 76, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
 }
 
 .glass-card {
-  background: rgba(19, 25, 38, 0.65);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  background: rgba(18, 22, 45, 0.5);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(210, 243, 76, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
 }
 
 .glass-navbar {
-  background: rgba(11, 14, 20, 0.85);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  background: rgba(9, 12, 21, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(210, 243, 76, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .glass-player {
-  background: rgba(13, 17, 26, 0.94);
-  backdrop-filter: blur(40px) saturate(190%);
-  -webkit-backdrop-filter: blur(40px) saturate(190%);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 -15px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background: rgba(15, 18, 40, 0.75);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border-top: 1px solid rgba(210, 243, 76, 0.25);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(210, 243, 76, 0.08);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid rgba(210, 243, 76, 0.25);
   transition: all 0.25s ease;
+  border-radius: 9999px;
 }
 .glass-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(183, 50, 41, 0.4);
-  box-shadow: 0 0 20px rgba(183, 50, 41, 0.18);
+  background: rgba(210, 243, 76, 0.18);
+  border-color: rgba(210, 243, 76, 0.6);
+  box-shadow: 0 0 24px rgba(210, 243, 76, 0.25);
 }
 
-/* Ambient primary glow */
+/* Glow effects */
 .glow-primary {
-  box-shadow: 0 0 35px rgba(183, 50, 41, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 30px rgba(210, 243, 76, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .glow-primary-hover:hover {
-  box-shadow: 0 0 50px rgba(183, 50, 41, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 50px rgba(210, 243, 76, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
-/* Custom scrollbars */
+.glow-text {
+  text-shadow: 0 0 20px rgba(210, 243, 76, 0.6);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #d2f34c 0%, #ffffff 50%, #d2f34c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(210, 243, 76, 0.05);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(210, 243, 76, 0.4) 0%, rgba(210, 243, 76, 0.6) 100%);
+  border-radius: 10px;
+}
+
+/* Card hover animation */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(210, 243, 76, 0.15);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #d2f34c 0%, #e4f890 100%);
+  color: #181c08;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 16px rgba(210, 243, 76, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(210, 243, 76, 0.4);
+}
+
+/* Tag Badges */
+.tag-badge {
+  background: rgba(210, 243, 76, 0.14);
+  border: 1px solid rgba(210, 243, 76, 0.35);
+  color: #e4f890;
+  font-weight: 700;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(183, 50, 41, 0.5);
+  padding: 2px 10px;
 }
 
-/* Fluid snap scroll utility */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-/* Clean text highlight */
-.glow-text {
-  text-shadow: none;
-}
-
-/* Background float animation */
+/* Aurora background float animation */
 @keyframes aurora-float {
   0%, 100% {
     transform: translate(0, 0) scale(1) rotate(0deg);
   }
   33% {
-    transform: translate(30px, -20px) scale(1.08) rotate(120deg);
+    transform: translate(40px, -30px) scale(1.1) rotate(120deg);
   }
   66% {
-    transform: translate(-20px, 30px) scale(0.96) rotate(240deg);
+    transform: translate(-30px, 40px) scale(0.95) rotate(240deg);
   }
 }
 
 .animate-aurora {
-  animation: aurora-float 22s ease-in-out infinite;
+  animation: aurora-float 20s ease-in-out infinite;
+  will-change: transform;
 }
