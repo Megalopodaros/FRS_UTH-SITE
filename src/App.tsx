@@ -29,7 +29,13 @@ import {
   PartyPopper,
   MapPin,
   CalendarDays,
-  Users
+  Users,
+  Sun,
+  Moon,
+  Instagram,
+  Mail,
+  CheckCircle2,
+  Send
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -49,8 +55,8 @@ import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
 
 export default function App() {
-  const [activeTab, setActiveTabState] = useState<"home" | "program" | "descriptions" | "archive" | "events" | "contact">("home");
-  const setActiveTab = (tab: "home" | "program" | "descriptions" | "archive" | "events" | "contact") => {
+  const [activeTab, setActiveTabState] = useState<"home" | "program" | "archive" | "events">("home");
+  const setActiveTab = (tab: "home" | "program" | "archive" | "events") => {
     setActiveTabState(tab);
     setSelectedShowId(null);
   };
@@ -301,7 +307,7 @@ export default function App() {
     setIsGreek(!isGreek);
   };
 
-  const handleTabChange = (tab: "home" | "program" | "archive" | "events" | "contact") => {
+  const handleTabChange = (tab: "home" | "program" | "archive" | "events") => {
     setActiveTab(tab);
     setSelectedShowId(null);
   };
@@ -384,54 +390,25 @@ export default function App() {
   return (
     <div className="min-h-screen text-on-surface font-sans selection:bg-primary-container selection:text-on-primary-container flex flex-col relative pb-40 md:pb-36 overflow-x-hidden">
       
-      {/* FLOATING AMBIENT AURORA GLASS ORBS */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div
-          animate={{
-            x: [0, 80, -40, 0],
-            y: [0, -60, 40, 0],
-            scale: [1, 1.25, 0.9, 1],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-20 left-[15%] w-[480px] h-[480px] bg-[#d2f34c]/12 rounded-full filter blur-[140px] animate-aurora"
-        />
-        <motion.div
-          animate={{
-            x: [0, -70, 50, 0],
-            y: [0, 80, -30, 0],
-            scale: [1, 0.85, 1.15, 1],
-          }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[35%] right-[10%] w-[550px] h-[550px] bg-white/[0.04] rounded-full filter blur-[140px] animate-aurora"
-        />
-        <motion.div
-          animate={{
-            x: [0, 60, -50, 0],
-            y: [0, -50, 60, 0],
-            scale: [1, 1.1, 0.95, 1],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[10%] left-[25%] w-[500px] h-[500px] bg-[#c1e436]/10 rounded-full filter blur-[150px] animate-aurora"
-        />
-      </div>
+      {/* AMBIENT BACKGROUND GRADIENTS ARE MANAGED VIA BODY CSS (index.css) */}
 
       {/* HEADER SECTION (Desktop) */}
-      <nav className="w-full sticky top-0 glass-navbar transition-all duration-300 z-40">
-        <div className="flex justify-between items-center px-6 py-4 max-w-screen-xl mx-auto w-full">
+      <nav className="w-full sticky top-0 glass-navbar transition-all duration-300 z-40 h-[80px] flex items-center">
+        <div className="flex justify-between items-center px-0 max-w-[1240px] mx-auto w-full h-full">
           <div 
             onClick={() => handleTabChange("home")}
-            className="cursor-pointer"
+            className="cursor-pointer flex items-center"
           >
-            <UthLogo size={34} showText={true} />
+            <UthLogo size={36} showText={true} />
           </div>
           
-          <ul className="hidden md:flex gap-8 font-semibold text-sm">
+          <ul className="hidden md:flex gap-7 font-semibold text-sm items-center">
             <li className="cursor-pointer">
               <span 
                 onClick={() => handleTabChange("home")}
                 className={`transition-all pb-1 ${
                   activeTab === "home" 
-                    ? "text-primary border-b-2 border-primary glow-text" 
+                    ? "text-primary border-b-2 border-primary font-bold" 
                     : "text-on-surface-variant hover:text-primary"
                 }`}
               >
@@ -443,7 +420,7 @@ export default function App() {
                 onClick={() => handleTabChange("program")}
                 className={`transition-all pb-1 ${
                   activeTab === "program" 
-                    ? "text-primary border-b-2 border-primary glow-text" 
+                    ? "text-primary border-b-2 border-primary font-bold" 
                     : "text-on-surface-variant hover:text-primary"
                 }`}
               >
@@ -452,14 +429,14 @@ export default function App() {
             </li>
             <li className="cursor-pointer">
               <span 
-                onClick={() => handleTabChange("descriptions")}
+                onClick={() => handleTabChange("events")}
                 className={`transition-all pb-1 ${
-                  activeTab === "descriptions" 
-                    ? "text-primary border-b-2 border-primary glow-text" 
+                  activeTab === "events" 
+                    ? "text-primary border-b-2 border-primary font-bold" 
                     : "text-on-surface-variant hover:text-primary"
                 }`}
               >
-                {currentT.navDesc}
+                {currentT.navEvents}
               </span>
             </li>
             <li className="cursor-pointer">
@@ -467,7 +444,7 @@ export default function App() {
                 onClick={() => handleTabChange("archive")}
                 className={`transition-all pb-1 ${
                   activeTab === "archive" 
-                    ? "text-primary border-b-2 border-primary glow-text" 
+                    ? "text-primary border-b-2 border-primary font-bold" 
                     : "text-on-surface-variant hover:text-primary"
                 }`}
               >
@@ -500,125 +477,106 @@ export default function App() {
             </button>
 
             <motion.button 
-              whileHover={{ scale: 1.05 }}
+              layout
+              whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
               onClick={() => handleTuneChannel("m3")}
-              className="hidden md:flex items-center gap-2 bg-primary text-on-primary px-5 py-2 rounded-full font-bold text-xs shadow-lg shadow-primary/20 cursor-pointer"
+              className="hidden md:flex items-center justify-center gap-1.5 bg-primary text-on-primary px-4 h-[34px] rounded-2xl font-bold text-xs shadow-[0_0_12px_rgba(183,50,41,0.35)] hover:shadow-[0_0_22px_rgba(183,50,41,0.7)] cursor-pointer whitespace-nowrap overflow-hidden select-none group transition-all duration-300"
             >
-              <Music className="w-3.5 h-3.5" />
-              <span>{stationPlaying ? currentT.playingBtn : currentT.listenBtn}</span>
+              <Music className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300 ${stationPlaying ? "animate-pulse" : "group-hover:rotate-12 group-hover:scale-110"}`} />
+              <span className="whitespace-nowrap">{stationPlaying ? currentT.playingBtn : currentT.listenBtn}</span>
             </motion.button>
           </div>
         </div>
       </nav>
 
       {/* MAIN RENDER CORE */}
-      <main className="flex-grow max-w-screen-xl mx-auto w-full px-6 flex flex-col items-center mt-6 pb-32 md:pb-36 z-10 relative">
+      <main className="flex-grow max-w-screen-xl mx-auto w-full px-6 flex flex-col items-center pb-32 md:pb-36 z-10 relative">
         <AnimatePresence mode="wait">
           {activeTab === "home" && (
             <motion.div
               key="home"
               id="view-home"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="w-full flex flex-col items-center gap-12"
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="w-full flex flex-col items-center"
             >
               {/* HERO CARD PORTION */}
               <motion.header
-                initial={{ opacity: 0, scale: 0.94, y: 30 }}
+                initial={{ opacity: 0, scale: 0.96, y: 18.5 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="text-center max-w-4xl glass-panel p-8 md:p-12 rounded-3xl flex flex-col items-center gap-5 mt-4 relative overflow-hidden group shadow-2xl border border-white/15"
+                transition={{ duration: 0.385, ease: "easeOut" }}
+                className="text-center max-w-3xl w-full flex flex-col items-center pt-10 relative z-10"
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
-                
-                <motion.span
-                  initial={{ opacity: 0, y: -10 }}
+                {/* Top Badge Pill (Slightly refined) */}
+                <motion.div
+                  initial={{ opacity: 0, y: -7.2 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.15, duration: 0.4 }}
-                  className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full glass-pill text-xs font-bold text-primary uppercase tracking-widest shadow-xs"
+                  transition={{ delay: 0.1, duration: 0.285 }}
+                  className="inline-flex items-center gap-2.5 px-5 h-[40px] rounded-full border border-primary/30 bg-primary/10 text-[13px] font-bold text-primary uppercase tracking-wider shadow-xs"
                 >
-                  <Flame className="w-3.5 h-3.5 text-primary animate-bounce" />
-                  <span>24/7 LIVE CAMPUS BROADCAST</span>
-                </motion.span>
+                  <img src="/radio-logo.png" alt="Radio Logo" className="w-4 h-4 object-contain" />
+                  <span>ΠΑΝΕΠΙΣΤΗΜΙΟ ΘΕΣΣΑΛΙΑΣ • UTH LIVE BROADCAST</span>
+                </motion.div>
 
-                <h1 className="font-headline text-5xl md:text-7xl tracking-tighter text-primary font-extrabold leading-tight glow-text">
+                {/* Main Headline */}
+                <h1 className="font-headline text-4xl md:text-6xl tracking-tight text-white font-extrabold leading-tight mt-[34px]">
                   {currentT.pulseTitle}
                 </h1>
                 
-                <p className="text-lg text-on-surface-variant leading-relaxed font-normal max-w-2xl">
+                {/* Subtitle / Description */}
+                <p className="text-sm md:text-[17px] text-on-surface-variant/85 leading-relaxed font-normal max-w-xl text-center mt-[34px]">
                   {currentT.undergroundSub}
                 </p>
 
-                {/* CENTRAL PLAY EMBLEM - APPLE LIQUID GLASS STYLE */}
-                <div className="relative mt-6 flex flex-col items-center gap-7">
-                  <div className="relative flex justify-center items-center">
-                    {stationPlaying && (
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center justify-center gap-3.5 mt-[36px]">
+                  {/* Primary Play Button */}
+                  <motion.button
+                    layout
+                    whileHover={{ scale: 1.025 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    onClick={() => setStationPlaying(!stationPlaying)}
+                    id="hero-play-accent"
+                    className="flex items-center justify-center gap-2.5 bg-primary hover:bg-primary/90 text-white px-7 min-w-[211px] h-[50px] rounded-2xl font-bold text-sm shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow cursor-pointer whitespace-nowrap overflow-hidden select-none"
+                  >
+                    {stationPlaying ? (
                       <>
-                        <div className="absolute -inset-6 rounded-full border-2 border-primary/45 animate-ping opacity-40"></div>
-                        <div className="absolute -inset-10 rounded-full border border-primary/30 animate-pulse opacity-30"></div>
+                        <Pause className="w-4 h-4 text-white fill-white flex-shrink-0" />
+                        <span className="whitespace-nowrap">{currentT.playingBtn}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 text-white fill-white ml-0.5 flex-shrink-0" />
+                        <span className="whitespace-nowrap">{isGreek ? "Ακούστε Ζωντανά" : "Listen Live"}</span>
                       </>
                     )}
-                    <div className="absolute -inset-4 rounded-full bg-[#d2f34c]/25 filter blur-3xl animate-pulse"></div>
-                    <motion.button
-                      whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setStationPlaying(!stationPlaying)}
-                      id="hero-play-accent"
-                      className="w-26 h-26 rounded-full bg-gradient-to-b from-white/25 to-white/5 p-[1px] flex items-center justify-center shadow-[0_24px_50px_rgba(0,0,0,0.8),_0_0_40px_rgba(210,243,76,0.35)] cursor-pointer relative z-10 group"
-                    >
-                      <div className="w-full h-full rounded-full bg-[#141418]/90 backdrop-blur-3xl group-hover:bg-[#1f1f25]/95 transition-all flex items-center justify-center border border-white/10">
-                        {stationPlaying ? (
-                          <Pause className="w-10 h-10 text-[#d2f34c] fill-[#d2f34c] drop-shadow-[0_0_15px_rgba(210,243,76,0.7)]" />
-                        ) : (
-                          <Play className="w-10 h-10 text-[#d2f34c] fill-[#d2f34c] drop-shadow-[0_0_15px_rgba(210,243,76,0.7)] ml-1" />
-                        )}
-                      <div className="glass-card p-5 rounded-2xl border border-white/10 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                      <Instagram className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-white">Social Media</h4>
-                      <p className="text-xs text-on-surface-variant mt-1">
-                        <a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1 font-semibold">
-                          <span>Instagram (@frsvolou.gr)</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </p>
-                      <p className="text-xs text-on-surface-variant mt-1">
-                        <a href="https://www.mixcloud.com/frs-volou/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1 font-semibold">
-                          <span>Mixcloud (frs-volou)</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                    </motion.button>
-                  </div>
+                  </motion.button>
 
-                  {/* INTERACTIVE COMMUNITY CHAT TRIGGER */}
-                  <div className="flex flex-wrap items-center justify-center gap-3">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      onClick={() => setChatOpen(true)}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-full glass-pill text-xs font-bold text-primary transition-all cursor-pointer shadow-sm"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>{currentT.joinedCommunity}</span>
-                      <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
-                    </motion.button>
-                  </div>
+                  {/* Live Chat Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.025 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    onClick={() => setChatOpen(true)}
+                    className="flex items-center justify-center gap-2.5 w-[167px] h-[50px] rounded-2xl glass-pill text-sm font-bold text-white hover:border-primary/60 hover:bg-white/10 cursor-pointer shadow-xs select-none transition-all duration-200"
+                  >
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                    <span>Live Chat</span>
+                    <ArrowRight className="w-4 h-4 text-on-surface-variant ml-0.5" />
+                  </motion.button>
                 </div>
               </motion.header>
 
-              {/* TODAY'S / WEEKLY SCHEDULE ROW - MOVED ABOVE LIVE CHAT */}
-              <section className="w-full max-w-4xl flex flex-col gap-5 mt-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              {/* TODAY'S / WEEKLY SCHEDULE ROW - RAISED 5PX HIGHER (mt-[73px]) */}
+              <section className="w-full max-w-[896px] mx-auto flex flex-col gap-5 mt-[73px]">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
                   <h2 className="font-headline text-xl font-bold text-primary tracking-tight flex items-center gap-2">
                     <Clock className="w-5 h-5 text-primary" />
                     <span>{isGreek ? "Επόμενες εκπομπές" : "Up next"}</span>
@@ -633,39 +591,43 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {/* LIVE CARD */}
+                  {/* LIVE / AUTO CARD */}
                   <div 
                     onClick={() => currentLiveShow && handleOpenShowDescription(currentLiveShow)}
-                    className="glass-card p-5 rounded-2xl border border-primary/50 relative overflow-hidden glow-primary shadow-xl group transition-all duration-200 cursor-pointer hover:border-primary hover:scale-[1.01]"
+                    className="glass-card p-5 rounded-2xl border border-primary/50 relative overflow-hidden glow-primary shadow-xl group transition-all duration-200 cursor-pointer hover:border-primary hover:scale-[1.01] h-[157px] flex flex-col"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent pointer-events-none" />
-                    <div className="relative z-10 flex flex-col gap-2.5">
+                    <div className="relative z-10 flex flex-col">
                       {currentLiveShow ? (
                         <>
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-bold text-primary font-mono">{currentLiveShow.time}</span>
+                            <span className="text-[13px] font-bold text-primary font-mono">{currentLiveShow.time}</span>
                             <div className="flex items-center gap-1.5 bg-primary/25 px-2.5 py-0.5 rounded-full text-[10px] text-primary font-bold uppercase backdrop-blur-md shadow-xs">
                               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                               <span>{currentT.liveIndicator}</span>
                             </div>
                           </div>
-                          <h3 className="font-headline text-lg font-bold text-primary mt-1 group-hover:underline">{currentLiveShow.title}</h3>
-                          <p className="text-xs text-on-surface-variant font-medium">{currentLiveShow.host}</p>
+                          <div className="mt-3.5">
+                            <h3 className="font-headline text-[18px] font-bold text-primary leading-[1.45] group-hover:underline">{currentLiveShow.title}</h3>
+                            <p className="text-[13px] text-on-surface-variant font-medium mt-3">{currentLiveShow.host}</p>
+                          </div>
                         </>
                       ) : (
                         <>
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-bold text-on-surface-variant font-mono">24/7 Non-Stop</span>
+                            <span className="text-[13px] font-semibold text-on-surface-variant font-mono">Non-Stop Stream</span>
                             <div className="flex items-center gap-1.5 bg-outline-variant/30 px-2.5 py-0.5 rounded-full text-[10px] text-on-surface-variant font-bold uppercase backdrop-blur-md">
                               <span>{isGreek ? "ΑΥΤΟΜΑΤΗ ΡΟΗ" : "AUTO STREAM"}</span>
                             </div>
                           </div>
-                          <h3 className="font-headline text-base md:text-lg font-bold text-primary mt-1">
-                            {isGreek ? "Δεν μεταδίδεται ζωντανή εκπομπή αυτή τη στιγμή" : "No Live Show Broadcast Right Now"}
-                          </h3>
-                          <p className="text-xs text-on-surface-variant font-medium">
-                            {isGreek ? "Αυτόματη μουσική ροή FRS UTH 24/7" : "FRS UTH 24/7 Automated Music Rotation"}
-                          </p>
+                          <div className="mt-3.5">
+                            <h3 className="font-headline text-[18px] font-bold text-primary leading-[1.45]">
+                              {isGreek ? "Δεν μεταδίδεται ζωντανή εκπομπή αυτή τη στιγμή" : "No Live Show Broadcast Right Now"}
+                            </h3>
+                            <p className="text-[13px] text-on-surface-variant font-medium mt-3">
+                              {isGreek ? "Αυτόματη μουσική ροή FRS UTH" : "FRS UTH Automated Music Rotation"}
+                            </p>
+                          </div>
                         </>
                       )}
                     </div>
@@ -674,60 +636,72 @@ export default function App() {
                   {/* NEXT CARD */}
                   <div 
                     onClick={() => nextShow && handleOpenShowDescription(nextShow)}
-                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer hover:border-primary/50 hover:scale-[1.01]"
+                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer hover:border-primary/50 hover:scale-[1.01] h-[157px] flex flex-col"
                   >
-                    <div className="flex flex-col gap-2.5">
+                    <div className="flex flex-col">
                       {nextShow ? (
                         <>
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-semibold text-on-surface-variant font-mono">{nextShow.timeLabel || nextShow.time}</span>
+                            <span className="text-[13px] font-semibold text-on-surface-variant font-mono">{nextShow.timeLabel || nextShow.time}</span>
                             <span className="text-[10px] font-bold text-on-surface-variant/80 border border-white/15 px-2 py-0.5 rounded uppercase glass-pill">
                               {currentT.nextIndicator}
                             </span>
                           </div>
-                          <h3 className="font-headline text-lg font-bold text-primary mt-1 group-hover:underline">{nextShow.title}</h3>
-                          <p className="text-xs text-on-surface-variant font-medium">{nextShow.host}</p>
+                          <div className="mt-3.5">
+                            <h3 className="font-headline text-[18px] font-bold text-primary leading-[1.45] group-hover:underline">{nextShow.title}</h3>
+                            <p className="text-[13px] text-on-surface-variant font-medium mt-3">{nextShow.host}</p>
+                          </div>
                         </>
                       ) : (
                         <>
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-semibold text-on-surface-variant font-mono">--:--</span>
+                            <span className="text-[13px] font-semibold text-on-surface-variant font-mono">20:00 – 22:00</span>
                             <span className="text-[10px] font-bold text-on-surface-variant/80 border border-white/15 px-2 py-0.5 rounded uppercase glass-pill">
-                              {currentT.nextIndicator}
+                              {isGreek ? "ΕΠΟΜΕΝΟ" : "NEXT"}
                             </span>
                           </div>
-                          <h3 className="font-headline text-lg font-bold text-primary mt-1">
-                            {isGreek ? "Καμία επόμενη για σήμερα" : "No More Shows Today"}
-                          </h3>
-                          <p className="text-xs text-on-surface-variant font-medium">
-                            {isGreek ? "Δείτε το εβδομαδιαίο πρόγραμμα" : "Check weekly schedule"}
-                          </p>
+                          <div className="mt-3.5">
+                            <h3 className="font-headline text-[18px] font-bold text-primary leading-[1.45]">
+                              Jazz Fusion
+                            </h3>
+                            <p className="text-[13px] text-on-surface-variant font-medium mt-3">
+                              The Quartet
+                            </p>
+                          </div>
                         </>
                       )}
                     </div>
                   </div>
 
-                  {/* LATER CARD */}
+                  {/* THIRD CARD */}
                   <div 
                     onClick={() => laterShow && handleOpenShowDescription(laterShow)}
-                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer hover:border-primary/50 hover:scale-[1.01]"
+                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer hover:border-primary/50 hover:scale-[1.01] h-[157px] flex flex-col"
                   >
-                    <div className="flex flex-col gap-2.5">
+                    <div className="flex flex-col">
                       {laterShow ? (
                         <>
-                          <span className="text-xs font-semibold text-on-surface-variant font-mono">{laterShow.timeLabel || laterShow.time}</span>
-                          <h3 className="font-headline text-lg font-bold text-primary mt-1 group-hover:underline">{laterShow.title}</h3>
-                          <p className="text-xs text-on-surface-variant font-medium">{laterShow.host}</p>
+                          <div className="flex justify-between items-center">
+                            <span className="text-[13px] font-semibold text-on-surface-variant font-mono">{laterShow.timeLabel || laterShow.time}</span>
+                          </div>
+                          <div className="mt-3.5">
+                            <h3 className="font-headline text-[18px] font-bold text-primary leading-[1.45] group-hover:underline">{laterShow.title}</h3>
+                            <p className="text-[13px] text-on-surface-variant font-medium mt-3">{laterShow.host}</p>
+                          </div>
                         </>
                       ) : (
                         <>
-                          <span className="text-xs font-semibold text-on-surface-variant font-mono">24/7</span>
-                          <h3 className="font-headline text-lg font-bold text-primary mt-1">
-                            {isGreek ? "Αυτόματη Ροή Μουσικής" : "Auto Rotation Continues"}
-                          </h3>
-                          <p className="text-xs text-on-surface-variant font-medium">
-                            {isGreek ? "Μουσικές επιλογές 24/7" : "24/7 Curated Tracks"}
-                          </p>
+                          <div className="flex justify-between items-center">
+                            <span className="text-[13px] font-semibold text-on-surface-variant font-mono">Αύριο • 22:00 – 00:00</span>
+                          </div>
+                          <div className="mt-3.5">
+                            <h3 className="font-headline text-[18px] font-bold text-primary leading-[1.45]">
+                              Club Night
+                            </h3>
+                            <p className="text-[13px] text-on-surface-variant font-medium mt-3">
+                              DJ X
+                            </p>
+                          </div>
                         </>
                       )}
                     </div>
@@ -735,53 +709,15 @@ export default function App() {
                 </div>
               </section>
 
-              {/* LIVE COMMUNITY TICKER & PREVIEW CARD - REPLACING BULKY INLINE CHAT */}
-              <section className="w-full max-w-4xl flex flex-col mt-4">
-                <div 
-                  onClick={() => setChatOpen(true)}
-                  className="glass-panel p-6 md:p-8 rounded-3xl border border-white/15 hover:border-primary/50 transition-all duration-300 shadow-xl cursor-pointer group relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent pointer-events-none" />
-                  
-                  <div className="flex flex-col gap-3 max-w-xl relative z-10 text-center md:text-left">
-                    <div className="flex items-center justify-center md:justify-start gap-2.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-                      <span className="text-xs font-bold font-mono text-primary uppercase tracking-widest">
-                        {isGreek ? "ΖΩΝΤΑΝΗ ΚΟΙΝΟΤΗΤΑ FRS" : "LIVE FRS COMMUNITY"}
-                      </span>
-                      <span className="tag-badge ml-1">
-                        142 {isGreek ? "Φοιτητές Online" : "Students Online"}
-                      </span>
-                    </div>
-                    
-                    <h3 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight group-hover:text-primary transition-colors">
-                      {isGreek ? "Συντονιστείτε & Μιλήστε On-Air με τους Παραγωγούς" : "Tune In & Chat On-Air With Our Broadcasters"}
-                    </h3>
-                    
-                    {/* Simulated live ticker comments */}
-                    <div className="flex flex-col gap-2 mt-1">
-                      <div className="flex items-center gap-2 text-xs bg-white/[0.04] px-3.5 py-2 rounded-xl border border-white/10 text-on-surface-variant">
-                        <span className="font-bold text-primary font-mono">DJ Nova:</span>
-                        <span className="truncate">{isGreek ? "Ετοιμάζω μερικά φρέσκα Techno κομμάτια για απόψε! ⚡" : "Dropping some fresh techno tracks tonight! Who's ready? ⚡"}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs bg-white/[0.04] px-3.5 py-2 rounded-xl border border-white/10 text-on-surface-variant">
-                        <span className="font-bold text-[#f97758] font-mono">Sarah V.:</span>
-                        <span className="truncate">{isGreek ? "Ανυπομονώ για το αυριανό Indie Hour! Στείλτε παραγγελίες 🎧" : "Can't wait for Indie Hour tomorrow! Send your requests 🎧"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={(e) => { e.stopPropagation(); setChatOpen(true); }}
-                    className="flex items-center gap-3 bg-primary text-on-primary font-bold text-sm px-7 py-4 rounded-full shadow-lg shadow-primary/20 flex-shrink-0 cursor-pointer group-hover:brightness-105 transition-all"
-                  >
-                    <MessageSquare className="w-4 h-4 fill-on-primary" />
-                    <span>{isGreek ? "Άνοιγμα Συνομιλίας" : "Open Community Chat"}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </motion.button>
-                </div>
+              {/* INLINE EMBEDDED LIVE CHAT WIDGET (Matching Up Next width: max-w-[896px]) */}
+              <section className="w-full max-w-[896px] mx-auto flex flex-col items-center mt-16">
+                <LiveChat 
+                  isGreek={isGreek} 
+                  isOpen={true} 
+                  onClose={() => {}} 
+                  isInline={true} 
+                  currentLiveShow={currentLiveShow} 
+                />
               </section>
             </motion.div>
           )}
@@ -807,48 +743,48 @@ export default function App() {
                 </p>
               </header>
 
-              {/* UNIFIED DAY HORIZONTAL SCROLL SELECTOR (DESKTOP & MOBILE) */}
-              <div className="flex overflow-x-auto gap-2 pb-3 w-full no-scrollbar justify-start md:justify-center snap-x">
-                {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg, idx) => (
-                  <button
-                    key={dayProg.day}
-                    onClick={() => setSelectedMobileDay(idx)}
-                    className={`snap-start flex-shrink-0 px-6 py-3 rounded-full font-bold text-xs transition-all border cursor-pointer ${
-                      selectedMobileDay === idx
-                        ? "bg-primary text-on-primary border-primary shadow-lg shadow-primary/25 scale-105"
-                        : "glass-pill text-on-surface hover:border-primary/50"
-                    }`}
-                  >
-                    {dayProg.day}
-                  </button>
-                ))}
-              </div>
-
-              {/* SPACIOUS SHOWS GRID FOR SELECTED DAY */}
-              <div className="w-full flex flex-col gap-4 mt-2 max-w-5xl">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3 px-1">
-                  <h3 className="font-headline text-xl font-bold text-primary tracking-tight">
-                    {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].fullName}
-                  </h3>
-                  <span className="text-xs font-mono text-on-surface-variant font-semibold">
-                    {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.length} {isGreek ? "Εκπομπές" : "Shows"}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full items-stretch">
-                  {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.map((show) => (
-                    <div
-                      key={show.id}
-                      onClick={() => handleTuneChannel(show.id)}
-                      className={`p-6 rounded-3xl border flex flex-col justify-between gap-5 transition-all duration-300 shadow-xl cursor-pointer group ${
-                        show.isLive
-                          ? "glass-card border-primary/80 bg-primary/20 glow-primary"
-                          : "glass-card border-white/15 hover:border-primary/50 hover:-translate-y-1"
+              {/* MOBILE DAY SELECTOR TABS (Visible only on mobile) */}
+              <div className="block md:hidden w-full">
+                <div className="flex overflow-x-auto gap-2 pb-3 w-full no-scrollbar justify-start snap-x">
+                  {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg, idx) => (
+                    <button
+                      key={dayProg.day}
+                      onClick={() => setSelectedMobileDay(idx)}
+                      className={`snap-start flex-shrink-0 px-6 py-3 rounded-full font-bold text-xs transition-all border cursor-pointer ${
+                        selectedMobileDay === idx
+                          ? "bg-primary text-on-primary border-primary shadow-lg shadow-primary/25 scale-105"
+                          : "glass-pill text-on-surface hover:border-primary/50"
                       }`}
                     >
-                      <div className="flex flex-col gap-3.5">
+                      {dayProg.day}
+                    </button>
+                  ))}
+                </div>
+
+                {/* SHOWS GRID FOR SELECTED DAY (MOBILE) */}
+                <div className="w-full flex flex-col gap-4 mt-2">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3 px-1">
+                    <h3 className="font-headline text-xl font-bold text-primary tracking-tight">
+                      {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].fullName}
+                    </h3>
+                    <span className="text-xs font-mono text-on-surface-variant font-semibold">
+                      {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.length} {isGreek ? "Εκπομπές" : "Shows"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 w-full">
+                    {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.map((show) => (
+                      <div
+                        key={show.id}
+                        onClick={() => handleTuneChannel(show.id)}
+                        className={`p-5 rounded-2xl border flex flex-col justify-between gap-4 transition-all duration-300 shadow-xl cursor-pointer group ${
+                          show.isLive
+                            ? "glass-card border-primary/80 bg-primary/20 glow-primary"
+                            : "glass-card border-white/15 hover:border-primary/50"
+                        }`}
+                      >
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-mono font-bold text-on-surface-variant/95 bg-white/[0.06] px-3 py-1 rounded-lg border border-white/10">
+                          <span className="text-xs font-mono font-bold text-on-surface-variant bg-white/[0.06] px-3 py-1 rounded-lg border border-white/10">
                             {show.time}
                           </span>
                           {show.isLive && (
@@ -867,18 +803,69 @@ export default function App() {
                             {show.host}
                           </p>
                         </div>
-                      </div>
 
-                      <div className="flex flex-wrap gap-1.5 pt-3.5 border-t border-white/10">
-                        {show.tags.map(tag => (
-                          <span key={tag} className="tag-badge">
-                            {tag}
-                          </span>
-                        ))}
+                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/10">
+                          {show.tags.map(tag => (
+                            <span key={tag} className="tag-badge">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+              </div>
+
+              {/* DESKTOP FULL 7-DAY SCHEDULE VIEW (Matching screenshot design) */}
+              <div className="hidden md:grid md:grid-cols-7 gap-3.5 w-full max-w-screen-xl items-start">
+                {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg) => (
+                  <div key={dayProg.day} className="flex flex-col gap-3.5">
+                    {/* Day Header Pill */}
+                    <div className="glass-pill py-2.5 px-3 rounded-2xl text-center font-bold text-xs text-primary border border-white/15 bg-white/[0.04] uppercase tracking-wider shadow-xs select-none">
+                      {dayProg.day}
+                    </div>
+
+                    {/* Show Cards for this Day */}
+                    <div className="flex flex-col gap-3.5">
+                      {dayProg.shows.map((show) => (
+                        <div
+                          key={show.id}
+                          onClick={() => handleTuneChannel(show.id)}
+                          className={`p-4 rounded-2xl border flex flex-col justify-between gap-3 shadow-lg transition-all duration-200 cursor-pointer group ${
+                            show.isLive
+                              ? "glass-card border-primary/80 bg-primary/20 glow-primary"
+                              : "glass-card border-white/15 hover:border-primary/60 hover:scale-[1.02]"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-mono font-semibold text-on-surface-variant">
+                              {show.time}
+                            </span>
+                            {show.isLive && (
+                              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-headline text-sm font-bold text-primary mt-1 group-hover:underline">
+                              {show.title}
+                            </h4>
+                            <p className="text-[11px] text-on-surface-variant font-medium mt-0.5">
+                              {show.host}
+                            </p>
+                          </div>
+                          {show.tags && show.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              <span className="inline-block self-start text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/15 border border-primary/30 text-primary">
+                                {show.tags[0]}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}
@@ -1271,8 +1258,8 @@ export default function App() {
 
                   {/* Event Card 2 */}
                   <div className="glass-card rounded-2xl border border-white/10 overflow-hidden shadow-xl group hover:border-primary/50 transition-all duration-200 hover:scale-[1.01]">
-                    <div className="h-40 bg-gradient-to-br from-[#b3be87]/20 via-transparent to-transparent flex items-center justify-center relative">
-                      <Mic className="w-16 h-16 text-[#b3be87]/40" />
+                    <div className="h-40 bg-gradient-to-br from-primary/20 via-transparent to-transparent flex items-center justify-center relative">
+                      <Mic className="w-16 h-16 text-primary/40" />
                       <div className="absolute top-3 right-3 bg-black/60 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-white/15">
                         {isGreek ? "ΕΓΓΡΑΦΕΣ" : "SIGN UP"}
                       </div>
@@ -1555,7 +1542,7 @@ export default function App() {
         <UthLogo size={36} showText={true} />
         <ul className="flex gap-6 text-xs text-on-surface-variant/60 font-semibold mt-2">
           <li><a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-all">Instagram</a></li>
-          <li><button onClick={() => handleTabChange("contact")} className="hover:text-primary transition-all cursor-pointer">Contact</button></li>
+          <li><button onClick={() => setChatOpen(true)} className="hover:text-primary transition-all cursor-pointer">Live Chat</button></li>
           <li><a href="https://www.mixcloud.com/frs-volou/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-all">Mixcloud</a></li>
         </ul>
         <div className="text-[10px] text-on-surface-variant/40 mt-1">
@@ -1563,29 +1550,15 @@ export default function App() {
         </div>
       </footer>
 
-      {/* PERSISTENT FLOATING CHAT BALLOON (Apple Liquid Glass Style) */}
-      {!chatOpen && (
-        <motion.button
-          whileHover={{ scale: 1.12 }}
-          whileTap={{ scale: 0.92 }}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          onClick={() => setChatOpen(true)}
-          id="persistent-chat-trigger"
-          className="fixed bottom-[145px] md:bottom-[88px] right-6 z-[55] w-14 h-14 bg-[#d2f34c] text-[#181c08] rounded-full shadow-[0_15px_35px_rgba(210,243,76,0.45)] hover:shadow-[0_20px_45px_rgba(210,243,76,0.65)] flex items-center justify-center cursor-pointer border border-white/40"
-          title={isGreek ? "Άνοιγμα Συνομιλίας" : "Open Chat"}
-        >
-          <MessageSquare className="w-6 h-6 text-[#181c08] fill-[#181c08]" />
-        </motion.button>
-      )}
+
+
 
       {/* BOTTOM NAVIGATION NAV-BAR (Mobile view matches screen mock references) */}
       <nav className="fixed bottom-0 left-0 w-full z-45 flex justify-around items-center px-4 py-3 md:hidden glass-navbar rounded-t-3xl border-t border-white/15 pb-7 shadow-[0_-10px_30px_rgba(0,0,0,0.6)]">
         <button 
           onClick={() => { handleTabChange("home"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "home" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
+            activeTab === "home" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
           }`}
         >
           <Radio className="w-5 h-5" />
@@ -1593,23 +1566,23 @@ export default function App() {
         <button 
           onClick={() => { handleTabChange("program"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "program" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
+            activeTab === "program" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
           }`}
         >
           <Calendar className="w-5 h-5" />
         </button>
         <button 
-          onClick={() => { handleTabChange("descriptions"); }}
+          onClick={() => { handleTabChange("events"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "descriptions" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
+            activeTab === "events" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
           }`}
         >
-          <Mic className="w-5 h-5" />
+          <PartyPopper className="w-5 h-5" />
         </button>
         <button 
           onClick={() => { handleTabChange("archive"); }}
           className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "archive" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(210,243,76,0.6)]" : "text-on-surface-variant"
+            activeTab === "archive" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
           }`}
         >
           <Music className="w-5 h-5" />
@@ -1740,6 +1713,7 @@ export default function App() {
         setStationPlaying={setStationPlaying} 
         activeTrackId={activeTrackId}
         currentLiveShow={currentLiveShow}
+        onOpenChat={() => setChatOpen(true)}
       />
 
     </div>

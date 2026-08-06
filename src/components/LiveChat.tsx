@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Send, X, ShieldAlert, CheckCircle2, Edit3, Sparkles, Smile, ArrowDown, Users } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Send, X, Edit3, Sparkles, Smile, ArrowDown, Users, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChatMessage } from "../types";
-import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore";
+import { collection, addDoc, query, limit, onSnapshot, serverTimestamp, getDocs, deleteDoc } from "firebase/firestore";
 import { db, rtdb } from "../lib/firebase";
 import { ref, onValue, onDisconnect, set } from "firebase/database";
 
@@ -15,7 +15,7 @@ interface LiveChatProps {
   isGreek: boolean;
   isOpen: boolean;
   onClose: () => void;
-  onActiveTrackTrigger: (trackId: string) => void;
+  onActiveTrackTrigger?: (trackId: string) => void;
   isInline?: boolean;
   currentLiveShow?: any;
 }
@@ -25,14 +25,14 @@ const TAB_COLOR_KEY = "frs_tab_avatar_color";
 const TAB_SESSION_KEY = "frs_tab_session_id";
 
 const AVATAR_COLORS = [
-  "#ff5a36", // Primary Green-yellow
-  "#e0e6c3", // Light Olive
-  "#fce09b", // Golden Amber
-  "#f97758", // Vibrant Coral
-  "#a8c5da", // Sky Blue
-  "#d4a8da", // Soft Purple
-  "#81e6d9", // Teal
-  "#fbcfe8"  // Rose
+  "#ff5a36",
+  "#e0e6c3",
+  "#fce09b",
+  "#f97758",
+  "#a8c5da",
+  "#d4a8da",
+  "#81e6d9",
+  "#fbcfe8"
 ];
 
 const QUICK_EMOJIS = ["🔥", "❤️", "🎧", "⚡", "👏", "🚀"];
@@ -76,7 +76,7 @@ const pruneOldMessages = async (cutoff: Date) => {
   }
 };
 
-export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigger, isInline = false, currentLiveShow }: LiveChatProps) {
+export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, currentLiveShow }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [cutoffDate, setCutoffDate] = useState<Date>(() => getMostRecent3AM());
 
@@ -99,7 +99,6 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     return null;
   };
 
-  // Track live show transitions to clear/reset chat every time a new show starts
   const currentShowId = currentLiveShow?.id || "auto_stream";
   const prevShowIdRef = useRef<string | null>(null);
 
@@ -108,33 +107,21 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     const effectiveCutoff = showStart || getMostRecent3AM();
     setCutoffDate(effectiveCutoff);
 
-    // When show changes or ends (transition to a new show)
     if (prevShowIdRef.current !== currentShowId) {
       prevShowIdRef.current = currentShowId;
-
-      // Prune all chat messages created prior to this show's start
-      const clearPreviousShowMessages = async () => {
-        try {
-          pruneOldMessages(effectiveCutoff);
-        } catch (err) {
-          console.error("Error clearing chat for show transition:", err);
-        }
-      };
-
-      clearPreviousShowMessages();
+      pruneOldMessages(effectiveCutoff);
     }
   }, [currentShowId, currentLiveShow]);
 
-  // Per-Tab session & identity state (so multiple tabs = 2 different listeners!)
-  const [userName, setUserName] = useState("Student_101");
+  // Per-Tab session & identity state
+  const [userName, setUserName] = useState("Listener_687");
   const [userColor, setUserColor] = useState(AVATAR_COLORS[0]);
   const [tabSessionId, setTabSessionId] = useState("");
-  const isOnline = true;
   
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
   const [tempColor, setTempColor] = useState("");
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [inputText, setInputText] = useState("");
   
   // Auto-scroll tracking
   const [isScrolledUp, setIsScrolledUp] = useState(false);
@@ -142,8 +129,8 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Use Firebase Realtime Database (RTDB) for Native Presence (Zero Firestore Quota Usage)
-  const [siteUsersCount, setSiteUsersCount] = useState(1);
+  // Use Firebase Realtime Database (RTDB) for Native Presence
+  const [siteUsersCount, setSiteUsersCount] = useState<number>(1);
 
   useEffect(() => {
     if (!tabSessionId || !rtdb) return;
@@ -152,11 +139,9 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     let unsubPresence = () => {};
 
     try {
-      // The current tab's presence node
       const myPresenceRef = ref(rtdb, `presence/${tabSessionId}`);
-      
-      // Connected status listener (Firebase built-in connection state)
       const connectedRef = ref(rtdb, ".info/connected");
+      
       unsubConnected = onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
           onDisconnect(myPresenceRef).remove().then(() => {
@@ -165,7 +150,6 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
         }
       }, (err) => console.warn("RTDB connected error:", err));
 
-      // Listen to all active presence nodes to count how many viewers are online
       const allPresenceRef = ref(rtdb, "presence");
       unsubPresence = onValue(allPresenceRef, (snap) => {
         if (snap.exists()) {
@@ -191,9 +175,8 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     };
   }, [tabSessionId]);
 
-  // Initialize Per-Tab Session (`sessionStorage` ensures each tab is completely independent)
+  // Initialize Per-Tab Session
   useEffect(() => {
-    // Session ID
     let sid = sessionStorage.getItem(TAB_SESSION_KEY);
     if (!sid) {
       sid = "tab_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
@@ -201,7 +184,6 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     }
     setTabSessionId(sid);
 
-    // Username (independent for this exact tab!)
     let storedName = sessionStorage.getItem(TAB_NAME_KEY);
     if (!storedName) {
       const randomNum = Math.floor(Math.random() * 899 + 100);
@@ -211,20 +193,17 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     setUserName(storedName);
     setTempName(storedName);
 
-    // Avatar Color (independent for this exact tab!)
     let storedColor = sessionStorage.getItem(TAB_COLOR_KEY);
-    if (!storedColor || !isReload) {
-      const randomColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-      storedColor = randomColor;
+    if (!storedColor) {
+      storedColor = AVATAR_COLORS[0];
       sessionStorage.setItem(TAB_COLOR_KEY, storedColor);
     }
     setUserColor(storedColor);
     setTempColor(storedColor);
   }, []);
 
-  // 3:00 AM Daily Cutoff Timer & Automatic Background Pruning
+  // 3:00 AM Daily Cutoff Timer
   useEffect(() => {
-    // Prune any old messages existing before today's 3:00 AM cutoff right away
     pruneOldMessages(cutoffDate);
 
     const msUntilNext = getMsUntilNext3AM();
@@ -237,7 +216,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     return () => clearTimeout(timer);
   }, [cutoffDate]);
 
-  // Listen to Firestore real-time updates (fail-safe in-memory cutoff filtering!)
+  // Listen to Firestore real-time updates
   useEffect(() => {
     let unsubscribe = () => {};
     try {
@@ -247,34 +226,8 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
       );
 
       unsubscribe = onSnapshot(q, (snapshot) => {
-        const defaults: ChatMessage[] = currentLiveShow
-          ? [
-              {
-                id: `sys_live_${currentLiveShow.id}`,
-                user: currentLiveShow.host || "FRS UTH",
-                text: isGreek 
-                  ? `🎙️ Νέα Εκπομπή: "${currentLiveShow.title}" (${currentLiveShow.time}) με παραγωγό ${currentLiveShow.host}. Καλώς ήρθατε στη ζωντανή συνομιλία!` 
-                  : `🎙️ New Show: "${currentLiveShow.title}" (${currentLiveShow.time}) hosted by ${currentLiveShow.host}. Welcome to the live chat!`,
-                timestamp: currentLiveShow.time?.split("-")[0]?.trim() || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                isSystem: true,
-                avatarColor: "#b73229"
-              }
-            ]
-          : [
-              {
-                id: "sys_default",
-                user: "FRS UTH",
-                text: isGreek 
-                  ? "Καλώς ήρθατε στο FRS UTH! Συντονιστείτε για τις καλύτερες φοιτητικές ραδιοφωνικές εκπομπές." 
-                  : "Welcome to FRS UTH! Tune in for the best student radio broadcasts.",
-                timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                isSystem: true,
-                avatarColor: "#b73229"
-              }
-            ];
-
         if (snapshot.empty) {
-          setMessages(defaults);
+          setMessages([]);
         } else {
           const cutoffMillis = cutoffDate.getTime();
           const fetched: (ChatMessage & { rawTime: number })[] = [];
@@ -295,12 +248,8 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
             }
           });
 
-          if (fetched.length === 0) {
-            setMessages(defaults);
-          } else {
-            fetched.sort((a, b) => a.rawTime - b.rawTime);
-            setMessages(fetched);
-          }
+          fetched.sort((a, b) => a.rawTime - b.rawTime);
+          setMessages(fetched);
         }
       }, (error) => {
         console.error("Firestore live chat error:", error);
@@ -312,7 +261,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     return () => unsubscribe();
   }, [isGreek, cutoffDate, currentLiveShow]);
 
-  // Soft Auto-scroll to bottom if user is not scrolled up
+  // Auto-scroll to bottom
   useEffect(() => {
     if (containerRef.current && !isScrolledUp) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -343,26 +292,18 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     }
   };
 
-  // Save changes to this tab's independent session (`sessionStorage`)
   const handleSaveIdentity = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const cleanName = tempName.trim() || `Listener_${Math.floor(Math.random() * 899 + 100)}`;
     
-    // Save to sessionStorage (isolated per tab!)
     sessionStorage.setItem(TAB_NAME_KEY, cleanName);
     sessionStorage.setItem(TAB_COLOR_KEY, tempColor);
     
     setUserName(cleanName);
     setUserColor(tempColor);
     setIsEditingName(false);
-    
-    setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 1200);
   };
 
-  // Broadcast messages to Firestore database
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanMsg = inputText.trim();
@@ -392,282 +333,271 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
   };
 
   const chatContent = (
-    <div
-      id={isInline ? "inline-live-chat" : "chat-sliding-sidebar"}
-      className={
-        isInline
-          ? "w-full max-w-4xl glass-panel rounded-3xl flex flex-col shadow-2xl overflow-hidden h-[640px] relative transition-all"
-          : "fixed top-0 right-0 h-[calc(100%-144px)] md:h-[calc(100%-84px)] w-full sm:w-[460px] glass-panel border-l border-white/15 z-[55] rounded-none flex flex-col shadow-2xl overflow-hidden transition-all"
-      }
-    >
-      {/* Header section */}
-      <div className="p-4 border-b border-white/10 bg-white/[0.04] backdrop-blur-md flex flex-col gap-3 flex-shrink-0">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? "bg-primary animate-pulse" : "bg-outline"}`} />
-            <div className="flex items-center gap-2">
-              <h2 className="font-headline text-sm font-bold text-primary flex items-center gap-2">
-                <span>{isGreek ? "Ζωντανή Συνομιλία" : "Live Chat"}</span>
-              </h2>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-[11px] font-mono font-bold shadow-xs">
-                <Users className="w-3 h-3 text-primary animate-pulse" />
-                <span>{siteUsersCount} Online</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-[11px] font-mono font-bold shadow-xs">
-                <Users className="w-3 h-3 text-primary animate-pulse" />
-                <span>{siteUsersCount} Online</span>
-              </span>
-            </div>
-          </div>
+    <div className={`w-full glass-panel flex flex-col shadow-2xl overflow-hidden relative border border-white/10 bg-[#0f131d] ${isInline ? "max-w-[896px] h-[680px] rounded-3xl" : "h-full rounded-none"}`}>
+      {/* 1. Header Section (Compact) */}
+      <div className="px-6 py-3 border-b border-white/10 bg-white/[0.03] flex justify-between items-center flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+          <h2 className="font-headline text-base font-bold text-primary">
+            {isGreek ? "Ζωντανή Συνομιλία" : "Live Chat"}
+          </h2>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/40 bg-primary/10 text-primary text-xs font-bold font-mono">
+            <Users className="w-3.5 h-3.5 text-primary" />
+            <span>{siteUsersCount} Online</span>
+          </span>
+
           {!isInline && (
             <button
               onClick={onClose}
-              className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-surface-container cursor-pointer"
+              className="text-on-surface-variant hover:text-primary transition-colors p-1.5 rounded-full hover:bg-white/10 cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Switchable views */}
-      <div className="flex-grow relative overflow-hidden bg-transparent">
-        {/* MESSAGES CHANNEL VIEW */}
-        <div className="absolute inset-0 flex flex-col">
-            
-            {/* Top Interactive User Presence & Instant Edit Pill */}
-            <div className="px-3.5 py-2 bg-white/[0.03] backdrop-blur-md border-b border-white/10 flex items-center justify-between flex-shrink-0 text-xs">
-              <div className="flex items-center gap-2 min-w-0">
-                <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-on-surface-variant shadow-xs flex-shrink-0"
-                  style={{ backgroundColor: userColor, color: "#181b11" }}
-                >
-                  {userName.slice(0, 2).toUpperCase()}
-                </span>
-                <span className="text-on-surface-variant/80 truncate">
-                  {isGreek ? "Συνδεδεμένος ως:" : "Joined as:"}{" "}
-                  <strong className="text-primary font-bold">{userName}</strong>
-                </span>
-              </div>
+      {/* 2. Sub-header User Identity Bar (Compact) */}
+      <div className="px-6 py-2 border-b border-white/10 bg-white/[0.02] flex items-center justify-between flex-shrink-0 text-xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div
+            className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-xs flex-shrink-0"
+            style={{ backgroundColor: userColor, color: "#181b11" }}
+          >
+            {userName.slice(0, 1).toUpperCase()}
+          </div>
+          <span className="text-on-surface-variant/80 truncate">
+            {isGreek ? "Συνδεδεμένος ως:" : "Joined as:"}{" "}
+            <strong className="text-primary font-bold">{userName}</strong>
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            setTempName(userName);
+            setTempColor(userColor);
+            setIsEditingName(true);
+          }}
+          className="flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-primary/30 text-primary hover:bg-primary/10 font-bold text-xs transition-all cursor-pointer flex-shrink-0"
+        >
+          <Edit3 className="w-3 h-3" />
+          <span>{isGreek ? "Αλλαγή" : "Edit Name"}</span>
+        </button>
+      </div>
+
+      {/* Inline Quick Username Editor Modal */}
+      <AnimatePresence>
+        {isEditingName && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-16 left-6 right-6 z-30 p-4 bg-[#151b29] border border-primary/40 rounded-2xl shadow-2xl flex flex-col gap-3"
+          >
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-primary flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4" />
+                <span>{isGreek ? "Επεξεργασία Ονόματος & Χρώματος" : "Edit Username & Avatar Color"}</span>
+              </span>
               <button
-                onClick={() => {
-                  setTempName(userName);
-                  setTempColor(userColor);
-                  setIsEditingName(true);
-                }}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 font-bold text-[11px] transition-all cursor-pointer flex-shrink-0"
+                onClick={() => setIsEditingName(false)}
+                className="text-on-surface-variant hover:text-primary p-1 cursor-pointer"
               >
-                <Edit3 className="w-3 h-3" />
-                <span>{isGreek ? "Αλλαγή" : "Edit Name"}</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Inline Quick Username Editor Modal / Popover */}
-            <AnimatePresence>
-              {isEditingName && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-10 left-0 right-0 z-30 p-4 bg-surface-container-high border-b border-primary/30 shadow-xl flex flex-col gap-3"
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-primary flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>{isGreek ? "Επεξεργασία Ονόματος & Χρώματος" : "Edit Username & Avatar Color"}</span>
-                    </span>
+            <form onSubmit={handleSaveIdentity} className="flex flex-col gap-3">
+              <input
+                type="text"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                placeholder={isGreek ? "Πληκτρολογήστε όνομα..." : "Enter username..."}
+                maxLength={20}
+                autoFocus
+                className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-primary font-bold"
+              />
+
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-on-surface-variant">{isGreek ? "Χρώμα:" : "Color:"}</span>
+                <div className="flex gap-2 flex-wrap">
+                  {AVATAR_COLORS.map((color) => (
                     <button
-                      onClick={() => setIsEditingName(false)}
-                      className="text-on-surface-variant hover:text-primary p-1 cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleSaveIdentity} className="flex flex-col gap-3">
-                    <input
-                      type="text"
-                      value={tempName}
-                      onChange={(e) => setTempName(e.target.value)}
-                      placeholder={isGreek ? "Πληκτρολογήστε όνομα..." : "Enter username..."}
-                      maxLength={20}
-                      autoFocus
-                      className="w-full bg-surface-container-low border border-outline-variant/60 rounded-xl py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-primary font-bold"
+                      key={color}
+                      type="button"
+                      onClick={() => setTempColor(color)}
+                      className={`w-5 h-5 rounded-full transition-all cursor-pointer flex items-center justify-center ${
+                        tempColor === color ? "scale-125 ring-2 ring-primary ring-offset-2 ring-offset-background" : "hover:scale-110 opacity-80"
+                      }`}
+                      style={{ backgroundColor: color }}
                     />
+                  ))}
+                </div>
+              </div>
 
-                    {/* Color swatches */}
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] text-on-surface-variant">{isGreek ? "Χρώμα:" : "Color:"}</span>
-                      <div className="flex gap-1.5 flex-wrap">
-                        {AVATAR_COLORS.map((color) => (
-                          <button
-                            key={color}
-                            type="button"
-                            onClick={() => setTempColor(color)}
-                            className={`w-6 h-6 rounded-full transition-all cursor-pointer flex items-center justify-center ${
-                              tempColor === color ? "scale-125 ring-2 ring-primary ring-offset-2 ring-offset-background" : "hover:scale-110 opacity-80"
-                            }`}
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 justify-end mt-1">
-                      <button
-                        type="button"
-                        onClick={() => setIsEditingName(false)}
-                        className="px-3 py-1.5 rounded-lg bg-surface-container text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
-                      >
-                        {isGreek ? "Ακύρωση" : "Cancel"}
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-bold hover:brightness-105 transition-all shadow-sm cursor-pointer flex items-center gap-1"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>{isGreek ? "Αποθήκευση" : "Save Identity"}</span>
-                      </button>
-                    </div>
-                  </form>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Message List */}
-            <div
-              ref={containerRef}
-              onScroll={handleScroll}
-              className="flex-grow overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar scroll-smooth"
-            >
-              {messages.map((msg) => {
-                // If sessionId matches this tab's sessionId, OR username matches (and not system), treat as own message
-                const isMe = !msg.isSystem && (msg.sessionId ? msg.sessionId === tabSessionId : msg.user === userName);
-                const color = msg.avatarColor || "#ff5a36";
-
-                if (msg.isSystem) {
-                  return (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, scale: 0.95, y: 12 }}
-                      whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.1 }}
-                      transition={{ duration: 0.35, ease: "easeOut" }}
-                      className="self-center my-2 max-w-[90%] bg-primary/15 backdrop-blur-md border border-primary/40 rounded-2xl py-2.5 px-4 text-center shadow-md flex items-center justify-center gap-2"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
-                      <span className="text-xs font-bold text-white">
-                        {msg.text}
-                      </span>
-                    </motion.div>
-                  );
-                }
-
-                return (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 14, scale: 0.96 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, amount: 0.1 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
-                    className={`flex gap-2.5 max-w-[85%] ${isMe ? "self-end flex-row-reverse" : "self-start flex-row"}`}
-                  >
-                    {/* Avatar Badge */}
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold shadow-md flex-shrink-0 mt-1"
-                      style={{ backgroundColor: color, color: "#181b11" }}
-                      title={msg.user}
-                    >
-                      {msg.user.slice(0, 2).toUpperCase()}
-                    </div>
-
-                    <div className={`flex flex-col gap-1 ${isMe ? "items-end" : "items-start"}`}>
-                      <div className="flex items-center gap-1.5 px-1">
-                        <span className={`text-[11px] font-bold tracking-wide ${isMe ? "text-primary" : "text-on-surface"}`}>
-                          {msg.user}
-                        </span>
-                        <span className="text-[9px] text-on-surface-variant/60 font-mono">
-                          {msg.timestamp}
-                        </span>
-                      </div>
-                      <div
-                        className={`p-3 px-3.5 rounded-2xl text-xs break-words shadow-md leading-relaxed backdrop-blur-md ${
-                          isMe
-                            ? "bg-primary/25 text-on-surface rounded-tr-none border border-primary/40 shadow-primary/10"
-                            : "bg-white/[0.07] text-on-surface rounded-tl-none border border-white/12"
-                        }`}
-                      >
-                        {msg.text}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Floating New Message / Scroll to Bottom Pill */}
-            <AnimatePresence>
-              {isScrolledUp && (
-                <motion.button
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  onClick={scrollToBottom}
-                  className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 px-4 py-1.5 rounded-full bg-primary text-on-primary font-bold text-xs shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-                >
-                  <ArrowDown className="w-3.5 h-3.5" />
-                  <span>
-                    {newMsgCount > 0
-                      ? (isGreek ? `${newMsgCount} Νέα Μηνύματα` : `${newMsgCount} New Messages`)
-                      : (isGreek ? "Πιο Πρόσφατα" : "Latest Messages")}
-                  </span>
-                </motion.button>
-              )}
-            </AnimatePresence>
-
-            {/* Quick Emoji Reactions Bar */}
-            <div className="px-3 py-1.5 bg-surface-container-highest/60 border-t border-outline-variant/20 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-              <span className="text-[10px] text-on-surface-variant font-semibold flex items-center gap-1 pr-1 border-r border-outline-variant/30 flex-shrink-0">
-                <Smile className="w-3 h-3 text-primary" />
-                <span className="hidden sm:inline">{isGreek ? "Αντιδράσεις:" : "React:"}</span>
-              </span>
-              {QUICK_EMOJIS.map((emoji) => (
+              <div className="flex gap-2 justify-end mt-1">
                 <button
-                  key={emoji}
                   type="button"
-                  onClick={() => handleQuickEmoji(emoji)}
-                  className="w-7 h-7 rounded-lg hover:bg-primary/20 flex items-center justify-center text-sm transition-transform active:scale-125 cursor-pointer flex-shrink-0"
+                  onClick={() => setIsEditingName(false)}
+                  className="px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold text-on-surface-variant hover:text-white transition-colors cursor-pointer"
                 >
-                  {emoji}
+                  {isGreek ? "Ακύρωση" : "Cancel"}
                 </button>
-              ))}
-            </div>
-
-            {/* Typing Input Composer */}
-            <div className="p-3 border-t border-white/10 bg-white/[0.03] backdrop-blur-md flex-shrink-0">
-              <form onSubmit={handleSendMessage} className="relative flex items-center">
-                <input
-                  type="text"
-                  autoComplete="off"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder={
-                    isGreek
-                      ? `Μήνυμα ως ${userName}...`
-                      : `Message as ${userName}...`
-                  }
-                  className="w-full glass-pill rounded-full py-2.5 pl-4 pr-11 text-xs text-on-surface focus:outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/50 shadow-inner"
-                />
                 <button
                   type="submit"
-                  disabled={!inputText.trim()}
-                  className="absolute right-1.5 w-8 h-8 rounded-full bg-primary text-on-primary hover:scale-105 active:scale-95 transition-all flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm"
+                  className="px-3.5 py-1 rounded-lg bg-primary text-white text-xs font-bold hover:brightness-105 transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
                 >
-                  <Send className="w-3.5 h-3.5 fill-on-primary" />
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{isGreek ? "Αποθήκευση" : "Save Identity"}</span>
                 </button>
-              </form>
-            </div>
-          </div>
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 3. Messages List Area */}
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="flex-grow overflow-y-auto p-5 flex flex-col gap-3 no-scrollbar scroll-smooth relative"
+      >
+        {/* Centered Top Live Broadcast Announcement Pill */}
+        <div className="my-1.5 mx-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/15 text-white text-xs font-bold shadow-md">
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span>
+            {isGreek ? 'Ζωντανά τώρα: "FRS UTH Radio"' : 'Live Now: "FRS UTH Radio"'}
+          </span>
+        </div>
+
+        {messages.map((msg) => {
+          const isMe = !msg.isSystem && (msg.sessionId ? msg.sessionId === tabSessionId : msg.user === userName);
+          const color = msg.avatarColor || "#ff5a36";
+
+          if (msg.isSystem) {
+            return (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="self-center my-1.5 max-w-[90%] bg-primary/15 backdrop-blur-md border border-primary/40 rounded-2xl py-2 px-3.5 text-center shadow-md flex items-center justify-center gap-2"
+              >
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
+                <span className="text-xs font-bold text-white">
+                  {msg.text}
+                </span>
+              </motion.div>
+            );
+          }
+
+          return (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 14, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className={`flex gap-2.5 max-w-[85%] ${isMe ? "self-end flex-row-reverse" : "self-start flex-row"}`}
+            >
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-extrabold shadow-md flex-shrink-0 mt-0.5"
+                style={{ backgroundColor: color, color: "#181b11" }}
+                title={msg.user}
+              >
+                {msg.user.slice(0, 1).toUpperCase()}
+              </div>
+
+              <div className={`flex flex-col gap-0.5 ${isMe ? "items-end" : "items-start"}`}>
+                <div className="flex items-center gap-1.5 px-1">
+                  <span className={`text-xs font-bold tracking-wide ${isMe ? "text-primary" : "text-white"}`}>
+                    {msg.user}
+                  </span>
+                  <span className="text-[10px] text-on-surface-variant/60 font-mono">
+                    {msg.timestamp}
+                  </span>
+                </div>
+                <div
+                  className={`p-3 rounded-2xl text-xs break-words shadow-md leading-relaxed backdrop-blur-md ${
+                    isMe
+                      ? "bg-primary/25 text-white rounded-tr-none border border-primary/40 shadow-primary/10"
+                      : "bg-white/[0.07] text-white rounded-tl-none border border-white/12"
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Floating New Message Pill */}
+      <AnimatePresence>
+        {isScrolledUp && (
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            onClick={scrollToBottom}
+            className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 px-4 py-1.5 rounded-full bg-primary text-white font-bold text-xs shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+          >
+            <ArrowDown className="w-3.5 h-3.5" />
+            <span>
+              {newMsgCount > 0
+                ? (isGreek ? `${newMsgCount} Νέα Μηνύματα` : `${newMsgCount} New Messages`)
+                : (isGreek ? "Πιο Πρόσφατα" : "Latest Messages")}
+            </span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* 4. Reactions Bar (Compact) */}
+      <div className="px-5 py-1.5 bg-[#151b29] border-t border-white/10 flex items-center gap-2.5 overflow-x-auto no-scrollbar flex-shrink-0">
+        <span className="text-[11px] text-on-surface-variant/80 font-semibold flex items-center gap-1.5 flex-shrink-0">
+          <Smile className="w-3.5 h-3.5 text-primary" />
+          <span>{isGreek ? "Αντιδράσεις:" : "React:"}</span>
+        </span>
+        <div className="flex items-center gap-1.5">
+          {QUICK_EMOJIS.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() => handleQuickEmoji(emoji)}
+              className="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-sm transition-transform active:scale-125 cursor-pointer flex-shrink-0"
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 5. Typing Input Composer Footer */}
+      <div className="p-3.5 md:p-4 border-t border-white/10 bg-[#111622] flex-shrink-0">
+        <form onSubmit={handleSendMessage} className="relative flex items-center">
+          <input
+            type="text"
+            autoComplete="off"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder={
+              isGreek
+                ? `Μήνυμα ως ${userName}...`
+                : `Message as ${userName}...`
+            }
+            className="w-full bg-white/[0.06] border border-white/12 rounded-full py-3 pl-5 pr-14 text-sm text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-on-surface-variant/50 shadow-inner"
+          />
+          <button
+            type="submit"
+            disabled={!inputText.trim()}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-primary text-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-md"
+          >
+            <Send className="w-4 h-4 fill-white" />
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -680,18 +610,22 @@ export default function LiveChat({ isGreek, isOpen, onClose, onActiveTrackTrigge
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop Overlay for mobile layouts */}
-          <div
-            className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[49] md:hidden"
+          {/* Backdrop Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
             onClick={onClose}
           />
 
+          {/* Sliding Right Sidebar Drawer */}
           <motion.div
             initial={{ translateX: "100%" }}
             animate={{ translateX: 0 }}
             exit={{ translateX: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full sm:w-[460px] z-50 flex flex-col shadow-2xl overflow-hidden"
+            transition={{ type: "spring", damping: 26, stiffness: 220 }}
+            className="fixed top-0 right-0 h-full w-full sm:w-[480px] z-[60] flex flex-col shadow-2xl overflow-hidden bg-[#0f131d] border-l border-white/10"
           >
             {chatContent}
           </motion.div>
