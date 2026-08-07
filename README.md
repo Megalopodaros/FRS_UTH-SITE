@@ -103,4 +103,4 @@ The production assets will be generated in the `dist/` directory.
 
 ## 🔒 License
 
-This project is open-source and developed for the **University of Thessaly Student Radio (FRS UTH)**. All branding, logos, and audio streams are property of FRS UTH.
+This project is open-source and developed for the **University of Thessaly Student Radio (FRS UTH)**. All branding and logos are property of FRS UTH.
