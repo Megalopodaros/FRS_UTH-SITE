@@ -1227,9 +1227,9 @@ export default function App() {
                   <Flame className="w-5 h-5 text-primary" />
                   {currentT.eventsUpcoming}
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-wrap justify-center gap-5">
                   {/* Event Card 1 — FRS UTH Opening Party 2026 */}
-                  <div className="glass-card rounded-2xl border border-primary/40 overflow-hidden shadow-xl group hover:border-primary transition-all duration-200 hover:scale-[1.01]">
+                  <div className="glass-card rounded-2xl border border-primary/40 overflow-hidden shadow-xl group hover:border-primary transition-all duration-200 hover:scale-[1.01] w-full max-w-[440px]">
                     <div className="h-40 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent flex items-center justify-center relative">
                       <PartyPopper className="w-16 h-16 text-primary/60" />
                       <div className="absolute top-3 right-3 bg-primary text-on-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-lg">
@@ -1262,7 +1262,62 @@ export default function App() {
                 </div>
               </div>
 
-              {/* PAST EVENTS — removed (no example events) */}
+              {/* PAST EVENTS */}
+              <div className="w-full max-w-4xl flex flex-col gap-5 mt-4">
+                <h2 className="font-headline text-lg font-bold text-on-surface-variant/80 flex items-center gap-2">
+                  <CalendarDays className="w-5 h-5 text-on-surface-variant/80" />
+                  {isGreek ? "Παλαιότερες εκδηλώσεις" : "Past Events"}
+                </h2>
+                <div className="flex flex-wrap justify-center gap-5">
+                  {/* Past Event 1 — Welcome Party 2025 */}
+                  <div className="glass-card rounded-2xl border border-white/5 overflow-hidden shadow-lg opacity-75 hover:opacity-100 transition-opacity w-full max-w-[440px]">
+                    <div className="h-36 bg-gradient-to-br from-surface-container-high to-transparent flex items-center justify-center relative grayscale">
+                      <PartyPopper className="w-12 h-12 text-on-surface-variant/40" />
+                      <div className="absolute top-3 right-3 bg-white/10 text-on-surface-variant text-[9px] font-bold px-2.5 py-0.5 rounded uppercase">
+                        {isGreek ? "ΟΛΟΚΛΗΡΩΘΗΚΕ" : "COMPLETED"}
+                      </div>
+                    </div>
+                    <div className="p-5 flex flex-col gap-2">
+                      <h3 className="font-headline text-base font-bold text-white/90">
+                        {isGreek ? "FRS UTH Welcome Party 2025" : "FRS UTH Welcome Party 2025"}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant/60">
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        <span>{isGreek ? "16 Οκτωβρίου 2025" : "October 16, 2025"}</span>
+                      </div>
+                      <p className="text-xs text-on-surface-variant/60 leading-relaxed mt-0.5">
+                        {isGreek
+                          ? "Το μεγάλο μας πάρτι υποδοχής των πρωτοετών φοιτητών για το ακαδημαϊκό έτος 2025-2026."
+                          : "Our big welcome party for the freshman students of the academic year 2025-2026."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Past Event 2 — Music Workshop */}
+                  <div className="glass-card rounded-2xl border border-white/5 overflow-hidden shadow-lg opacity-75 hover:opacity-100 transition-opacity w-full max-w-[440px]">
+                    <div className="h-36 bg-gradient-to-br from-surface-container-high to-transparent flex items-center justify-center relative grayscale">
+                      <Mic className="w-12 h-12 text-on-surface-variant/40" />
+                      <div className="absolute top-3 right-3 bg-white/10 text-on-surface-variant text-[9px] font-bold px-2.5 py-0.5 rounded uppercase">
+                        {isGreek ? "ΟΛΟΚΛΗΡΩΘΗΚΕ" : "COMPLETED"}
+                      </div>
+                    </div>
+                    <div className="p-5 flex flex-col gap-2">
+                      <h3 className="font-headline text-base font-bold text-white/90">
+                        {isGreek ? "Ραδιοφωνικό Σεμινάριο & Workshop" : "Radio Seminar & Workshop"}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs text-on-surface-variant/60">
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        <span>{isGreek ? "22 Νοεμβρίου 2025" : "November 22, 2025"}</span>
+                      </div>
+                      <p className="text-xs text-on-surface-variant/60 leading-relaxed mt-0.5">
+                        {isGreek
+                          ? "Εκπαίδευση νέων παραγωγών στη χρήση κονσόλας, λογισμικού μετάδοσης και βασικών αρχών ραδιοφώνου."
+                          : "Training new producers on mixer usage, broadcasting software, and basic radio principles."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           )}
 
