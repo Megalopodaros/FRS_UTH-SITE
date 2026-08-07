@@ -6,26 +6,14 @@ interface UthLogoProps {
   showText?: boolean;
 }
 
-export default function UthLogo({ className = "", size = 36, showText = false }: UthLogoProps) {
+export default function UthLogo({ className = "" }: UthLogoProps) {
   return (
-    <div className={`inline-flex items-center gap-3 ${className}`}>
+    <div className={`inline-flex items-center justify-center cursor-pointer select-none ${className}`}>
       <img 
         src="/radio-logo.png" 
         alt="FRS UTH Radio Logo" 
-        className="h-10 w-auto shrink-0 drop-shadow-sm object-contain" 
+        className="h-28 md:h-36 w-auto shrink-0 drop-shadow-[0_4px_20px_rgba(183,50,41,0.4)] object-contain transition-transform duration-300 hover:scale-105" 
       />
-
-      {showText && (
-        <div className="flex flex-col justify-center leading-none select-none">
-          <div className="font-serif text-xl font-black tracking-tight flex items-center gap-1">
-            <span className="text-white">FRS</span>
-            <span className="text-[#b73229]">UTH</span>
-          </div>
-          <span className="text-[10px] font-sans font-bold tracking-wider text-[#94a3b8] uppercase mt-0.5">
-            ΠΑΝΕΠΙΣΤΗΜΙΟ ΘΕΣΣΑΛΙΑΣ
-          </span>
-        </div>
-      )}
     </div>
   );
 }

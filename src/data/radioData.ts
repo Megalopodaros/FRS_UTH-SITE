@@ -69,7 +69,7 @@ export const WEEKLY_SCHEDULE_GR: DayProgram[] = [
     shows: [
       { id: "m1", title: "Morning Mix", time: "10:00 - 12:00", host: "DJ Apollo", tags: ["#LoFi"] },
       { id: "m2", title: "Campus Voices", time: "14:00 - 16:00", host: "Spokesperson", tags: ["#Talk"] },
-      { id: "m3", title: "Electric Avenue", time: "18:00 - 20:00", host: "DJ Nova", tags: ["#Techno"], isLive: true },
+      { id: "m3", title: "Electric Avenue", time: "18:00 - 20:00", host: "DJ Nova", tags: ["#Techno"] },
       { id: "m4", title: "Deep Space", time: "21:00 - 23:00", host: "The Cosmonaut", tags: ["#Ambient"] }
     ]
   },

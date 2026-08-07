@@ -79,6 +79,31 @@ const pruneOldMessages = async (cutoff: Date) => {
 export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, currentLiveShow }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [cutoffDate, setCutoffDate] = useState<Date>(() => getMostRecent3AM());
+  const [viewportHeight, setViewportHeight] = useState("100dvh");
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    
+    const handleResize = () => {
+      setViewportHeight(`${window.visualViewport.height}px`);
+    };
+
+    handleResize();
+
+    window.visualViewport.addEventListener("resize", handleResize);
+    window.visualViewport.addEventListener("scroll", handleResize);
+    return () => {
+      window.visualViewport.removeEventListener("resize", handleResize);
+      window.visualViewport.removeEventListener("scroll", handleResize);
+    };
+  }, []);
 
   // Helper to calculate exact start time for the current live show today
   const getShowStartTime = (show: any): Date | null => {
@@ -109,6 +134,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
 
     if (prevShowIdRef.current !== currentShowId) {
       prevShowIdRef.current = currentShowId;
+      setMessages([]); // Instant UI reset when show changes
       pruneOldMessages(effectiveCutoff);
     }
   }, [currentShowId, currentLiveShow]);
@@ -333,7 +359,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
   };
 
   const chatContent = (
-    <div className={`w-full glass-panel flex flex-col shadow-2xl overflow-hidden relative border border-white/10 bg-[#0f131d] ${isInline ? "max-w-[896px] h-[680px] rounded-3xl" : "h-full rounded-none"}`}>
+    <div className={`w-full flex flex-col shadow-2xl overflow-hidden relative border border-white/10 bg-[#0f131d] ${isInline ? "max-w-[896px] h-[520px] md:h-[620px] rounded-3xl" : "h-full rounded-none"} ${isInline || !isMobile ? "glass-panel" : ""}`}>
       {/* 1. Header Section (Compact) */}
       <div className="px-6 py-3 border-b border-white/10 bg-white/[0.03] flex justify-between items-center flex-shrink-0">
         <div className="flex items-center gap-2.5">
@@ -387,15 +413,17 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
         </button>
       </div>
 
-      {/* Inline Quick Username Editor Modal */}
-      <AnimatePresence>
-        {isEditingName && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute top-16 left-6 right-6 z-30 p-4 bg-[#151b29] border border-primary/40 rounded-2xl shadow-2xl flex flex-col gap-3"
-          >
+       {/* Inline Quick Username Editor Modal */}
+       <AnimatePresence>
+         {isEditingName && (
+           <motion.div
+             {...(isMobile ? {} : {
+               initial: { opacity: 0, y: -10 },
+               animate: { opacity: 1, y: 0 },
+               exit: { opacity: 0, y: -10 }
+             })}
+             className="absolute top-16 left-6 right-6 z-30 p-4 bg-[#151b29] border border-primary/40 rounded-2xl shadow-2xl flex flex-col gap-3"
+           >
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold text-primary flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4" />
@@ -468,7 +496,11 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
         <div className="my-1.5 mx-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/15 text-white text-xs font-bold shadow-md">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           <span>
-            {isGreek ? 'Ζωντανά τώρα: "FRS UTH Radio"' : 'Live Now: "FRS UTH Radio"'}
+            {currentLiveShow ? (
+              isGreek ? `Ζωντανά τώρα: "${currentLiveShow.title}"` : `Live Now: "${currentLiveShow.title}"`
+            ) : (
+              isGreek ? 'Ζωντανά τώρα: "Αυτόματη Ροή"' : 'Live Now: "Automated Stream"'
+            )}
           </span>
         </div>
 
@@ -476,16 +508,19 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
           const isMe = !msg.isSystem && (msg.sessionId ? msg.sessionId === tabSessionId : msg.user === userName);
           const color = msg.avatarColor || "#ff5a36";
 
-          if (msg.isSystem) {
-            return (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, scale: 0.95, y: 12 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="self-center my-1.5 max-w-[90%] bg-primary/15 backdrop-blur-md border border-primary/40 rounded-2xl py-2 px-3.5 text-center shadow-md flex items-center justify-center gap-2"
-              >
+           if (msg.isSystem) {
+             const sysMotion = isMobile ? {} : {
+               initial: { opacity: 0, scale: 0.95, y: 12 },
+               whileInView: { opacity: 1, scale: 1, y: 0 },
+               viewport: { once: true, amount: 0.1 },
+               transition: { duration: 0.35, ease: "easeOut" }
+             };
+             return (
+               <motion.div
+                 key={msg.id}
+                 {...sysMotion}
+                 className="self-center my-1.5 max-w-[90%] bg-primary/15 backdrop-blur-md border border-primary/40 rounded-2xl py-2 px-3.5 text-center shadow-md flex items-center justify-center gap-2"
+               >
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
                 <span className="text-xs font-bold text-white">
                   {msg.text}
@@ -494,15 +529,18 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
             );
           }
 
-          return (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 14, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className={`flex gap-2.5 max-w-[85%] ${isMe ? "self-end flex-row-reverse" : "self-start flex-row"}`}
-            >
+           const userMotion = isMobile ? {} : {
+             initial: { opacity: 0, y: 14, scale: 0.96 },
+             whileInView: { opacity: 1, y: 0, scale: 1 },
+             viewport: { once: true, amount: 0.1 },
+             transition: { duration: 0.35, ease: "easeOut" }
+           };
+           return (
+             <motion.div
+               key={msg.id}
+               {...userMotion}
+               className={`flex gap-2.5 max-w-[85%] ${isMe ? "self-end flex-row-reverse" : "self-start flex-row"}`}
+             >
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-extrabold shadow-md flex-shrink-0 mt-0.5"
                 style={{ backgroundColor: color, color: "#181b11" }}
@@ -536,15 +574,17 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
       </div>
 
       {/* Floating New Message Pill */}
-      <AnimatePresence>
-        {isScrolledUp && (
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            onClick={scrollToBottom}
-            className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 px-4 py-1.5 rounded-full bg-primary text-white font-bold text-xs shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-          >
+       <AnimatePresence>
+         {isScrolledUp && (
+           <motion.button
+             {...(isMobile ? {} : {
+               initial: { opacity: 0, y: 10 },
+               animate: { opacity: 1, y: 0 },
+               exit: { opacity: 0, y: 10 }
+             })}
+             onClick={scrollToBottom}
+             className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 px-4 py-1.5 rounded-full bg-primary text-white font-bold text-xs shadow-lg flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+           >
             <ArrowDown className="w-3.5 h-3.5" />
             <span>
               {newMsgCount > 0
@@ -583,6 +623,12 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
             autoComplete="off"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
+            onFocus={(e) => {
+              const target = e.target;
+              setTimeout(() => {
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 300);
+            }}
             placeholder={
               isGreek
                 ? `Μήνυμα ως ${userName}...`
@@ -611,22 +657,24 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
       {isOpen && (
         <>
           {/* Backdrop Overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
-            onClick={onClose}
-          />
+           <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             transition={{ duration: 0.2 }}
+             className="fixed inset-0 bg-black/30 z-[55]"
+             onClick={onClose}
+           />
 
           {/* Sliding Right Sidebar Drawer */}
-          <motion.div
-            initial={{ translateX: "100%" }}
-            animate={{ translateX: 0 }}
-            exit={{ translateX: "100%" }}
-            transition={{ type: "spring", damping: 26, stiffness: 220 }}
-            className="fixed top-0 right-0 h-full w-full sm:w-[480px] z-[60] flex flex-col shadow-2xl overflow-hidden bg-[#0f131d] border-l border-white/10"
-          >
+           <motion.div
+             initial={{ translateX: "100%" }}
+             animate={{ translateX: 0 }}
+             exit={{ translateX: "100%" }}
+             transition={{ type: "tween", duration: isMobile ? 0.28 : 0.3, ease: [0.16, 1, 0.3, 1] }}
+             className="fixed top-0 right-0 w-full sm:w-[400px] z-[60] flex flex-col shadow-2xl overflow-hidden bg-[#0f131d] border-l border-white/10"
+             style={{ height: viewportHeight, willChange: "transform", transform: "translateZ(0)", contain: "layout style paint" }}
+           >
             {chatContent}
           </motion.div>
         </>
