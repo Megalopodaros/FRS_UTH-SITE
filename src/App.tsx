@@ -404,7 +404,7 @@ export default function App() {
       {/* AMBIENT BACKGROUND GRADIENTS ARE MANAGED VIA BODY CSS (index.css) */}
 
       {/* HEADER SECTION (Desktop) */}
-      <nav className="w-full sticky top-0 glass-navbar transition-colors duration-300 z-40 h-16 md:h-20 flex items-center">
+      <nav className="w-full sticky top-0 glass-navbar transition-colors duration-300 z-40 h-20 md:h-24 flex items-center">
         <div className="flex justify-between items-center gap-3 px-4 sm:px-6 lg:px-8 max-w-[1240px] mx-auto w-full h-full">
           <button
             type="button"
@@ -412,7 +412,7 @@ export default function App() {
             aria-label={isGreek ? "Αρχική σελίδα" : "Go to home"}
             className="cursor-pointer flex items-center shrink-0 rounded-xl"
           >
-            <UthLogo size={48} mdSize={68} />
+            <UthLogo size={62} mdSize={86} />
           </button>
 
           <ul className="hidden md:flex gap-5 lg:gap-7 font-semibold text-sm items-center">
@@ -498,25 +498,13 @@ export default function App() {
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="text-center max-w-3xl w-full flex flex-col items-center pt-8 sm:pt-10 relative z-10"
               >
-                {/* Top Badge Pill — wraps instead of overflowing on narrow screens */}
-                <motion.div
-                  initial={{ opacity: 0, y: -16, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className="inline-flex max-w-full items-center justify-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 rounded-full border border-primary/30 bg-primary/10 text-[10px] sm:text-xs md:text-[13px] font-bold text-primary uppercase tracking-wider leading-snug text-center"
-                >
-                  <img src="/vintage-radio.png" alt="" aria-hidden="true" className="w-4 h-4 object-contain shrink-0" />
-                  <span>ΠΑΝΕΠΙΣΤΗΜΙΟ ΘΕΣΣΑΛΙΑΣ • FOITITIKA RADIO SHOW</span>
-                </motion.div>
-
                 {/* Main Headline */}
                 <motion.h1 
                   initial={{ opacity: 0, y: 25 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  className="font-headline text-hero text-gradient text-balance font-extrabold mt-7 sm:mt-9"
+                  className="font-headline text-hero text-gradient text-balance font-extrabold mt-2 sm:mt-4"
                 >
                   {currentT.pulseTitle}
                 </motion.h1>
@@ -1652,7 +1640,7 @@ export default function App() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="w-full pt-20 sm:pt-28 pb-16 flex flex-col items-center gap-4 px-6 relative z-10 mt-auto border-t border-outline-variant/40 bg-transparent"
       >
-        <UthLogo size={80} mdSize={110} className="mt-4" />
+        <UthLogo size={96} mdSize={140} className="mt-4" />
         <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-on-surface-variant font-semibold mt-2">
           <li><a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="inline-block py-1 hover:text-primary transition-colors">Instagram</a></li>
           <li><button onClick={() => handleTabChange("contact")} className="inline-block py-1 hover:text-primary transition-colors cursor-pointer">{isGreek ? "Επικοινωνία" : "Contact"}</button></li>
