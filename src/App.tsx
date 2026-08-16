@@ -412,7 +412,7 @@ export default function App() {
             aria-label={isGreek ? "Αρχική σελίδα" : "Go to home"}
             className="cursor-pointer flex items-center shrink-0 rounded-xl"
           >
-            <UthLogo size={40} mdSize={54} />
+            <UthLogo size={48} mdSize={68} />
           </button>
 
           <ul className="hidden md:flex gap-5 lg:gap-7 font-semibold text-sm items-center">
@@ -1652,7 +1652,7 @@ export default function App() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="w-full pt-20 sm:pt-28 pb-16 flex flex-col items-center gap-4 px-6 relative z-10 mt-auto border-t border-outline-variant/40 bg-transparent"
       >
-        <UthLogo size={46} mdSize={58} className="mt-6" />
+        <UthLogo size={80} mdSize={110} className="mt-4" />
         <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-on-surface-variant font-semibold mt-2">
           <li><a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="inline-block py-1 hover:text-primary transition-colors">Instagram</a></li>
           <li><button onClick={() => handleTabChange("contact")} className="inline-block py-1 hover:text-primary transition-colors cursor-pointer">{isGreek ? "Επικοινωνία" : "Contact"}</button></li>
