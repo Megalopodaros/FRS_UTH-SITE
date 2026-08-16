@@ -359,9 +359,9 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
   };
 
   const chatContent = (
-    <div className={`w-full flex flex-col shadow-2xl overflow-hidden relative border border-white/10 bg-[#0f131d] ${isInline ? "max-w-[896px] h-[520px] md:h-[620px] rounded-3xl" : "h-full rounded-none"} ${isInline || !isMobile ? "glass-panel" : ""}`}>
+    <div className={`w-full flex flex-col shadow-2xl overflow-hidden relative border border-white/10 bg-surface-container-low ${isInline ? "max-w-[896px] h-[520px] md:h-[620px] rounded-3xl" : "h-full rounded-none"} ${isInline || !isMobile ? "glass-panel" : ""}`}>
       {/* 1. Header Section (Compact) */}
-      <div className="px-6 py-3 border-b border-white/10 bg-white/[0.03] flex justify-between items-center flex-shrink-0">
+      <div className="px-4 sm:px-6 py-3 border-b border-white/10 bg-white/[0.03] flex justify-between items-center gap-2 flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
           <h2 className="font-headline text-base font-bold text-primary">
@@ -387,7 +387,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
       </div>
 
       {/* 2. Sub-header User Identity Bar (Compact) */}
-      <div className="px-6 py-2 border-b border-white/10 bg-white/[0.02] flex items-center justify-between flex-shrink-0 text-xs">
+      <div className="px-4 sm:px-6 py-2 border-b border-white/10 bg-white/[0.02] flex items-center justify-between gap-2 flex-shrink-0 text-xs">
         <div className="flex items-center gap-2.5 min-w-0">
           <div
             className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-xs flex-shrink-0"
@@ -406,7 +406,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
             setTempColor(userColor);
             setIsEditingName(true);
           }}
-          className="flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-primary/30 text-primary hover:bg-primary/10 font-bold text-xs transition-all cursor-pointer flex-shrink-0"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-primary/30 text-primary hover:bg-primary/10 font-bold text-xs transition-colors cursor-pointer flex-shrink-0"
         >
           <Edit3 className="w-3 h-3" />
           <span>{isGreek ? "Αλλαγή" : "Edit Name"}</span>
@@ -422,7 +422,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
                animate: { opacity: 1, y: 0 },
                exit: { opacity: 0, y: -10 }
              })}
-             className="absolute top-16 left-6 right-6 z-30 p-4 bg-[#151b29] border border-primary/40 rounded-2xl shadow-2xl flex flex-col gap-3"
+             className="absolute top-16 left-4 right-4 sm:left-6 sm:right-6 z-30 p-4 bg-surface-container border border-primary/40 rounded-2xl shadow-2xl flex flex-col gap-3"
            >
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold text-primary flex items-center gap-1.5">
@@ -445,7 +445,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
                 placeholder={isGreek ? "Πληκτρολογήστε όνομα..." : "Enter username..."}
                 maxLength={20}
                 autoFocus
-                className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-primary font-bold"
+                className="w-full bg-white/[0.06] border border-white/15 rounded-xl py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-primary font-bold"
               />
 
               <div className="flex items-center justify-between gap-2">
@@ -469,13 +469,13 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
                 <button
                   type="button"
                   onClick={() => setIsEditingName(false)}
-                  className="px-3 py-1 rounded-lg bg-white/10 text-xs font-semibold text-on-surface-variant hover:text-white transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-white/10 text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
                 >
                   {isGreek ? "Ακύρωση" : "Cancel"}
                 </button>
                 <button
                   type="submit"
-                  className="px-3.5 py-1 rounded-lg bg-primary text-white text-xs font-bold hover:brightness-105 transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:brightness-105 transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{isGreek ? "Αποθήκευση" : "Save Identity"}</span>
@@ -490,10 +490,10 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-grow overflow-y-auto p-5 flex flex-col gap-3 no-scrollbar scroll-smooth relative"
+        className="flex-grow overflow-y-auto p-4 sm:p-5 flex flex-col gap-3 no-scrollbar scroll-smooth relative"
       >
         {/* Centered Top Live Broadcast Announcement Pill */}
-        <div className="my-1.5 mx-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/15 text-white text-xs font-bold shadow-md">
+        <div className="my-1.5 mx-auto inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/15 text-on-surface text-xs font-bold shadow-md">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           <span>
             {currentLiveShow ? (
@@ -522,7 +522,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
                  className="self-center my-1.5 max-w-[90%] bg-primary/15 backdrop-blur-md border border-primary/40 rounded-2xl py-2 px-3.5 text-center shadow-md flex items-center justify-center gap-2"
                >
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
-                <span className="text-xs font-bold text-white">
+                <span className="text-xs font-bold text-on-surface">
                   {msg.text}
                 </span>
               </motion.div>
@@ -551,7 +551,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
 
               <div className={`flex flex-col gap-0.5 ${isMe ? "items-end" : "items-start"}`}>
                 <div className="flex items-center gap-1.5 px-1">
-                  <span className={`text-xs font-bold tracking-wide ${isMe ? "text-primary" : "text-white"}`}>
+                  <span className={`text-xs font-bold tracking-wide ${isMe ? "text-primary" : "text-on-surface"}`}>
                     {msg.user}
                   </span>
                   <span className="text-[10px] text-on-surface-variant/60 font-mono">
@@ -561,8 +561,8 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
                 <div
                   className={`p-3 rounded-2xl text-xs break-words shadow-md leading-relaxed backdrop-blur-md ${
                     isMe
-                      ? "bg-primary/25 text-white rounded-tr-none border border-primary/40 shadow-primary/10"
-                      : "bg-white/[0.07] text-white rounded-tl-none border border-white/12"
+                      ? "bg-primary/25 text-on-surface rounded-tr-none border border-primary/40 shadow-primary/10"
+                      : "bg-white/[0.07] text-on-surface rounded-tl-none border border-white/12"
                   }`}
                 >
                   {msg.text}
@@ -596,7 +596,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
       </AnimatePresence>
 
       {/* 4. Reactions Bar (Compact) */}
-      <div className="px-5 py-1.5 bg-[#151b29] border-t border-white/10 flex items-center gap-2.5 overflow-x-auto no-scrollbar flex-shrink-0">
+      <div className="px-4 sm:px-5 py-1.5 bg-surface-container border-t border-white/10 flex items-center gap-2.5 overflow-x-auto no-scrollbar flex-shrink-0">
         <span className="text-[11px] text-on-surface-variant/80 font-semibold flex items-center gap-1.5 flex-shrink-0">
           <Smile className="w-3.5 h-3.5 text-primary" />
           <span>{isGreek ? "Αντιδράσεις:" : "React:"}</span>
@@ -607,7 +607,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
               key={emoji}
               type="button"
               onClick={() => handleQuickEmoji(emoji)}
-              className="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-sm transition-transform active:scale-125 cursor-pointer flex-shrink-0"
+              className="w-9 h-9 rounded-lg hover:bg-white/10 flex items-center justify-center text-base transition-transform active:scale-125 cursor-pointer flex-shrink-0"
             >
               {emoji}
             </button>
@@ -616,7 +616,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
       </div>
 
       {/* 5. Typing Input Composer Footer */}
-      <div className="p-3.5 md:p-4 border-t border-white/10 bg-[#111622] flex-shrink-0">
+      <div className="p-3.5 md:p-4 border-t border-white/10 bg-surface-container-low flex-shrink-0">
         <form onSubmit={handleSendMessage} className="relative flex items-center">
           <input
             type="text"
@@ -634,7 +634,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
                 ? `Μήνυμα ως ${userName}...`
                 : `Message as ${userName}...`
             }
-            className="w-full bg-white/[0.06] border border-white/12 rounded-full py-3 pl-5 pr-14 text-sm text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-on-surface-variant/50 shadow-inner"
+            className="w-full bg-white/[0.06] border border-white/12 rounded-full py-3 pl-5 pr-14 text-sm text-on-surface focus:outline-none focus:border-primary/50 transition-all placeholder:text-on-surface-variant/50 shadow-inner"
           />
           <button
             type="submit"
@@ -672,7 +672,7 @@ export default function LiveChat({ isGreek, isOpen, onClose, isInline = false, c
              animate={{ translateX: 0 }}
              exit={{ translateX: "100%" }}
              transition={{ type: "tween", duration: isMobile ? 0.28 : 0.3, ease: [0.16, 1, 0.3, 1] }}
-             className="fixed top-0 right-0 w-full sm:w-[400px] z-[60] flex flex-col shadow-2xl overflow-hidden bg-[#0f131d] border-l border-white/10"
+             className="fixed top-0 right-0 w-full sm:w-[400px] z-[60] flex flex-col shadow-2xl overflow-hidden bg-surface-container-low border-l border-white/10"
              style={{ height: viewportHeight, willChange: "transform", transform: "translateZ(0)", contain: "layout style paint" }}
            >
             {chatContent}

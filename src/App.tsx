@@ -55,9 +55,19 @@ import {
 import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
 
+type TabId = "home" | "program" | "archive" | "events" | "contact";
+
+/** Desktop nav order; labelKey resolves against the active language dictionary. */
+const NAV_ITEMS: { id: TabId; labelKey: "navHome" | "navProgram" | "navEvents" | "navArchive" }[] = [
+  { id: "home", labelKey: "navHome" },
+  { id: "program", labelKey: "navProgram" },
+  { id: "events", labelKey: "navEvents" },
+  { id: "archive", labelKey: "navArchive" }
+];
+
 export default function App() {
-  const [activeTab, setActiveTabState] = useState<"home" | "program" | "archive" | "events" | "contact">("home");
-  const setActiveTab = (tab: "home" | "program" | "archive" | "events" | "contact") => {
+  const [activeTab, setActiveTabState] = useState<TabId>("home");
+  const setActiveTab = (tab: TabId) => {
     setActiveTabState(tab);
     setSelectedShowId(null);
   };
@@ -308,7 +318,7 @@ export default function App() {
     setIsGreek(!isGreek);
   };
 
-  const handleTabChange = (tab: "home" | "program" | "archive" | "events" | "contact") => {
+  const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
     setSelectedShowId(null);
   };
@@ -394,71 +404,47 @@ export default function App() {
       {/* AMBIENT BACKGROUND GRADIENTS ARE MANAGED VIA BODY CSS (index.css) */}
 
       {/* HEADER SECTION (Desktop) */}
-      <nav className="w-full sticky top-0 glass-navbar transition-all duration-300 z-40 h-[80px] flex items-center">
-        <div className="flex justify-between items-center px-0 max-w-[1240px] mx-auto w-full h-full">
-          <div 
+      <nav className="w-full sticky top-0 glass-navbar transition-colors duration-300 z-40 h-16 md:h-20 flex items-center">
+        <div className="flex justify-between items-center gap-3 px-4 sm:px-6 lg:px-8 max-w-[1240px] mx-auto w-full h-full">
+          <button
+            type="button"
             onClick={() => handleTabChange("home")}
-            className="cursor-pointer flex items-center"
+            aria-label={isGreek ? "Αρχική σελίδα" : "Go to home"}
+            className="cursor-pointer flex items-center shrink-0 rounded-xl"
           >
-            <UthLogo size={36} showText={true} />
-          </div>
-          
-          <ul className="hidden md:flex gap-7 font-semibold text-sm items-center">
-            <li className="cursor-pointer">
-              <span 
-                onClick={() => handleTabChange("home")}
-                className={`transition-all pb-1 ${
-                  activeTab === "home" 
-                    ? "text-primary border-b-2 border-primary font-bold" 
-                    : "text-on-surface-variant hover:text-primary"
-                }`}
-              >
-                {currentT.navHome}
-              </span>
-            </li>
-            <li className="cursor-pointer">
-              <span 
-                onClick={() => handleTabChange("program")}
-                className={`transition-all pb-1 ${
-                  activeTab === "program" 
-                    ? "text-primary border-b-2 border-primary font-bold" 
-                    : "text-on-surface-variant hover:text-primary"
-                }`}
-              >
-                {currentT.navProgram}
-              </span>
-            </li>
-            <li className="cursor-pointer">
-              <span 
-                onClick={() => handleTabChange("events")}
-                className={`transition-all pb-1 ${
-                  activeTab === "events" 
-                    ? "text-primary border-b-2 border-primary font-bold" 
-                    : "text-on-surface-variant hover:text-primary"
-                }`}
-              >
-                {currentT.navEvents}
-              </span>
-            </li>
-            <li className="cursor-pointer">
-              <span 
-                onClick={() => handleTabChange("archive")}
-                className={`transition-all pb-1 ${
-                  activeTab === "archive" 
-                    ? "text-primary border-b-2 border-primary font-bold" 
-                    : "text-on-surface-variant hover:text-primary"
-                }`}
-              >
-                {currentT.navArchive}
-              </span>
-            </li>
+            <UthLogo size={40} mdSize={54} />
+          </button>
+
+          <ul className="hidden md:flex gap-5 lg:gap-7 font-semibold text-sm items-center">
+            {NAV_ITEMS.map((item) => (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  onClick={() => handleTabChange(item.id)}
+                  aria-current={activeTab === item.id ? "page" : undefined}
+                  className={`relative cursor-pointer whitespace-nowrap pb-1 transition-colors duration-200 ${
+                    activeTab === item.id
+                      ? "text-primary font-bold"
+                      : "text-on-surface-variant hover:text-on-surface"
+                  }`}
+                >
+                  {currentT[item.labelKey]}
+                  <span
+                    className={`absolute left-0 bottom-0 h-0.5 rounded-full bg-primary transition-all duration-300 ease-out ${
+                      activeTab === item.id ? "w-full opacity-100" : "w-0 opacity-0"
+                    }`}
+                  />
+                </button>
+              </li>
+            ))}
           </ul>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             {/* LIGHT / DARK MODE TOGGLE BUTTON */}
             <button
               onClick={toggleTheme}
-              className="flex items-center justify-center w-9 h-9 rounded-full glass-pill text-on-surface-variant hover:text-primary transition-all cursor-pointer shadow-xs"
+              aria-label={theme === "dark" ? (isGreek ? "Αλλαγή σε Φωτεινό Θέμα" : "Switch to light mode") : (isGreek ? "Αλλαγή σε Σκοτεινό Θέμα" : "Switch to dark mode")}
+              className="flex items-center justify-center w-10 h-10 rounded-full glass-pill cursor-pointer"
               title={theme === "dark" ? (isGreek ? "Αλλαγή σε Φωτεινό Θέμα" : "Switch to Light Mode") : (isGreek ? "Αλλαγή σε Σκοτεινό Θέμα" : "Switch to Dark Mode")}
             >
               {theme === "dark" ? (
@@ -468,21 +454,21 @@ export default function App() {
               )}
             </button>
             {/* LINGUAL TOGGLE BUTTON */}
-            <button 
+            <button
               onClick={toggleLanguage}
-              className="flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-full glass-pill text-xs text-on-surface hover:text-primary font-semibold shadow-xs cursor-pointer"
+              className="flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-full glass-pill text-xs font-semibold cursor-pointer"
               title={isGreek ? "Switch to English" : "Αλλαγή σε Ελληνικά"}
             >
               <Globe className="w-3.5 h-3.5 text-primary" />
               <span>{isGreek ? "EN" : "GR"}</span>
             </button>
 
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               onClick={() => handleTuneChannel("m3")}
-              className="hidden md:flex items-center justify-center gap-1.5 bg-primary text-on-primary px-4 h-9 rounded-full font-bold text-xs shadow-[0_0_12px_rgba(183,50,41,0.35)] hover:shadow-[0_0_22px_rgba(183,50,41,0.7)] cursor-pointer whitespace-nowrap overflow-hidden select-none group transition-all duration-300"
+              className="hidden lg:flex items-center justify-center gap-1.5 bg-primary text-on-primary px-4 h-10 rounded-full font-bold text-xs shadow-[0_0_12px_var(--accent-glow)] hover:shadow-[0_0_22px_var(--accent-glow)] cursor-pointer whitespace-nowrap overflow-hidden select-none group transition-shadow duration-300"
             >
               <Music className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300 ${stationPlaying ? "animate-pulse" : "group-hover:rotate-12 group-hover:scale-110"}`} />
               <span className="whitespace-nowrap">{stationPlaying ? currentT.playingBtn : currentT.listenBtn}</span>
@@ -492,7 +478,7 @@ export default function App() {
       </nav>
 
       {/* MAIN RENDER CORE */}
-      <main className="flex-grow max-w-screen-xl mx-auto w-full px-6 flex flex-col items-center pb-32 md:pb-36 z-10 relative">
+      <main className="flex-grow max-w-screen-xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex flex-col items-center pb-32 md:pb-36 z-10 relative">
         <AnimatePresence mode="wait">
           {activeTab === "home" && (
             <motion.div
@@ -506,36 +492,54 @@ export default function App() {
             >
               {/* HERO CARD PORTION */}
               <motion.header
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="text-center max-w-3xl w-full flex flex-col items-center pt-10 relative z-10"
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center max-w-3xl w-full flex flex-col items-center pt-8 sm:pt-10 relative z-10"
               >
-                {/* Top Badge Pill (Slightly refined) */}
+                {/* Top Badge Pill — wraps instead of overflowing on narrow screens */}
                 <motion.div
-                  initial={{ opacity: 0, y: -5 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: -16, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.1, duration: 0.25 }}
-                  className="inline-flex items-center gap-2.5 px-5 h-[40px] rounded-full border border-primary/30 bg-primary/10 text-[13px] font-bold text-primary uppercase tracking-wider shadow-xs"
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                  className="inline-flex max-w-full items-center justify-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 rounded-full border border-primary/30 bg-primary/10 text-[10px] sm:text-xs md:text-[13px] font-bold text-primary uppercase tracking-wider leading-snug text-center"
                 >
-                  <img src="/vintage-radio.png" alt="Radio Logo" className="w-4 h-4 object-contain" />
+                  <img src="/vintage-radio.png" alt="" aria-hidden="true" className="w-4 h-4 object-contain shrink-0" />
                   <span>ΠΑΝΕΠΙΣΤΗΜΙΟ ΘΕΣΣΑΛΙΑΣ • FOITITIKA RADIO SHOW</span>
                 </motion.div>
 
                 {/* Main Headline */}
-                <h1 className="font-headline text-4xl md:text-6xl tracking-tight text-white font-extrabold leading-tight mt-[34px]">
+                <motion.h1 
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className="font-headline text-hero text-gradient text-balance font-extrabold mt-7 sm:mt-9"
+                >
                   {currentT.pulseTitle}
-                </h1>
-                
-                {/* Subtitle / Description */}
-                <p className="text-sm md:text-[17px] text-on-surface-variant/85 leading-relaxed font-normal max-w-xl text-center mt-[34px]">
-                  {currentT.undergroundSub}
-                </p>
+                </motion.h1>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center justify-center gap-3.5 mt-[36px]">
+                {/* Subtitle / Description */}
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.55, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-sm md:text-[17px] text-on-surface-variant leading-relaxed text-pretty font-normal max-w-xl text-center mt-6 sm:mt-8"
+                >
+                  {currentT.undergroundSub}
+                </motion.p>
+
+                {/* Action Buttons — stacked full-width on phones, inline from sm up */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 22 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.55, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-3.5 mt-8 sm:mt-10 w-full max-w-xs sm:max-w-none"
+                >
                   {/* Primary Play Button */}
                   <motion.button
                     whileHover={{ scale: 1.025 }}
@@ -543,7 +547,7 @@ export default function App() {
                     transition={{ duration: 0.2, ease: "easeOut" }}
                     onClick={() => setStationPlaying(!stationPlaying)}
                     id="hero-play-accent"
-                    className="flex items-center justify-center gap-2.5 bg-primary hover:bg-primary/90 text-white px-7 min-w-[211px] h-[50px] rounded-2xl font-bold text-sm shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow cursor-pointer whitespace-nowrap overflow-hidden select-none"
+                    className="flex items-center justify-center gap-2.5 bg-primary hover:bg-primary/90 text-white px-7 w-full sm:w-auto sm:min-w-[211px] h-[52px] rounded-2xl font-bold text-sm shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow cursor-pointer whitespace-nowrap overflow-hidden select-none"
                   >
                     {stationPlaying ? (
                       <>
@@ -569,36 +573,47 @@ export default function App() {
                         chatElement.scrollIntoView({ behavior: "smooth", block: "center" });
                       }
                     }}
-                    className="flex items-center justify-center gap-2.5 w-[167px] h-[50px] rounded-2xl glass-pill text-sm font-bold text-white hover:border-primary/60 hover:bg-white/10 cursor-pointer shadow-xs select-none transition-all duration-200"
+                    className="flex items-center justify-center gap-2.5 w-full sm:w-auto sm:min-w-[167px] h-[52px] rounded-2xl glass-pill text-sm font-bold cursor-pointer select-none"
                   >
                     <MessageSquare className="w-4 h-4 text-primary" />
                     <span>Live Chat</span>
                     <ArrowRight className="w-4 h-4 text-on-surface-variant ml-0.5" />
                   </motion.button>
-                </div>
+                </motion.div>
               </motion.header>
 
               {/* TODAY'S / WEEKLY SCHEDULE ROW - RAISED 5PX HIGHER (mt-[73px]) */}
-              <section className="w-full max-w-[896px] mx-auto flex flex-col gap-5 mt-[73px]">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
-                  <h2 className="font-headline text-xl font-bold text-primary tracking-tight flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-primary" />
+              <section className="w-full max-w-[896px] mx-auto flex flex-col gap-5 mt-14 sm:mt-16 md:mt-[73px]">
+                <motion.div 
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex items-center justify-between gap-3 section-rule pb-3.5"
+                >
+                  <h2 className="font-headline text-lg sm:text-xl font-bold text-primary tracking-tight flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-primary shrink-0" />
                     <span>{isGreek ? "Επόμενες εκπομπές" : "Up next"}</span>
                   </h2>
-                  <button 
+                  <button
                     onClick={() => handleTabChange("program")}
-                    className="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 cursor-pointer shrink-0"
                   >
-                    <span>{currentT.fullProgram}</span>
+                    <span className="hidden sm:inline">{currentT.fullProgram}</span>
+                    <span className="sm:hidden">{isGreek ? "Όλα" : "All"}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
-                </div>
+                </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
                   {/* LIVE / AUTO CARD */}
-                  <div 
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{ duration: 0.55, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
                     onClick={() => currentLiveShow && handleOpenShowDescription(currentLiveShow)}
-                    className="glass-card p-5 rounded-2xl border border-primary/50 relative overflow-hidden glow-primary shadow-xl group transition-all duration-200 cursor-pointer md:hover:border-primary md:hover:scale-[1.01] h-[157px] flex flex-col"
+                    className="glass-card card-lift p-5 rounded-2xl border border-primary/50 relative overflow-hidden glow-primary group cursor-pointer min-h-[157px] flex flex-col"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/15 to-transparent pointer-events-none" />
                     <div className="relative z-10 flex flex-col">
@@ -635,12 +650,16 @@ export default function App() {
                         </>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* NEXT CARD */}
-                  <div 
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{ duration: 0.55, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
                     onClick={() => nextShow && handleOpenShowDescription(nextShow)}
-                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer md:hover:border-primary/50 md:hover:scale-[1.01] h-[157px] flex flex-col"
+                    className="glass-card card-lift p-5 rounded-2xl group cursor-pointer min-h-[157px] flex flex-col"
                   >
                     <div className="flex flex-col">
                       {nextShow ? (
@@ -675,12 +694,16 @@ export default function App() {
                         </>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* THIRD CARD */}
-                  <div 
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{ duration: 0.55, delay: 0.27, ease: [0.16, 1, 0.3, 1] }}
                     onClick={() => laterShow && handleOpenShowDescription(laterShow)}
-                    className="glass-card p-5 rounded-2xl border border-white/10 transition-all duration-200 shadow-lg group cursor-pointer md:hover:border-primary/50 md:hover:scale-[1.01] h-[157px] flex flex-col"
+                    className="glass-card card-lift p-5 rounded-2xl group cursor-pointer min-h-[157px] flex flex-col"
                   >
                     <div className="flex flex-col">
                       {laterShow ? (
@@ -709,22 +732,28 @@ export default function App() {
                         </>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </section>
-
-              {/* INLINE EMBEDDED LIVE CHAT WIDGET (Matching Up Next width: max-w-[896px]) */}
-              <section id="main-chat-widget" className="w-full max-w-[896px] mx-auto flex flex-col items-center mt-16">
-                <LiveChat 
-                  isGreek={isGreek} 
-                  isOpen={true} 
-                  onClose={() => {}} 
-                  isInline={true} 
-                  currentLiveShow={currentLiveShow} 
-                />
-              </section>
-            </motion.div>
-          )}
+                  {/* INLINE EMBEDDED LIVE CHAT WIDGET (Matching Up Next width: max-w-[896px]) */}
+                  <motion.section 
+                    id="main-chat-widget" 
+                    initial={{ opacity: 0, y: 40, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                    className="w-full max-w-[896px] mx-auto flex flex-col items-center mt-16"
+                  >
+                    <LiveChat 
+                      isGreek={isGreek} 
+                      isOpen={true} 
+                      onClose={() => {}} 
+                      isInline={true} 
+                      currentLiveShow={currentLiveShow} 
+                    />
+                  </motion.section>
+                </motion.div>
+              )}
 
           {activeTab === "program" && (
             <motion.div
@@ -736,8 +765,14 @@ export default function App() {
               transition={{ duration: 0.2 }}
               className="w-full flex flex-col items-center gap-8 pt-4 md:pt-6"
             >
-              <header className="text-center max-w-3xl glass-panel p-8 rounded-3xl flex flex-col items-center gap-3 border border-white/15 shadow-xl">
-                <h1 className="font-headline text-4xl md:text-5xl tracking-tight text-primary font-bold glow-text">
+              <motion.header 
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center max-w-3xl w-full glass-panel px-5 py-7 sm:p-8 rounded-3xl flex flex-col items-center gap-3"
+              >
+                <h1 className="font-headline text-display text-balance text-primary font-bold glow-text">
                   {isGreek ? "Εβδομαδιαίο Πρόγραμμα" : "Weekly Program"}
                 </h1>
                 <p className="text-base text-on-surface-variant max-w-xl">
@@ -745,11 +780,11 @@ export default function App() {
                     ? "Συντονιστείτε στον ηχητικό παλμό της φοιτητικής μας εκπομπής. High-energy beats, βαθιές αναλύσεις και επιλογές όλη την εβδομάδα."
                     : "Tune in to the sonic pulse of our student-led broadcasting. High-energy beats, deep dives, and eclectic mixes all week long."}
                 </p>
-              </header>
+              </motion.header>
 
-              {/* MOBILE DAY SELECTOR TABS (Visible only on mobile) */}
-              <div className="block md:hidden w-full">
-                <div className="flex overflow-x-auto gap-2 pb-3 w-full no-scrollbar justify-start snap-x">
+              {/* DAY SELECTOR TABS (phones + tablets — 7 columns only fits from lg up) */}
+              <div className="block lg:hidden w-full">
+                <div className="flex overflow-x-auto gap-2 pb-3 w-full no-scrollbar scroll-fade-x justify-start snap-x">
                   {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg, idx) => (
                     <button
                       key={dayProg.day}
@@ -776,15 +811,15 @@ export default function App() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                     {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.map((show) => (
                       <div
                         key={show.id}
                         onClick={() => handleOpenShowDescription(show)}
-                        className={`p-5 rounded-2xl border flex flex-col justify-between gap-4 transition-all duration-300 shadow-xl cursor-pointer group ${
+                        className={`glass-card card-lift p-5 rounded-2xl flex flex-col justify-between gap-4 cursor-pointer group ${
                           currentLiveShow?.id === show.id
-                            ? "glass-card border-primary/80 bg-primary/20 glow-primary"
-                            : "glass-card border-white/15 hover:border-primary/50"
+                            ? "border-primary/80 bg-primary/20 glow-primary"
+                            : ""
                         }`}
                       >
                         <div className="flex justify-between items-center">
@@ -821,10 +856,17 @@ export default function App() {
                 </div>
               </div>
 
-              {/* DESKTOP FULL 7-DAY SCHEDULE VIEW (Matching screenshot design) */}
-              <div className="hidden md:grid md:grid-cols-7 gap-3.5 w-full max-w-screen-xl items-start">
-                {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg) => (
-                  <div key={dayProg.day} className="flex flex-col gap-3.5">
+              {/* DESKTOP FULL 7-DAY SCHEDULE VIEW (lg and up — below that the day selector wins) */}
+              <div className="hidden lg:grid lg:grid-cols-7 gap-3 xl:gap-3.5 w-full max-w-screen-xl items-start">
+                {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg, colIdx) => (
+                  <motion.div 
+                    key={dayProg.day} 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.05 }}
+                    transition={{ duration: 0.5, delay: colIdx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex flex-col gap-3.5"
+                  >
                     {/* Day Header Pill */}
                     <div className="glass-pill py-2.5 px-3 rounded-2xl text-center font-bold text-xs text-primary border border-white/15 bg-white/[0.04] uppercase tracking-wider shadow-xs select-none">
                       {dayProg.day}
@@ -836,10 +878,10 @@ export default function App() {
                         <div
                           key={show.id}
                           onClick={() => handleOpenShowDescription(show)}
-                          className={`p-4 rounded-2xl border flex flex-col justify-between gap-3 shadow-lg transition-all duration-200 cursor-pointer group ${
+                          className={`glass-card card-lift p-4 rounded-2xl flex flex-col justify-between gap-3 cursor-pointer group ${
                             currentLiveShow?.id === show.id
-                              ? "glass-card border-primary/80 bg-primary/20 glow-primary"
-                              : "glass-card border-white/15 hover:border-primary/60 hover:scale-[1.02]"
+                              ? "border-primary/80 bg-primary/20 glow-primary"
+                              : ""
                           }`}
                         >
                           <div className="flex items-center justify-between">
@@ -868,7 +910,7 @@ export default function App() {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
@@ -1041,21 +1083,31 @@ export default function App() {
                   transition={{ duration: 0.2 }}
                   className="w-full flex flex-col items-center gap-8 pt-4 md:pt-6"
                 >
-                  <header className="w-full text-center max-w-4xl flex flex-col items-center gap-3 glass-panel p-8 rounded-3xl border border-white/15 shadow-xl">
-                    <h1 className="font-headline text-4xl md:text-5xl tracking-tight text-primary font-bold glow-text">
+                  <motion.header 
+                    initial={{ opacity: 0, y: 25 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                    className="w-full text-center max-w-4xl flex flex-col items-center gap-3 glass-panel px-5 py-7 sm:p-8 rounded-3xl"
+                  >
+                    <h1 className="font-headline text-display text-balance text-primary font-bold glow-text">
                       {currentT.secUnder}
                     </h1>
                     <p className="text-base text-on-surface-variant max-w-2xl">
                       {currentT.leadDesc}
                     </p>
-                  </header>
+                  </motion.header>
 
                   <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-                    {(isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN).map((desc) => (
-                      <article
+                    {(isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN).map((desc, idx) => (
+                      <motion.article
                         key={desc.id}
+                        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                        viewport={{ once: true, amount: 0.1 }}
+                        transition={{ duration: 0.5, delay: (idx % 3) * 0.09, ease: [0.16, 1, 0.3, 1] }}
                         onClick={() => setSelectedShowId(desc.id)}
-                        className="glass-card rounded-2xl overflow-hidden group border border-white/15 hover:border-primary/50 transition-all duration-300 flex flex-col cursor-pointer hover:shadow-2xl hover:shadow-primary/15"
+                        className="glass-card card-lift rounded-2xl overflow-hidden group flex flex-col cursor-pointer"
                       >
                         <div className="h-52 relative overflow-hidden bg-surface-container-highest">
                           <img 
@@ -1087,7 +1139,7 @@ export default function App() {
                             ))}
                           </div>
                         </div>
-                      </article>
+                      </motion.article>
                     ))}
                   </section>
                 </motion.div>
@@ -1105,8 +1157,14 @@ export default function App() {
               transition={{ duration: 0.2 }}
               className="w-full flex flex-col items-center gap-8 pt-4 md:pt-6"
             >
-              <header className="text-center max-w-4xl flex flex-col items-center gap-4 glass-panel p-8 rounded-3xl border border-white/15 shadow-xl">
-                <h1 className="font-headline text-4xl md:text-5xl tracking-tight text-primary font-bold glow-text">
+              <motion.header 
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center max-w-4xl w-full flex flex-col items-center gap-4 glass-panel px-5 py-7 sm:p-8 rounded-3xl"
+              >
+                <h1 className="font-headline text-display text-balance text-primary font-bold glow-text">
                   {currentT.archiveHeader}
                 </h1>
                 <p className="text-base text-on-surface-variant max-w-xl">
@@ -1122,20 +1180,24 @@ export default function App() {
                       value={archiveSearch}
                       onChange={(e) => setArchiveSearch(e.target.value)}
                       placeholder={currentT.searchPlaceholder}
-                      className="w-full glass-pill rounded-full py-2.5 pl-11 pr-4 text-sm text-on-surface focus:outline-none focus:border-primary placeholder:text-on-surface-variant/50 transition-all shadow-inner"
+                      className="w-full glass-pill rounded-full py-3 pl-11 pr-4 text-sm focus:outline-none focus:border-primary placeholder:text-on-surface-variant/60"
                     />
                   </div>
                 </div>
-              </header>
+              </motion.header>
 
               {/* ARCHIVE GRID DECK */}
               {filteredArchive.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl">
-                  {filteredArchive.map((item) => (
-                    <article
+                  {filteredArchive.map((item, idx) => (
+                    <motion.article
                       key={item.id}
+                      initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: true, amount: 0.1 }}
+                      transition={{ duration: 0.5, delay: (idx % 3) * 0.08, ease: [0.16, 1, 0.3, 1] }}
                       onClick={() => handleTuneChannel(item.id)}
-                      className="glass-card rounded-2xl p-4 border border-white/15 hover:border-primary/50 transition-all duration-300 group flex flex-col cursor-pointer hover:shadow-2xl hover:shadow-primary/10"
+                      className="glass-card card-lift rounded-2xl p-4 group flex flex-col cursor-pointer"
                     >
                       <div className="h-44 w-full bg-surface-container relative overflow-hidden rounded-xl mb-4">
                         <img 
@@ -1173,7 +1235,7 @@ export default function App() {
                         <Radio className="w-3.5 h-3.5 fill-on-primary" />
                         <span>{currentT.listenMixcloud}</span>
                       </a>
-                    </article>
+                    </motion.article>
                   ))}
                 </div>
               ) : (
@@ -1212,24 +1274,42 @@ export default function App() {
               transition={{ duration: 0.2 }}
               className="w-full flex flex-col items-center gap-8 pt-4 md:pt-6"
             >
-              <header className="text-center max-w-3xl glass-panel p-8 rounded-3xl flex flex-col items-center gap-3 border border-white/15 shadow-xl">
-                <h1 className="font-headline text-4xl md:text-5xl tracking-tight text-primary font-bold glow-text">
+              <motion.header 
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center max-w-3xl w-full glass-panel px-5 py-7 sm:p-8 rounded-3xl flex flex-col items-center gap-3"
+              >
+                <h1 className="font-headline text-display text-balance text-primary font-bold glow-text">
                   {currentT.eventsHeader}
                 </h1>
                 <p className="text-base text-on-surface-variant max-w-xl">
                   {currentT.eventsSub}
                 </p>
-              </header>
+              </motion.header>
 
               {/* UPCOMING EVENTS */}
-              <div className="w-full max-w-4xl flex flex-col gap-5">
+              <motion.div 
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-4xl flex flex-col gap-5"
+              >
                 <h2 className="font-headline text-lg font-bold text-primary flex items-center gap-2">
                   <Flame className="w-5 h-5 text-primary" />
                   {currentT.eventsUpcoming}
                 </h2>
                 <div className="flex flex-wrap justify-center gap-5">
                   {/* Event Card 1 — FRS UTH Opening Party 2026 */}
-                  <div className="glass-card rounded-2xl border border-primary/40 overflow-hidden shadow-xl group hover:border-primary transition-all duration-200 hover:scale-[1.01] w-full max-w-[440px]">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 25, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="glass-card card-lift rounded-2xl border-primary/40 overflow-hidden group w-full max-w-[440px]"
+                  >
                     <div className="h-40 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent flex items-center justify-center relative">
                       <PartyPopper className="w-16 h-16 text-primary/60" />
                       <div className="absolute top-3 right-3 bg-primary text-on-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-lg">
@@ -1237,7 +1317,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="p-5 flex flex-col gap-2.5">
-                      <h3 className="font-headline text-lg font-bold text-white">
+                      <h3 className="font-headline text-lg font-bold text-on-surface">
                         {isGreek ? "FRS UTH Opening Party 2026" : "FRS UTH Opening Party 2026"}
                       </h3>
                       <div className="flex items-center gap-2 text-xs text-on-surface-variant">
@@ -1258,19 +1338,31 @@ export default function App() {
                         <span className="text-[10px] text-primary font-bold">{isGreek ? "200+ ενδιαφερόμενοι" : "200+ interested"}</span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* PAST EVENTS */}
-              <div className="w-full max-w-4xl flex flex-col gap-5 mt-4">
+              <motion.div 
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-4xl flex flex-col gap-5 mt-4"
+              >
                 <h2 className="font-headline text-lg font-bold text-on-surface-variant/80 flex items-center gap-2">
                   <CalendarDays className="w-5 h-5 text-on-surface-variant/80" />
                   {isGreek ? "Παλαιότερες εκδηλώσεις" : "Past Events"}
                 </h2>
                 <div className="flex flex-wrap justify-center gap-5">
                   {/* Past Event 1 — Welcome Party 2025 */}
-                  <div className="glass-card rounded-2xl border border-white/5 overflow-hidden shadow-lg opacity-75 hover:opacity-100 transition-opacity w-full max-w-[440px]">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 25, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    className="glass-card rounded-2xl border border-white/5 overflow-hidden shadow-lg opacity-75 hover:opacity-100 transition-opacity w-full max-w-[440px]"
+                  >
                     <div className="h-36 bg-gradient-to-br from-surface-container-high to-transparent flex items-center justify-center relative grayscale">
                       <PartyPopper className="w-12 h-12 text-on-surface-variant/40" />
                       <div className="absolute top-3 right-3 bg-white/10 text-on-surface-variant text-[9px] font-bold px-2.5 py-0.5 rounded uppercase">
@@ -1278,7 +1370,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="p-5 flex flex-col gap-2">
-                      <h3 className="font-headline text-base font-bold text-white/90">
+                      <h3 className="font-headline text-base font-bold text-on-surface/90">
                         {isGreek ? "FRS UTH Welcome Party 2025" : "FRS UTH Welcome Party 2025"}
                       </h3>
                       <div className="flex items-center gap-2 text-xs text-on-surface-variant/60">
@@ -1291,10 +1383,16 @@ export default function App() {
                           : "Our big welcome party for the freshman students of the academic year 2025-2026."}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Past Event 2 — Music Workshop */}
-                  <div className="glass-card rounded-2xl border border-white/5 overflow-hidden shadow-lg opacity-75 hover:opacity-100 transition-opacity w-full max-w-[440px]">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 25, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{ duration: 0.5, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="glass-card rounded-2xl border border-white/5 overflow-hidden shadow-lg opacity-75 hover:opacity-100 transition-opacity w-full max-w-[440px]"
+                  >
                     <div className="h-36 bg-gradient-to-br from-surface-container-high to-transparent flex items-center justify-center relative grayscale">
                       <Mic className="w-12 h-12 text-on-surface-variant/40" />
                       <div className="absolute top-3 right-3 bg-white/10 text-on-surface-variant text-[9px] font-bold px-2.5 py-0.5 rounded uppercase">
@@ -1302,7 +1400,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="p-5 flex flex-col gap-2">
-                      <h3 className="font-headline text-base font-bold text-white/90">
+                      <h3 className="font-headline text-base font-bold text-on-surface/90">
                         {isGreek ? "Ραδιοφωνικό Σεμινάριο & Workshop" : "Radio Seminar & Workshop"}
                       </h3>
                       <div className="flex items-center gap-2 text-xs text-on-surface-variant/60">
@@ -1315,9 +1413,9 @@ export default function App() {
                           : "Training new producers on mixer usage, broadcasting software, and basic radio principles."}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
@@ -1331,8 +1429,14 @@ export default function App() {
               transition={{ duration: 0.2 }}
               className="w-full flex flex-col items-center gap-8"
             >
-              <header className="text-center max-w-3xl glass-panel p-8 rounded-3xl flex flex-col items-center gap-3 border border-white/15 shadow-xl">
-                <h1 className="font-headline text-4xl md:text-5xl tracking-tight text-primary font-bold glow-text">
+              <motion.header 
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center max-w-3xl w-full glass-panel px-5 py-7 sm:p-8 rounded-3xl flex flex-col items-center gap-3"
+              >
+                <h1 className="font-headline text-display text-balance text-primary font-bold glow-text">
                   {isGreek ? "Επικοινωνία" : "Contact Us"}
                 </h1>
                 <p className="text-base text-on-surface-variant max-w-xl">
@@ -1340,17 +1444,23 @@ export default function App() {
                     ? "Έχετε κάποια ερώτηση, μουσική πρόταση ή θέλετε να γίνετε μέλος της ομάδας του FRS UTH; Στείλτε μας μήνυμα!"
                     : "Have a question, music suggestion, or want to join the FRS UTH team? Send us a message!"}
                 </p>
-              </header>
+              </motion.header>
 
               <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-6">
                 {/* Contact Info Cards */}
-                <div className="md:col-span-5 flex flex-col gap-4">
+                <motion.div 
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  className="md:col-span-5 flex flex-col gap-4"
+                >
                   <div className="glass-card p-5 rounded-2xl border border-white/10 flex items-start gap-4">
                     <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-white">{isGreek ? "Εμείς" : "Us"}</h4>
+                      <h4 className="font-bold text-sm text-on-surface">{isGreek ? "Εμείς" : "Us"}</h4>
                       <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                         {isGreek ? "Πανεπιστήμιο Θεσσαλίας" : "University of Thessaly"}<br />
                         {isGreek ? "Βόλος, Ελλάδα" : "Volos, Greece"}
@@ -1363,7 +1473,7 @@ export default function App() {
                       <Mail className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-white">Email</h4>
+                      <h4 className="font-bold text-sm text-on-surface">Email</h4>
                       <p className="text-xs text-on-surface-variant mt-1">
                         <a href="mailto:info@frsvolou.gr" className="hover:text-primary transition-colors">info@frsvolou.gr</a>
                       </p>
@@ -1378,7 +1488,7 @@ export default function App() {
                       <Instagram className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-white">Social Media</h4>
+                      <h4 className="font-bold text-sm text-on-surface">Social Media</h4>
                       <p className="text-xs text-on-surface-variant mt-1">
                         <a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors inline-flex items-center gap-1">
                           Instagram (@frsvolou.gr) <ExternalLink className="w-3 h-3" />
@@ -1391,14 +1501,20 @@ export default function App() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Contact Form */}
-                <div className="md:col-span-7 glass-panel p-6 md:p-8 rounded-3xl border border-white/15 shadow-xl">
+                <motion.div 
+                  initial={{ opacity: 0, x: 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  className="md:col-span-7 glass-panel p-6 md:p-8 rounded-3xl border border-white/15 shadow-xl"
+                >
                   {contactSubmitted ? (
                     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
                       <CheckCircle2 className="w-14 h-14 text-primary animate-bounce" />
-                      <h3 className="font-headline text-2xl font-bold text-white">
+                      <h3 className="font-headline text-2xl font-bold text-on-surface">
                         {isGreek ? "Το μήνυμά σας στάλθηκε!" : "Message Sent!"}
                       </h3>
                       <p className="text-xs text-on-surface-variant max-w-sm">
@@ -1442,7 +1558,7 @@ export default function App() {
                       }}
                       className="flex flex-col gap-4"
                     >
-                      <h3 className="font-headline text-xl font-bold text-white mb-1">
+                      <h3 className="font-headline text-xl font-bold text-on-surface mb-1">
                         {isGreek ? "Στείλτε Μήνυμα" : "Send a Message"}
                       </h3>
 
@@ -1456,7 +1572,7 @@ export default function App() {
                           value={contactForm.name}
                           onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                           placeholder={isGreek ? "Το όνομά σας" : "Your name"}
-                          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-all"
+                          className="field"
                         />
                       </div>
 
@@ -1470,7 +1586,7 @@ export default function App() {
                           value={contactForm.email}
                           onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                           placeholder="your.email@example.com"
-                          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-all"
+                          className="field"
                         />
                       </div>
 
@@ -1481,7 +1597,7 @@ export default function App() {
                         <select
                           value={contactForm.category}
                           onChange={(e) => setContactForm({ ...contactForm, category: e.target.value })}
-                          className="w-full bg-surface-container-high border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary transition-all cursor-pointer"
+                          className="field cursor-pointer"
                         >
                           <option value="general">{isGreek ? "Γενική Ερώτηση" : "General Query"}</option>
                           <option value="join">{isGreek ? "Συμμετοχή στο Ραδιόφωνο" : "Join the Radio Team"}</option>
@@ -1499,7 +1615,7 @@ export default function App() {
                           value={contactForm.message}
                           onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                           placeholder={isGreek ? "Γράψτε το μήνυμά σας εδώ..." : "Write your message here..."}
-                          className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-all resize-none"
+                          className="field resize-none"
                         />
                       </div>
 
@@ -1521,7 +1637,7 @@ export default function App() {
                       </motion.button>
                     </form>
                   )}
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           )}
@@ -1529,55 +1645,58 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="w-full pt-28 pb-20 md:pb-16 flex flex-col items-center gap-4 px-6 relative z-10 mt-auto border-t border-outline-variant/10 bg-transparent">
-        <UthLogo size={36} showText={true} className="mt-8" />
-        <ul className="flex gap-6 text-xs text-on-surface-variant/60 font-semibold mt-2">
-          <li><a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-all">Instagram</a></li>
-          <li><button onClick={() => handleTabChange("contact")} className="hover:text-primary transition-all cursor-pointer">{isGreek ? "Επικοινωνία" : "Contact"}</button></li>
-          <li><a href="https://www.mixcloud.com/frs-volou/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-all">Mixcloud</a></li>
+      <motion.footer 
+        initial={{ opacity: 0, y: 25 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full pt-20 sm:pt-28 pb-16 flex flex-col items-center gap-4 px-6 relative z-10 mt-auto border-t border-outline-variant/40 bg-transparent"
+      >
+        <UthLogo size={46} mdSize={58} className="mt-6" />
+        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-on-surface-variant font-semibold mt-2">
+          <li><a href="https://www.instagram.com/frsvolou.gr/" target="_blank" rel="noopener noreferrer" className="inline-block py-1 hover:text-primary transition-colors">Instagram</a></li>
+          <li><button onClick={() => handleTabChange("contact")} className="inline-block py-1 hover:text-primary transition-colors cursor-pointer">{isGreek ? "Επικοινωνία" : "Contact"}</button></li>
+          <li><a href="https://www.mixcloud.com/frs-volou/" target="_blank" rel="noopener noreferrer" className="inline-block py-1 hover:text-primary transition-colors">Mixcloud</a></li>
         </ul>
-        <div className="text-[10px] text-on-surface-variant/40 mt-1">
+        <div className="text-[10px] text-on-surface-variant/70 mt-1 text-center text-balance">
           © FRS-UTH. Foititika Radio Show. Built for students, by students.
         </div>
-      </footer>
+      </motion.footer>
 
 
 
 
-      {/* BOTTOM NAVIGATION NAV-BAR (Mobile view matches screen mock references) */}
-      <nav className="fixed bottom-0 left-0 w-full z-45 flex justify-around items-center px-4 py-1 md:hidden glass-navbar border-t border-white/15 pb-1.5 shadow-[0_-10px_30px_rgba(0,0,0,0.6)]">
-        <button 
-          onClick={() => { handleTabChange("home"); }}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "home" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
-          }`}
-        >
-           <Radio className="w-6 h-6" />
-        </button>
-        <button 
-          onClick={() => { handleTabChange("program"); }}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "program" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
-          }`}
-        >
-           <Calendar className="w-6 h-6" />
-        </button>
-        <button 
-          onClick={() => { handleTabChange("events"); }}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "events" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
-          }`}
-        >
-           <PartyPopper className="w-6 h-6" />
-        </button>
-        <button 
-          onClick={() => { handleTabChange("archive"); }}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-all cursor-pointer ${
-            activeTab === "archive" ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(183,50,41,0.6)]" : "text-on-surface-variant"
-          }`}
-        >
-           <Cloud className="w-6 h-6" />
-        </button>
+      {/* BOTTOM TAB BAR (mobile) */}
+      <nav className="tabbar fixed bottom-0 left-0 w-full z-[45] flex items-stretch px-1 md:hidden glass-navbar">
+        {([
+          { id: "home", Icon: Radio, gr: "Αρχική", en: "Home" },
+          { id: "program", Icon: Calendar, gr: "Πρόγραμμα", en: "Schedule" },
+          { id: "events", Icon: PartyPopper, gr: "Events", en: "Events" },
+          { id: "archive", Icon: Cloud, gr: "Αρχείο", en: "Archive" },
+          { id: "contact", Icon: Mail, gr: "Επαφή", en: "Contact" }
+        ] as const).map(({ id, Icon, gr, en }) => {
+          const isActive = activeTab === id;
+          return (
+            <button
+              key={id}
+              onClick={() => handleTabChange(id)}
+              aria-current={isActive ? "page" : undefined}
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 pt-1.5 pb-1 rounded-xl transition-colors cursor-pointer ${
+                isActive ? "text-primary" : "text-on-surface-variant"
+              }`}
+            >
+              <span
+                className={`absolute top-0 h-0.5 rounded-full bg-primary transition-all duration-300 ${
+                  isActive ? "w-8 opacity-100" : "w-0 opacity-0"
+                }`}
+              />
+              <Icon className={`w-[22px] h-[22px] transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+              <span className="text-[9px] font-bold leading-none tracking-tight">
+                {isGreek ? gr : en}
+              </span>
+            </button>
+          );
+        })}
       </nav>
 
       {/* TOP-LEVEL SHOW DESCRIPTION MODAL OVERLAY */}
@@ -1595,12 +1714,12 @@ export default function App() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-2xl bg-[#181112] border border-white/20 rounded-3xl p-5 md:p-7 shadow-2xl relative max-h-[82vh] md:max-h-[85vh] overflow-y-auto my-auto overscroll-contain"
+                className="w-full max-w-2xl bg-surface-container-low border border-outline-variant rounded-3xl p-5 md:p-7 shadow-2xl relative max-h-[85dvh] overflow-y-auto my-auto overscroll-contain"
               >
                 {/* Close button */}
                 <button
                   onClick={() => setSelectedShowId(null)}
-                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-primary text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 z-20"
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full glass-pill hover:bg-primary hover:text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 z-20"
                   title={isGreek ? "Κλείσιμο" : "Close"}
                 >
                   <X className="w-5 h-5" />
@@ -1643,7 +1762,7 @@ export default function App() {
                           </span>
                         ))}
                       </div>
-                      <h2 className="font-headline text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                      <h2 className="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight leading-tight">
                         {selectedShow.title}
                       </h2>
                       <p className="text-xs text-primary font-semibold mt-1">
@@ -1665,7 +1784,7 @@ export default function App() {
                         <Clock className="w-3.5 h-3.5 text-primary" />
                         <span>{isGreek ? "Ημέρα & Ώρα Μετάδοσης" : "Broadcasting Schedule"}</span>
                       </h4>
-                      <p className="text-xs font-bold text-white">
+                      <p className="text-xs font-bold text-on-surface">
                         {(() => {
                           const schedule = isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
                           for (const day of schedule) {

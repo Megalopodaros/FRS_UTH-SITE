@@ -484,10 +484,10 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-         className="fixed bottom-[52px] md:bottom-0 left-0 right-0 w-full z-[50]"
+        className="above-tabbar fixed left-0 right-0 w-full z-[50]"
       >
         {/* ===== DESKTOP PLAYER (hidden on mobile) ===== */}
-        <div className="hidden md:flex relative h-[84px] glass-player px-12 items-center justify-between">
+        <div className="hidden md:flex relative h-[84px] glass-player px-5 lg:px-8 xl:px-12 items-center justify-between gap-4">
         {/* Left Section: Active Show / Station Info & Visualizer */}
         <div className="flex items-center gap-3.5 max-w-[42%] md:max-w-[38%] min-w-0 z-10">
           <div className="relative flex-shrink-0">
@@ -514,20 +514,23 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
 
               {/* Animated Equalizer Bars when playing */}
               {stationPlaying && audioStatus === "playing" && !isMuted && (
-                <div className="flex items-end gap-0.5 h-3 px-1">
-                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.1s] h-full" />
-                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.3s] h-2/3" />
-                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.2s] h-full" />
-                  <span className="w-1 bg-primary rounded-t animate-[bounce_0.6s_infinite_0.4s] h-1/2" />
+                <div className="flex items-end gap-[3px] h-3.5 px-1" aria-hidden="true">
+                  {[0, 0.18, 0.36, 0.09].map((delay, i) => (
+                    <span
+                      key={i}
+                      className="eq-bar w-1 h-full bg-primary rounded-full"
+                      style={{ animationDelay: `${delay}s` }}
+                    />
+                  ))}
                 </div>
               )}
 
           </div>
 
-          <h4 className="font-headline text-xs md:text-sm font-bold text-white truncate mt-0.5 max-w-[120px] xs:max-w-[150px] sm:max-w-xs">
+          <h4 className="font-headline text-xs md:text-sm font-bold text-on-surface truncate mt-0.5 max-w-[150px] lg:max-w-xs">
             {displayChannel.name}
           </h4>
-          <p className="text-[10px] md:text-[11px] text-on-surface-variant/80 truncate font-mono max-w-[120px] xs:max-w-[150px] sm:max-w-xs">
+          <p className="text-[10px] md:text-[11px] text-on-surface-variant truncate font-mono max-w-[150px] lg:max-w-xs">
             {displayChannel.dj ? `${displayChannel.dj} • ${displayChannel.genre}` : displayChannel.genre}
           </p>
           </div>
@@ -579,7 +582,9 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
               step="0.02"
               value={isMuted ? 0 : volume}
               onChange={handleVolumeChange}
-              className="w-12 md:w-24 accent-primary bg-white/10 rounded-lg appearance-auto h-1.5 cursor-pointer"
+              aria-label={isGreek ? "Ένταση ήχου" : "Volume"}
+              style={{ "--range-fill": `${(isMuted ? 0 : volume) * 100}%` } as React.CSSProperties}
+              className="range-brand w-20 lg:w-24 cursor-pointer"
             />
           </div>
 
@@ -623,7 +628,7 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
                 {audioStatus === "connecting" ? "●" : "ON AIR"}
               </span>
             </div>
-            <div className="text-[13px] font-bold text-white leading-tight font-headline whitespace-normal break-words">
+            <div className="text-[13px] font-bold text-on-surface leading-tight font-headline whitespace-normal break-words">
               {displayChannel.name}
             </div>
             <div className="text-[10px] text-on-surface-variant/80 truncate leading-tight">
@@ -643,7 +648,9 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
               step="0.02"
               value={isMuted ? 0 : volume}
               onChange={handleVolumeChange}
-              className="w-14 accent-primary bg-white/10 rounded-lg appearance-auto h-1.5 cursor-pointer"
+              aria-label={isGreek ? "Ένταση ήχου" : "Volume"}
+              style={{ "--range-fill": `${(isMuted ? 0 : volume) * 100}%` } as React.CSSProperties}
+              className="range-brand w-14 cursor-pointer"
               title={isGreek ? "Ένταση Ήχου" : "Volume"}
             />
           </div>
