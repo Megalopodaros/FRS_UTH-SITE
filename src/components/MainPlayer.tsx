@@ -27,7 +27,7 @@ const UNIVERSAL_CHANNEL: RadioChannel = {
   url: "https://peridot.streamguys1.com:7830/WUCF"
 };
 
-// Rhythmic Chill Beats Web Audio API Synthesizer (Kick, Snare & Warm Rhodes Chords fallback)
+// Rhythmic Chill Beats Web Audio API Synthesizer fallback
 class ChillBeatsWebAudioSynth {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
@@ -152,24 +152,66 @@ export default function MainPlayer({
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [, setTick] = useState(Date.now());
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Timer for elapsed stream playback
+  // Timer ticker every second for live show progress
   useEffect(() => {
-    let interval: any = null;
-    if (stationPlaying) {
-      interval = setInterval(() => {
-        setElapsedSeconds((prev) => prev + 1);
-      }, 1000);
-    } else {
-      setElapsedSeconds(0);
+    const interval = setInterval(() => {
+      setTick(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format seconds to MM:SS or HH:MM:SS
+  const formatTime = (secs: number) => {
+    const totalSecs = Math.max(0, Math.floor(secs));
+    const hours = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const remainder = totalSecs % 60;
+    if (hours > 0) {
+      return `${hours}:${mins.toString().padStart(2, "0")}:${remainder.toString().padStart(2, "0")}`;
     }
-    return () => {
-      if (interval) clearInterval(interval);
+    return `${mins.toString().padStart(2, "0")}:${remainder.toString().padStart(2, "0")}`;
+  };
+
+  // Calculate live show progress based on exact broadcast slot time
+  const showProgress = React.useMemo(() => {
+    const now = new Date();
+    if (currentLiveShow && currentLiveShow.time) {
+      const parts = currentLiveShow.time.split("-").map((s: string) => s.trim());
+      if (parts.length === 2) {
+        const [startH, startM] = parts[0].split(":").map(Number);
+        const [endH, endM] = parts[1].split(":").map(Number);
+        let startSec = (startH * 60 + startM) * 60;
+        let endSec = (endH * 60 + endM) * 60;
+        if (endSec <= startSec) endSec += 24 * 3600;
+
+        const nowSec = (now.getHours() * 60 + now.getMinutes()) * 60 + now.getSeconds();
+        const elapsed = Math.max(0, nowSec - startSec);
+        const total = Math.max(1, endSec - startSec);
+        const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+
+        return {
+          percent: pct,
+          elapsedStr: formatTime(elapsed),
+          totalStr: formatTime(total)
+        };
+      }
+    }
+
+    // Default hourly stream progression
+    const nowSecInHour = now.getMinutes() * 60 + now.getSeconds();
+    const totalHourSec = 3600;
+    const pct = (nowSecInHour / totalHourSec) * 100;
+
+    return {
+      percent: pct,
+      elapsedStr: formatTime(nowSecInHour),
+      totalStr: "60:00"
     };
-  }, [stationPlaying]);
+  }, [currentLiveShow, isGreek]);
 
   // Dynamically compute display title and description
   const displayTitle = currentLiveShow?.title || (isGreek ? UNIVERSAL_CHANNEL.greekName : UNIVERSAL_CHANNEL.name);
@@ -239,13 +281,6 @@ export default function MainPlayer({
     synthEngine.setVolume(effectiveVol);
   }, [volume, isMuted]);
 
-  // Format elapsed time string
-  const formatTime = (secs: number) => {
-    const mins = Math.floor(secs / 60);
-    const remainder = secs % 60;
-    return `${mins.toString().padStart(2, "0")}:${remainder.toString().padStart(2, "0")}`;
-  };
-
   // Copy site link to clipboard
   const handleShare = async () => {
     try {
@@ -314,18 +349,17 @@ export default function MainPlayer({
           </div>
         </div>
 
-        {/* Center: Live Waveform / Progress bar & Timer */}
+        {/* Center: Live Show Progress bar & Elapsed/Total Timer */}
         <div className="flex items-center gap-3 w-full md:max-w-xs lg:max-w-md flex-1 px-1 sm:px-4">
-          <span className="font-mono text-xs font-semibold text-[#78716C] shrink-0">
-            {formatTime(elapsedSeconds)}
+          <span className="font-mono text-xs font-semibold text-[#78716C] shrink-0" title="Elapsed broadcast time">
+            {showProgress.elapsedStr}
           </span>
           
-          {/* Sleek Red Live Audio Bar */}
+          {/* Dynamic Live Show Progress Bar */}
           <div className="relative flex-1 h-2 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
             <div 
-              className={`h-full bg-[#DF3B2B] rounded-full transition-all duration-300 ${
-                stationPlaying ? "w-full opacity-100" : "w-0 opacity-40"
-              }`}
+              className="h-full bg-[#DF3B2B] rounded-full transition-all duration-500 ease-linear"
+              style={{ width: `${Math.max(4, showProgress.percent)}%` }}
             />
             {stationPlaying && (
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />

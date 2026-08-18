@@ -25,7 +25,8 @@ import {
   Globe,
   Sparkles,
   ChevronRight,
-  Filter
+  Filter,
+  Mic
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -53,6 +54,16 @@ export default function App() {
   const [activeTrackId, setActiveTrackId] = useState<string>("");
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [isOpenCallModalOpen, setIsOpenCallModalOpen] = useState(false);
+
+  // Active day index in weekly program (defaults to current day of week)
+  const currentDayIndex = useMemo(() => {
+    const day = new Date().getDay(); // 0 is Sunday
+    // Map to Monday-based index: 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+    return day === 0 ? 6 : day - 1;
+  }, []);
+
+  const [selectedProgramDay, setSelectedProgramDay] = useState(currentDayIndex);
+  const [programViewMode, setProgramViewMode] = useState<"day" | "all">("day");
 
   const setActiveTab = (tab: TabId) => {
     setActiveTabState(tab);
@@ -202,9 +213,6 @@ export default function App() {
     
     return { currentLiveShow: active, nextShow: next, laterShow: later };
   }, [isGreek, nowTick]);
-
-  // Grid filter state for Weekly Program day selector on mobile
-  const [selectedMobileDay, setSelectedMobileDay] = useState(0);
 
   // Search & sorting state for Mixcloud Archive
   const [archiveSearch, setArchiveSearch] = useState("");
@@ -371,6 +379,8 @@ export default function App() {
       setArchiveLoading(false);
     }, 800);
   };
+
+  const weeklyScheduleList = isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
 
   return (
     <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B] relative">
@@ -605,7 +615,7 @@ export default function App() {
                   onOpenChat={() => setChatOpen(true)}
                 />
 
-                {/* Today's Schedule Section */}
+                {/* Today's Schedule Section with Spacious, Well-Aligned Cards */}
                 <div className="flex flex-col gap-6 mt-4">
                   {/* Section Title Header */}
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-black/[0.06] pb-4">
@@ -621,78 +631,80 @@ export default function App() {
 
                     <button
                       onClick={() => setActiveTab("program")}
-                      className="text-xs sm:text-sm font-bold text-[#DF3B2B] hover:text-[#C62F20] flex items-center gap-1 cursor-pointer transition-colors self-start sm:self-auto"
+                      className="text-xs sm:text-sm font-bold text-[#DF3B2B] hover:text-[#C62F20] flex items-center gap-1 cursor-pointer transition-colors self-start sm:self-auto group"
                     >
                       <span>{currentT.fullWeekLink}</span>
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
 
-                  {/* 3 Schedule Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  {/* 3 Spacious Schedule Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
                     {/* Card 1: Currently Live / Automated Stream */}
                     <div 
                       onClick={() => currentLiveShow && handleOpenShowDescription(currentLiveShow)}
-                      className={`warm-card rounded-2xl p-5 flex flex-col justify-between min-h-[175px] relative overflow-hidden cursor-pointer ${
+                      className={`warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] relative overflow-hidden cursor-pointer ${
                         currentLiveShow ? "border-l-4 border-l-[#DF3B2B]" : "border-t-2 border-t-[#DF3B2B]/40"
                       }`}
                     >
                       <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-mono font-bold text-[#6B6560]">
+                        <div className="flex items-center justify-between mb-3.5">
+                          <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-2.5 py-1 rounded-lg border border-black/5">
                             {currentLiveShow ? currentLiveShow.time : "Non-Stop Stream"}
                           </span>
-                          <span className="bg-[#FEECEB] text-[#DF3B2B] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          <span className="bg-[#FEECEB] text-[#DF3B2B] text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                             {currentLiveShow ? (isGreek ? "ΖΩΝΤΑΝΑ ΤΩΡΑ" : "LIVE NOW") : (isGreek ? "ΤΩΡΑ • ΑΥΤΟΜΑΤΗ ΡΟΗ" : "NOW • AUTO STREAM")}
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-base text-[#1C1917] leading-snug">
+                        <h3 className="font-bold text-lg sm:text-xl text-[#1C1917] leading-snug">
                           {currentLiveShow ? currentLiveShow.title : currentT.noLiveShow}
                         </h3>
 
-                        <p className="text-xs text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2.5 line-clamp-2 leading-relaxed">
                           {currentLiveShow ? `Με παραγωγό ${currentLiveShow.host}` : currentT.autoStreamDesc}
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-black/[0.05] flex items-center justify-between text-[11px] text-[#6B6560] font-semibold">
+                      <div className="mt-5 pt-3.5 border-t border-black/[0.05] flex items-center justify-between text-xs text-[#6B6560] font-semibold">
                         <span>Studio Deck A</span>
-                        <span className="w-2 h-2 rounded-full bg-[#DF3B2B]/60" />
+                        <span className="w-2 h-2 rounded-full bg-[#DF3B2B]/70 animate-pulse" />
                       </div>
                     </div>
 
                     {/* Card 2: Next Show */}
                     <div 
                       onClick={() => nextShow && handleOpenShowDescription(nextShow)}
-                      className="warm-card rounded-2xl p-5 flex flex-col justify-between min-h-[175px] cursor-pointer"
+                      className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] cursor-pointer"
                     >
                       <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-mono font-bold text-[#6B6560]">
+                        <div className="flex items-center justify-between mb-3.5">
+                          <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-2.5 py-1 rounded-lg border border-black/5">
                             {nextShow ? (nextShow.timeLabel || nextShow.time) : "11:00 - 13:00"}
                           </span>
-                          <span className="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          <span className="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                             {isGreek ? "ΕΠΟΜΕΝΟ" : "NEXT"}
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-base text-[#1C1917] leading-snug">
+                        <h3 className="font-bold text-lg sm:text-xl text-[#1C1917] leading-snug">
                           {nextShow ? nextShow.title : "Indie Hour"}
                         </h3>
 
-                        <span className="text-xs font-bold text-[#DF3B2B] mt-0.5">
-                          {nextShow ? nextShow.host : "Sarah V."}
+                        <span className="text-xs font-bold text-[#DF3B2B] mt-1 flex items-center gap-1">
+                          <Mic className="w-3.5 h-3.5" />
+                          <span>{nextShow ? nextShow.host : "Sarah V."}</span>
                         </span>
 
-                        <p className="text-xs text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
                           {isGreek 
                             ? "Indie rock anthems, shoegaze ανακαλύψεις και συνεντεύξεις από την τοπική μουσική σκηνή."
                             : "Indie rock anthems, shoegaze discoveries and local music scene features."}
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-black/[0.05] flex items-center justify-between text-[11px] text-[#6B6560] font-semibold">
+                      <div className="mt-5 pt-3.5 border-t border-black/[0.05] flex items-center justify-between text-xs text-[#6B6560] font-semibold">
                         <span>{isGreek ? "Εκπομπή Λόγου & Μουσικής" : "Music & Talk Show"}</span>
                         <span className="text-[#6B6560] font-mono">{isGreek ? "Σε 2 ώρες" : "In 2 hours"}</span>
                       </div>
@@ -701,34 +713,35 @@ export default function App() {
                     {/* Card 3: Evening / Later Show */}
                     <div 
                       onClick={() => laterShow && handleOpenShowDescription(laterShow)}
-                      className="warm-card rounded-2xl p-5 flex flex-col justify-between min-h-[175px] cursor-pointer"
+                      className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] cursor-pointer"
                     >
                       <div className="flex flex-col">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-mono font-bold text-[#6B6560]">
+                        <div className="flex items-center justify-between mb-3.5">
+                          <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-2.5 py-1 rounded-lg border border-black/5">
                             {laterShow ? (laterShow.timeLabel || laterShow.time) : "16:00 - 18:00"}
                           </span>
-                          <span className="bg-stone-100 text-[#6B6560] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          <span className="bg-stone-100 text-[#6B6560] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                             {isGreek ? "ΑΠΟΓΕΥΜΑ" : "EVENING"}
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-base text-[#1C1917] leading-snug">
+                        <h3 className="font-bold text-lg sm:text-xl text-[#1C1917] leading-snug">
                           {laterShow ? laterShow.title : "Rock Anthems"}
                         </h3>
 
-                        <span className="text-xs font-bold text-[#DF3B2B] mt-0.5">
-                          {laterShow ? laterShow.host : "DJ George"}
+                        <span className="text-xs font-bold text-[#DF3B2B] mt-1 flex items-center gap-1">
+                          <Mic className="w-3.5 h-3.5" />
+                          <span>{laterShow ? laterShow.host : "DJ George"}</span>
                         </span>
 
-                        <p className="text-xs text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
                           {isGreek 
                             ? "Classic rock, grunge 90s riffs και progressive retrospectives σε ένα δυνατό δίωρο mix."
                             : "Classic rock, 90s grunge riffs and progressive retrospectives in a powerhouse 2-hour set."}
                         </p>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-black/[0.05] flex items-center justify-between text-[11px] text-[#6B6560] font-semibold">
+                      <div className="mt-5 pt-3.5 border-t border-black/[0.05] flex items-center justify-between text-xs text-[#6B6560] font-semibold">
                         <span>{isGreek ? "Heavy Guitar Session" : "Heavy Guitar Session"}</span>
                         <span className="text-[#6B6560] font-mono">{isGreek ? "Σε 7 ώρες" : "In 7 hours"}</span>
                       </div>
@@ -830,7 +843,7 @@ export default function App() {
           )}
 
           {/* =========================================================================
-              WEEKLY PROGRAM VIEW
+              WEEKLY PROGRAM VIEW (Redesigned Spacious Layout & Alignment)
              ========================================================================= */}
           {activeTab === "program" && (
             <motion.div
@@ -839,7 +852,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-8"
+              className="flex flex-col gap-10 max-w-6xl mx-auto w-full"
             >
               {/* Program Header */}
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
@@ -849,115 +862,187 @@ export default function App() {
                 <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917]">
                   {isGreek ? "Εβδομαδιαίο Πρόγραμμα" : "Weekly Program"}
                 </h1>
-                <p className="text-sm text-[#6B6560] leading-relaxed">
+                <p className="text-sm sm:text-base text-[#6B6560] leading-relaxed">
                   {isGreek 
                     ? "Συντονιστείτε στον ηχητικό παλμό της φοιτητικής μας ομάδας. 40+ ραδιοφωνικοί παραγωγοί, εκλεκτικές μουσικές επιλογές και live panels όλη την εβδομάδα."
                     : "Tune in to the sonic pulse of our student broadcast team. 40+ radio producers, curated rotations, and live panels all week long."}
                 </p>
               </div>
 
-              {/* Mobile / Tablet Day Selector */}
-              <div className="block lg:hidden w-full">
-                <div className="flex overflow-x-auto gap-2 pb-3 no-scrollbar snap-x">
-                  {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg, idx) => (
-                    <button
-                      key={dayProg.day}
-                      onClick={() => setSelectedMobileDay(idx)}
-                      className={`snap-start shrink-0 px-5 py-2.5 rounded-full font-bold text-xs transition-all cursor-pointer ${
-                        selectedMobileDay === idx
-                          ? "bg-[#DF3B2B] text-white shadow-md shadow-[#DF3B2B]/20"
-                          : "bg-white text-[#1C1917] border border-black/10"
-                      }`}
-                    >
-                      {dayProg.day}
-                    </button>
-                  ))}
+              {/* View Mode Controls & Day Selector Pills */}
+              <div className="flex flex-col items-center gap-5 w-full">
+                
+                {/* View Mode Tabs (Day View vs Full Week) */}
+                <div className="flex items-center bg-[#EFECE3] p-1 rounded-full text-xs font-bold text-[#6B6560]">
+                  <button
+                    onClick={() => setProgramViewMode("day")}
+                    className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+                      programViewMode === "day" ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
+                    }`}
+                  >
+                    {isGreek ? "Ημερήσια Προβολή" : "Day by Day"}
+                  </button>
+                  <button
+                    onClick={() => setProgramViewMode("all")}
+                    className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+                      programViewMode === "all" ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
+                    }`}
+                  >
+                    {isGreek ? "Επισκόπηση Εβδομάδας" : "Full Week Overview"}
+                  </button>
                 </div>
 
-                {/* Mobile Shows Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                  {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN)[selectedMobileDay].shows.map((show) => (
-                    <div
-                      key={show.id}
-                      onClick={() => handleOpenShowDescription(show)}
-                      className="warm-card rounded-2xl p-5 flex flex-col justify-between gap-4 cursor-pointer group"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-2.5 py-1 rounded-lg border border-black/5">
-                          {show.time}
-                        </span>
-                        {currentLiveShow?.id === show.id && (
-                          <span className="bg-[#FEECEB] text-[#DF3B2B] text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
-                            LIVE
-                          </span>
+                {/* Day Selector Buttons */}
+                <div className="flex items-center justify-start sm:justify-center gap-2.5 overflow-x-auto w-full pb-2 no-scrollbar px-1">
+                  {weeklyScheduleList.map((dayProg, idx) => {
+                    const isSelected = selectedProgramDay === idx;
+                    const isToday = currentDayIndex === idx;
+                    return (
+                      <button
+                        key={dayProg.day}
+                        onClick={() => {
+                          setSelectedProgramDay(idx);
+                          setProgramViewMode("day");
+                        }}
+                        className={`shrink-0 px-4 sm:px-6 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? "bg-[#DF3B2B] text-white shadow-md shadow-[#DF3B2B]/25 scale-105"
+                            : "bg-white text-[#1C1917] border border-black/10 hover:border-black/20"
+                        }`}
+                      >
+                        <span>{dayProg.fullName}</span>
+                        {isToday && (
+                          <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#DF3B2B]"}`} />
                         )}
-                      </div>
-
-                      <div>
-                        <h4 className="font-bold text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors">
-                          {show.title}
-                        </h4>
-                        <p className="text-xs text-[#6B6560] mt-1 font-semibold">
-                          {show.host}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-1.5 pt-2 border-t border-black/[0.05]">
-                        {show.tags.map(tag => (
-                          <span key={tag} className="text-[10px] bg-[#FAF8F4] text-[#6B6560] px-2 py-0.5 rounded-md font-semibold border border-black/[0.05]">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Desktop 7-Day Grid */}
-              <div className="hidden lg:grid lg:grid-cols-7 gap-3 xl:gap-4 items-start w-full">
-                {(isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).map((dayProg) => (
-                  <div key={dayProg.day} className="flex flex-col gap-3">
-                    <div className="bg-white rounded-xl p-3 border border-black/10 text-center shadow-xs">
-                      <span className="font-black text-sm text-[#1C1917]">{dayProg.day}</span>
-                      <span className="block text-[10px] text-[#6B6560] font-semibold">{dayProg.fullName}</span>
-                    </div>
+              {/* Day-by-Day Spacious Grid */}
+              {programViewMode === "day" && (
+                <div className="w-full flex flex-col gap-6">
+                  <div className="flex items-center justify-between border-b border-black/[0.08] pb-3">
+                    <h3 className="font-editorial text-2xl font-bold text-[#1C1917]">
+                      {weeklyScheduleList[selectedProgramDay].fullName}
+                    </h3>
+                    <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-3 py-1 rounded-full border border-black/5">
+                      {weeklyScheduleList[selectedProgramDay].shows.length} {isGreek ? "Εκπομπές" : "Shows"}
+                    </span>
+                  </div>
 
-                    <div className="flex flex-col gap-2.5">
-                      {dayProg.shows.map((show) => {
-                        const isLive = currentLiveShow?.id === show.id;
-                        return (
-                          <div
-                            key={show.id}
-                            onClick={() => handleOpenShowDescription(show)}
-                            className={`warm-card rounded-xl p-3 flex flex-col gap-2 cursor-pointer group ${
-                              isLive ? "border-l-4 border-l-[#DF3B2B] bg-[#FEECEB]/30" : ""
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] font-mono font-bold text-[#6B6560]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {weeklyScheduleList[selectedProgramDay].shows.map((show) => {
+                      const isLive = currentLiveShow?.id === show.id;
+                      return (
+                        <div
+                          key={show.id}
+                          onClick={() => handleOpenShowDescription(show)}
+                          className={`warm-card rounded-3xl p-6 flex flex-col justify-between min-h-[220px] cursor-pointer group relative overflow-hidden ${
+                            isLive ? "border-l-4 border-l-[#DF3B2B] bg-[#FEECEB]/20" : ""
+                          }`}
+                        >
+                          <div className="flex flex-col">
+                            <div className="flex items-center justify-between mb-3.5">
+                              <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-3 py-1 rounded-lg border border-black/5">
                                 {show.time}
                               </span>
                               {isLive && (
-                                <span className="w-2 h-2 rounded-full bg-[#DF3B2B] animate-pulse" />
+                                <span className="bg-[#FEECEB] text-[#DF3B2B] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#DF3B2B] animate-pulse" />
+                                  <span>LIVE</span>
+                                </span>
                               )}
                             </div>
 
-                            <div>
-                              <h4 className="font-bold text-xs text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors leading-tight">
-                                {show.title}
-                              </h4>
-                              <p className="text-[10px] text-[#6B6560] font-medium mt-0.5 truncate">
-                                {show.host}
-                              </p>
-                            </div>
+                            <h4 className="font-bold text-xl text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors leading-snug">
+                              {show.title}
+                            </h4>
+
+                            <span className="text-xs font-bold text-[#DF3B2B] mt-1.5 flex items-center gap-1">
+                              <Mic className="w-3.5 h-3.5" />
+                              <span>{show.host}</span>
+                            </span>
                           </div>
-                        );
-                      })}
-                    </div>
+
+                          <div className="mt-6 pt-3.5 border-t border-black/[0.05] flex items-center justify-between gap-2">
+                            <div className="flex flex-wrap gap-1.5">
+                              {show.tags.map(tag => (
+                                <span key={tag} className="text-[10px] bg-[#FAF8F4] text-[#6B6560] px-2.5 py-0.5 rounded-md font-semibold border border-black/5">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTuneChannel(show.id);
+                              }}
+                              className="text-xs font-bold text-[#DF3B2B] hover:text-[#C62F20] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                            >
+                              <span>{isGreek ? "Ακρόαση" : "Listen"}</span>
+                              <Play className="w-3 h-3 fill-current" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+
+              {/* Full Week Overview Mode (Spacious 2-3 Columns) */}
+              {programViewMode === "all" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                  {weeklyScheduleList.map((dayProg) => (
+                    <div key={dayProg.day} className="flex flex-col gap-4 bg-white/50 p-5 rounded-3xl border border-black/[0.06]">
+                      <div className="flex items-center justify-between border-b border-black/[0.06] pb-2.5 px-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-base text-[#1C1917]">{dayProg.fullName}</span>
+                        </div>
+                        <span className="text-xs font-mono text-[#6B6560] font-semibold">
+                          {dayProg.shows.length} {isGreek ? "εκπομπές" : "shows"}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        {dayProg.shows.map((show) => {
+                          const isLive = currentLiveShow?.id === show.id;
+                          return (
+                            <div
+                              key={show.id}
+                              onClick={() => handleOpenShowDescription(show)}
+                              className={`warm-card rounded-2xl p-4 flex flex-col gap-2 cursor-pointer group ${
+                                isLive ? "border-l-4 border-l-[#DF3B2B] bg-[#FEECEB]/25" : ""
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-mono font-bold text-[#6B6560]">
+                                  {show.time}
+                                </span>
+                                {isLive && (
+                                  <span className="w-2 h-2 rounded-full bg-[#DF3B2B] animate-pulse" />
+                                )}
+                              </div>
+
+                              <h5 className="font-bold text-sm text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors leading-snug">
+                                {show.title}
+                              </h5>
+
+                              <span className="text-[11px] font-semibold text-[#DF3B2B]">
+                                {show.host}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
             </motion.div>
           )}
 
