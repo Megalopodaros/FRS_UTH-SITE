@@ -1753,13 +1753,15 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* LIVE CHAT DRAWER */}
+      {/* LIVE CHAT MODAL / DRAWER */}
       <LiveChat
         isGreek={isGreek}
         isOpen={chatOpen}
         onClose={() => setChatOpen(false)}
         onActiveTrackTrigger={handleTuneChannel}
         currentLiveShow={currentLiveShow}
+        stationPlaying={stationPlaying}
+        setStationPlaying={setStationPlaying}
       />
 
     </div>
