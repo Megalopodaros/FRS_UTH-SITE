@@ -1057,38 +1057,40 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Day Selector Buttons with Sliding Red Indicator */}
-                <div className="flex items-center justify-start sm:justify-center gap-2.5 overflow-x-auto w-full pb-2 no-scrollbar px-1">
-                  {weeklyScheduleList.map((dayProg, idx) => {
-                    const isSelected = selectedProgramDay === idx;
-                    const isToday = currentDayIndex === idx;
-                    return (
-                      <button
-                        key={dayProg.day}
-                        onClick={() => {
-                          setSelectedProgramDay(idx);
-                          setProgramViewMode("day");
-                        }}
-                        className={`relative shrink-0 px-4 sm:px-6 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-1.5 z-10 ${
-                          isSelected
-                            ? "text-white shadow-md shadow-[#DF3B2B]/25"
-                            : "bg-white/60 backdrop-blur-md text-[#1C1917] border border-white/80 hover:bg-white/85 shadow-2xs"
-                        }`}
-                      >
-                        {isSelected && (
-                          <motion.div
-                            layoutId="activeDayTabIndicator"
-                            transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                            className="absolute inset-0 bg-[#DF3B2B] rounded-full shadow-md shadow-[#DF3B2B]/25 -z-10"
-                          />
-                        )}
-                        <span>{dayProg.fullName}</span>
-                        {isToday && (
-                          <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#DF3B2B]"}`} />
-                        )}
-                      </button>
-                    );
-                  })}
+                {/* Day Selector Buttons with Unified Frosted Glass Border Dock & Sliding Indicator */}
+                <div className="flex items-center justify-start sm:justify-center overflow-x-auto max-w-full pb-2 no-scrollbar px-1">
+                  <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full bg-white/55 backdrop-blur-md border border-white/80 shadow-xs relative">
+                    {weeklyScheduleList.map((dayProg, idx) => {
+                      const isSelected = selectedProgramDay === idx;
+                      const isToday = currentDayIndex === idx;
+                      return (
+                        <button
+                          key={dayProg.day}
+                          onClick={() => {
+                            setSelectedProgramDay(idx);
+                            setProgramViewMode("day");
+                          }}
+                          className={`relative shrink-0 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-1.5 z-10 ${
+                            isSelected
+                              ? "text-white font-bold"
+                              : "text-[#6B6560] hover:text-[#1C1917]"
+                          }`}
+                        >
+                          {isSelected && (
+                            <motion.div
+                              layoutId="activeDayTabIndicator"
+                              transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                              className="absolute inset-0 bg-[#DF3B2B] rounded-full shadow-md shadow-[#DF3B2B]/25 -z-10"
+                            />
+                          )}
+                          <span>{dayProg.fullName}</span>
+                          {isToday && (
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#DF3B2B]"}`} />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
