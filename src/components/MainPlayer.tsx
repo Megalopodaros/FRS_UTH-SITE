@@ -19,6 +19,7 @@ interface MainPlayerProps {
   setVolume: (v: number) => void;
   isMuted: boolean;
   setIsMuted: (m: boolean) => void;
+  className?: string;
 }
 
 // Single 24/7 universal live MP3 radio stream for FRS UTH
@@ -99,29 +100,31 @@ class ChillBeatsWebAudioSynth {
         currentChord.forEach((freq) => {
           if (!this.ctx || !this.masterGain) return;
           const osc = this.ctx.createOscillator();
-          const chordGain = this.ctx.createGain();
-
+          const gain = this.ctx.createGain();
           osc.type = "sine";
           osc.frequency.setValueAtTime(freq, now);
 
-          chordGain.gain.setValueAtTime(0.001, now);
-          chordGain.gain.linearRampToValueAtTime(0.12, now + 0.05);
-          chordGain.gain.linearRampToValueAtTime(0.001, now + 0.45);
+          gain.gain.setValueAtTime(0.04, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
 
-          osc.connect(chordGain);
-          chordGain.connect(this.masterGain);
-
+          osc.connect(gain);
+          gain.connect(this.masterGain);
           osc.start(now);
-          osc.stop(now + 0.5);
+          osc.stop(now + 0.48);
         });
 
-        beatStep++;
+        beatStep = (beatStep + 1) % 16;
       };
 
-      playChillBeatStep();
       this.timer = setInterval(playChillBeatStep, 450);
     } catch (e) {
-      console.warn("Chill beats synth init notice:", e);
+      console.warn("Web Audio Synth could not initialize:", e);
+    }
+  }
+
+  setVolume(vol: number) {
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setValueAtTime(vol * 0.4, this.ctx.currentTime);
     }
   }
 
@@ -132,15 +135,11 @@ class ChillBeatsWebAudioSynth {
       this.timer = null;
     }
     if (this.ctx) {
-      this.ctx.close().catch(() => {});
+      try {
+        this.ctx.close();
+      } catch (e) {}
       this.ctx = null;
       this.masterGain = null;
-    }
-  }
-
-  setVolume(vol: number) {
-    if (this.ctx && this.masterGain && this.isRunning) {
-      this.masterGain.gain.setValueAtTime(vol * 0.4, this.ctx.currentTime);
     }
   }
 }
@@ -155,7 +154,8 @@ export default function MainPlayer({
   volume,
   setVolume,
   isMuted,
-  setIsMuted
+  setIsMuted,
+  className = ""
 }: MainPlayerProps) {
   const [copiedShare, setCopiedShare] = React.useState(false);
   const [, setTick] = React.useState(Date.now());
@@ -311,147 +311,174 @@ export default function MainPlayer({
   const effectiveVolPercent = isMuted ? 0 : volume * 100;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6">
-      <div className="bg-white rounded-2xl md:rounded-[22px] border border-black/[0.07] shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-3.5 sm:p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
+    <div className={`w-full ${className}`}>
+      {/* UNIFIED STUDIO HERO IMAGE + LIVE PLAYER IN ONE SINGLE BOX */}
+      <div className="warm-card rounded-3xl overflow-hidden shadow-2xl border border-black/10 flex flex-col bg-white transition-all">
         
-        {/* Left: Big Dark Play Button + Metadata */}
-        <div className="flex items-center gap-3.5 sm:gap-4 w-full md:w-auto">
-          {/* Play/Pause Button */}
-          <button
-            onClick={() => setStationPlaying(!stationPlaying)}
-            aria-label={stationPlaying ? "Pause stream" : "Play live radio"}
-            className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#1C1917] text-white flex items-center justify-center shrink-0 hover:bg-black transition-transform active:scale-95 cursor-pointer shadow-md group"
-          >
-            {stationPlaying ? (
-              <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white" />
-            ) : (
-              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white ml-0.5" />
-            )}
-            {/* Red dot indicator on player */}
-            {stationPlaying && (
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#DF3B2B] border-2 border-white"></span>
-              </span>
-            )}
-          </button>
+        {/* Top Portion: Studio Photo with Live Now Overlay */}
+        <div className="relative aspect-[16/10] sm:aspect-[16/9] md:aspect-[4/3] bg-stone-900 overflow-hidden group">
+          <img
+            src="/hero-studio.jpg"
+            alt="FRS UTH Radio Broadcast Studio"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+          {/* Smooth bottom gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+          
+          {/* Top Badges */}
+          <div className="absolute top-3.5 left-3.5 right-3.5 sm:top-4 sm:left-4 sm:right-4 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 bg-[#DF3B2B] text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-md shadow-[#DF3B2B]/30">
+              <span className={`w-2 h-2 rounded-full bg-white ${stationPlaying ? "animate-ping" : "animate-pulse"}`} />
+              <span>{isGreek ? "ΤΩΡΑ ΣΤΟΝ ΑΕΡΑ" : "NOW ON AIR"}</span>
+            </div>
+            <span className="bg-black/60 backdrop-blur-md text-stone-200 px-3 py-1 rounded-full text-[11px] font-mono border border-white/10 shadow-xs">
+              Volos Studio A
+            </span>
+          </div>
 
-          {/* Title & Status */}
-          <div className="flex flex-col min-w-0 flex-1 md:flex-initial">
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="bg-[#DF3B2B] text-white text-[10px] font-black px-1.5 py-0.5 rounded tracking-wider uppercase">
+          {/* Bottom Overlay on Image: Show Title & Producer */}
+          <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="bg-white/20 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded tracking-wider uppercase border border-white/20">
                 ON AIR
               </span>
-              <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider">
-                HIGH QUALITY 320KBPS
+              <span className="text-[10px] font-mono font-semibold text-stone-300">
+                320KBPS HD AUDIO
               </span>
             </div>
-            <h3 className="font-bold text-sm sm:text-base text-[#1C1917] truncate leading-tight">
+            <h4 className="font-editorial text-2xl sm:text-3xl font-bold leading-tight drop-shadow-sm truncate">
               {displayTitle}
-            </h3>
-            <p className="text-xs text-[#78716C] truncate mt-0.5 font-medium">
+            </h4>
+            <p className="text-xs sm:text-sm text-stone-300 mt-0.5 truncate font-medium">
               {displaySubtitle}
             </p>
           </div>
         </div>
 
-        {/* Center: Live Show Progress bar & Elapsed/Total Timer */}
-        <div className="flex items-center gap-3 w-full md:max-w-xs lg:max-w-md flex-1 px-1 sm:px-4">
-          <span className="font-mono text-xs font-semibold text-[#78716C] shrink-0" title="Elapsed broadcast time">
-            {showProgress.elapsedStr}
-          </span>
+        {/* Bottom Portion: Live Player Controls inside the SAME box */}
+        <div className="p-4 sm:p-5 bg-white flex flex-col gap-3.5">
           
-          {/* Dynamic Live Show Progress Bar */}
-          <div className="relative flex-1 h-2 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
-            <div 
-              className="h-full bg-[#DF3B2B] rounded-full transition-all duration-500 ease-linear"
-              style={{ width: `${Math.max(4, showProgress.percent)}%` }}
-            />
-            {stationPlaying && (
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
-            )}
-          </div>
-
-          {/* LIVE Tag */}
-          <div className="flex items-center gap-1 shrink-0">
-            <span className={`w-1.5 h-1.5 rounded-full ${stationPlaying ? "bg-[#DF3B2B] animate-pulse" : "bg-[#78716C]"}`} />
-            <span className="text-[11px] font-extrabold text-[#DF3B2B] tracking-wider">
-              LIVE
-            </span>
-          </div>
-        </div>
-
-        {/* Right: Red Volume Slider & Share Button */}
-        <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-5 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-black/[0.05]">
-          {/* Red Volume Slider */}
-          <div className="flex items-center gap-2.5">
+          {/* Row 1: Play/Pause Button + Live Progress Bar & Elapsed Time */}
+          <div className="flex items-center gap-3 sm:gap-4 w-full">
+            {/* Play/Pause Button */}
             <button
-              onClick={() => setIsMuted(!isMuted)}
-              className="text-[#78716C] hover:text-[#DF3B2B] transition-colors cursor-pointer p-1"
-              aria-label={isMuted ? "Unmute" : "Mute"}
+              onClick={() => setStationPlaying(!stationPlaying)}
+              aria-label={stationPlaying ? "Pause stream" : "Play live radio"}
+              className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1C1917] text-white flex items-center justify-center shrink-0 hover:bg-black transition-transform active:scale-95 cursor-pointer shadow-md group"
             >
-              {isMuted || volume === 0 ? (
-                <VolumeX className="w-4 h-4 text-[#DF3B2B]" />
-              ) : volume < 0.4 ? (
-                <Volume className="w-4 h-4 text-[#DF3B2B]" />
-              ) : volume < 0.75 ? (
-                <Volume1 className="w-4 h-4 text-[#DF3B2B]" />
+              {stationPlaying ? (
+                <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white" />
               ) : (
-                <Volume2 className="w-4 h-4 text-[#DF3B2B]" />
+                <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white ml-0.5" />
+              )}
+              {/* Red dot indicator on player button */}
+              {stationPlaying && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#DF3B2B] border-2 border-white"></span>
+                </span>
               )}
             </button>
 
-            {/* Custom styled Red Track Volume Slider */}
-            <div className="relative flex items-center">
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={isMuted ? 0 : volume}
-                onChange={(e) => {
-                  setVolume(parseFloat(e.target.value));
-                  if (isMuted) setIsMuted(false);
-                }}
-                style={{
-                  background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
-                }}
-                className="w-20 sm:w-24 h-2 rounded-lg appearance-none cursor-pointer accent-[#1C1917] transition-all"
-                aria-label="Volume slider"
-              />
+            {/* Live Progress Bar & Timers */}
+            <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+              <div className="flex items-center justify-between text-xs font-mono text-[#78716C]">
+                <span className="font-semibold">{showProgress.elapsedStr}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-1.5 h-1.5 rounded-full ${stationPlaying ? "bg-[#DF3B2B] animate-pulse" : "bg-[#78716C]"}`} />
+                  <span className="text-[11px] font-extrabold text-[#DF3B2B] tracking-wider">LIVE</span>
+                </div>
+              </div>
+
+              {/* Dynamic Progress Bar */}
+              <div className="relative w-full h-2.5 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
+                <div 
+                  className="h-full bg-[#DF3B2B] rounded-full transition-all duration-500 ease-linear"
+                  style={{ width: `${Math.max(4, showProgress.percent)}%` }}
+                />
+                {stationPlaying && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Share Button (Copies Site Link) */}
-          <div className="relative">
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1.5 text-[#78716C] hover:text-[#1C1917] p-2 rounded-full hover:bg-[#FAF8F4] transition-colors cursor-pointer"
-              title={isGreek ? "Αντιγραφή συνδέσμου ιστοσελίδας" : "Copy site link"}
-            >
-              {copiedShare ? (
-                <Check className="w-4 h-4 text-emerald-600 animate-bounce" />
-              ) : (
-                <Share2 className="w-4 h-4" />
-              )}
-            </button>
+          {/* Row 2: Red Volume Slider & Share Button */}
+          <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-black/[0.06]">
+            
+            {/* Volume Control */}
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="text-[#78716C] hover:text-[#DF3B2B] transition-colors cursor-pointer p-1"
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted || volume === 0 ? (
+                  <VolumeX className="w-4 h-4 text-[#DF3B2B]" />
+                ) : volume < 0.4 ? (
+                  <Volume className="w-4 h-4 text-[#DF3B2B]" />
+                ) : volume < 0.75 ? (
+                  <Volume1 className="w-4 h-4 text-[#DF3B2B]" />
+                ) : (
+                  <Volume2 className="w-4 h-4 text-[#DF3B2B]" />
+                )}
+              </button>
 
-            {/* Tooltip feedback for copy */}
-            <AnimatePresence>
-              {copiedShare && (
-                <motion.span
-                  initial={{ opacity: 0, y: 5, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -5, scale: 0.9 }}
-                  className="absolute -top-8 right-0 bg-[#1C1917] text-white text-[10px] font-bold py-1 px-2.5 rounded-full whitespace-nowrap shadow-lg pointer-events-none"
-                >
-                  {isGreek ? "Αντιγράφηκε!" : "Link Copied!"}
-                </motion.span>
-              )}
-            </AnimatePresence>
+              {/* Custom styled Red Track Volume Slider */}
+              <div className="relative flex items-center">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={isMuted ? 0 : volume}
+                  onChange={(e) => {
+                    setVolume(parseFloat(e.target.value));
+                    if (isMuted) setIsMuted(false);
+                  }}
+                  style={{
+                    background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
+                  }}
+                  className="w-24 sm:w-32 h-2 rounded-lg appearance-none cursor-pointer accent-[#1C1917] transition-all"
+                  aria-label="Volume slider"
+                />
+              </div>
+            </div>
+
+            {/* Share Button (Copies Site Link) */}
+            <div className="relative flex items-center">
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-3 py-1.5 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer"
+                title={isGreek ? "Αντιγραφή συνδέσμου ιστοσελίδας" : "Copy site link"}
+              >
+                {copiedShare ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-600 animate-bounce" />
+                ) : (
+                  <Share2 className="w-3.5 h-3.5 text-[#78716C]" />
+                )}
+                <span>{copiedShare ? (isGreek ? "Αντιγράφηκε" : "Copied") : (isGreek ? "Κοινοποίηση" : "Share")}</span>
+              </button>
+
+              {/* Tooltip feedback for copy */}
+              <AnimatePresence>
+                {copiedShare && (
+                  <motion.span
+                    initial={{ opacity: 0, y: 5, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -5, scale: 0.9 }}
+                    className="absolute -top-8 right-0 bg-[#1C1917] text-white text-[10px] font-bold py-1 px-2.5 rounded-full whitespace-nowrap shadow-lg pointer-events-none"
+                  >
+                    {isGreek ? "Αντιγράφηκε!" : "Link Copied!"}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
 
         </div>
+
       </div>
     </div>
   );

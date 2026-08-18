@@ -717,56 +717,27 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right Column: Hero Studio Visual Card */}
-                <div id="hero-studio-card" className="lg:col-span-5 relative scroll-mt-20">
-                  <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-black/10 aspect-square sm:aspect-[4/5] bg-stone-900 group">
-                    <img
-                      src="/hero-studio.jpg"
-                      alt="FRS UTH Radio Broadcast Studio"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    
-                    {/* Floating Info Overlay Inside Image Card */}
-                    <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-black/10 flex flex-col gap-1">
-                      <div className="flex items-center justify-between text-[11px] font-bold">
-                        <div className="flex items-center gap-1.5 text-[#DF3B2B]">
-                          <span className="w-2 h-2 rounded-full bg-[#DF3B2B] animate-pulse" />
-                          <span>{currentT.nowOnAir}</span>
-                        </div>
-                        <span className="text-[#6B6560] font-mono">{currentT.studioLocation}</span>
-                      </div>
-                      
-                      <h4 className="font-bold text-sm sm:text-base text-[#1C1917] truncate leading-snug">
-                        {currentLiveShow ? currentLiveShow.title : currentT.autoStreamTitle}
-                      </h4>
-                      
-                      <p className="text-xs text-[#6B6560] truncate font-medium">
-                        {currentLiveShow ? `${currentLiveShow.host} • ${currentLiveShow.time}` : currentT.autoStreamSub}
-                      </p>
-                    </div>
-                  </div>
+                {/* Right Column: Unified Studio Visual & Live Player Card (Combined in same box) */}
+                <div id="hero-studio-card" className="lg:col-span-5 relative scroll-mt-18">
+                  <MainPlayer
+                    isGreek={isGreek}
+                    stationPlaying={stationPlaying}
+                    setStationPlaying={setStationPlaying}
+                    activeTrackId={activeTrackId}
+                    currentLiveShow={currentLiveShow}
+                    onOpenChat={() => setChatOpen(true)}
+                    volume={volume}
+                    setVolume={setVolume}
+                    isMuted={isMuted}
+                    setIsMuted={setIsMuted}
+                  />
                 </div>
               </section>
 
-              {/* SECTION 2: FLOATING PLAYER & TODAY'S SCHEDULE (Image 2) */}
+              {/* SECTION 2: TODAY'S SCHEDULE & PROGRAM */}
               <section id="floating-player-section" className="flex flex-col gap-10">
-                
-                {/* Floating Player Component */}
-                <MainPlayer
-                  isGreek={isGreek}
-                  stationPlaying={stationPlaying}
-                  setStationPlaying={setStationPlaying}
-                  activeTrackId={activeTrackId}
-                  currentLiveShow={currentLiveShow}
-                  onOpenChat={() => setChatOpen(true)}
-                  volume={volume}
-                  setVolume={setVolume}
-                  isMuted={isMuted}
-                  setIsMuted={setIsMuted}
-                />
-
                 {/* Today's Schedule Section with Spacious, Well-Aligned Cards */}
-                <div className="flex flex-col gap-6 mt-4">
+                <div className="flex flex-col gap-6">
                   {/* Section Title Header */}
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-black/[0.06] pb-4">
                     <div>
