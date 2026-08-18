@@ -53,8 +53,6 @@ const AVATAR_COLORS = [
   "#4B5563"
 ];
 
-const QUICK_EMOJIS = ["🔥", "❤️", "🎧", "⚡", "👏", "📻", "🎉", "🚀", "✨", "🎵"];
-
 // Helper to calculate the most recent 3:00 AM cutoff timestamp
 const getMostRecent3AM = (): Date => {
   const now = new Date();
@@ -464,20 +462,6 @@ export default function LiveChat({
                 })
               )}
               <div ref={messagesEndRef} />
-            </div>
-
-            {/* Quick Emoji Bar */}
-            <div className="bg-white/90 px-4 sm:px-6 py-2 border-t border-black/[0.06] flex items-center justify-between gap-1 overflow-x-auto shrink-0">
-              {QUICK_EMOJIS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => handleSendMessage(undefined, emoji)}
-                  className="p-1.5 text-lg sm:text-xl hover:scale-125 transition-transform cursor-pointer rounded-lg hover:bg-[#F7F4EC]"
-                  title={`Send ${emoji}`}
-                >
-                  {emoji}
-                </button>
-              ))}
             </div>
 
             {/* Message Input Box */}
