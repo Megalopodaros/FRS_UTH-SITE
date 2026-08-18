@@ -439,40 +439,34 @@ export default function App() {
             <UthLogo size="header" hideTextOnMobile={true} />
           </button>
 
-          {/* Desktop Navigation Links (Frosted Glass Dock) */}
-          <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-full bg-white/50 backdrop-blur-md border border-white/80 shadow-xs text-xs sm:text-sm font-semibold">
-            <button
-              onClick={() => setActiveTab("home")}
-              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
-                activeTab === "home" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
-              }`}
-            >
-              {currentT.navHome}
-            </button>
-            <button
-              onClick={() => setActiveTab("program")}
-              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
-                activeTab === "program" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
-              }`}
-            >
-              {currentT.navProgram}
-            </button>
-            <button
-              onClick={() => setActiveTab("events")}
-              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
-                activeTab === "events" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
-              }`}
-            >
-              {currentT.navEvents}
-            </button>
-            <button
-              onClick={() => setActiveTab("archive")}
-              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
-                activeTab === "archive" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
-              }`}
-            >
-              {currentT.navArchive}
-            </button>
+          {/* Desktop Navigation Links (Frosted Glass Dock with Smooth Horizontal Sliding Indicator) */}
+          <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-full bg-white/50 backdrop-blur-md border border-white/80 shadow-xs text-xs sm:text-sm font-semibold relative">
+            {[
+              { id: "home", label: currentT.navHome },
+              { id: "program", label: currentT.navProgram },
+              { id: "events", label: currentT.navEvents },
+              { id: "archive", label: currentT.navArchive },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabId)}
+                  className={`relative cursor-pointer transition-colors px-4 py-1.5 rounded-full z-10 ${
+                    isActive ? "text-white font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavTabIndicator"
+                      transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                      className="absolute inset-0 bg-[#DF3B2B] rounded-full shadow-xs -z-10"
+                    />
+                  )}
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </nav>
 
           {/* Right Actions (Language Pill, Listen Button, Mobile Hamburger) */}
@@ -1015,27 +1009,41 @@ export default function App() {
               {/* View Mode Controls & Day Selector Pills */}
               <div className="flex flex-col items-center gap-5 w-full">
                 
-                {/* View Mode Tabs (Day View vs Full Week) */}
-                <div className="flex items-center bg-[#EFECE3] p-1 rounded-full text-xs font-bold text-[#6B6560]">
+                {/* View Mode Tabs (Day View vs Full Week with Sliding Glass Indicator) */}
+                <div className="flex items-center bg-white/55 backdrop-blur-md p-1 rounded-full text-xs font-bold text-[#6B6560] border border-white/80 shadow-xs relative">
                   <button
                     onClick={() => setProgramViewMode("day")}
-                    className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
-                      programViewMode === "day" ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
+                    className={`relative px-4 py-1.5 rounded-full transition-colors cursor-pointer z-10 ${
+                      programViewMode === "day" ? "text-[#1C1917] font-bold" : "hover:text-[#1C1917]"
                     }`}
                   >
-                    {isGreek ? "Ημερήσια Προβολή" : "Day by Day"}
+                    {programViewMode === "day" && (
+                      <motion.div
+                        layoutId="programViewModePill"
+                        transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                        className="absolute inset-0 bg-white rounded-full shadow-xs -z-10"
+                      />
+                    )}
+                    <span>{isGreek ? "Ημερήσια Προβολή" : "Day by Day"}</span>
                   </button>
                   <button
                     onClick={() => setProgramViewMode("all")}
-                    className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
-                      programViewMode === "all" ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
+                    className={`relative px-4 py-1.5 rounded-full transition-colors cursor-pointer z-10 ${
+                      programViewMode === "all" ? "text-[#1C1917] font-bold" : "hover:text-[#1C1917]"
                     }`}
                   >
-                    {isGreek ? "Επισκόπηση Εβδομάδας" : "Full Week Overview"}
+                    {programViewMode === "all" && (
+                      <motion.div
+                        layoutId="programViewModePill"
+                        transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                        className="absolute inset-0 bg-white rounded-full shadow-xs -z-10"
+                      />
+                    )}
+                    <span>{isGreek ? "Επισκόπηση Εβδομάδας" : "Full Week Overview"}</span>
                   </button>
                 </div>
 
-                {/* Day Selector Buttons */}
+                {/* Day Selector Buttons with Sliding Red Indicator */}
                 <div className="flex items-center justify-start sm:justify-center gap-2.5 overflow-x-auto w-full pb-2 no-scrollbar px-1">
                   {weeklyScheduleList.map((dayProg, idx) => {
                     const isSelected = selectedProgramDay === idx;
@@ -1047,12 +1055,19 @@ export default function App() {
                           setSelectedProgramDay(idx);
                           setProgramViewMode("day");
                         }}
-                        className={`shrink-0 px-4 sm:px-6 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-1.5 ${
+                        className={`relative shrink-0 px-4 sm:px-6 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-1.5 z-10 ${
                           isSelected
-                            ? "bg-[#DF3B2B] text-white shadow-md shadow-[#DF3B2B]/25 scale-105"
-                            : "bg-white text-[#1C1917] border border-black/10 hover:border-black/20"
+                            ? "text-white shadow-md shadow-[#DF3B2B]/25"
+                            : "bg-white/60 backdrop-blur-md text-[#1C1917] border border-white/80 hover:bg-white/85 shadow-2xs"
                         }`}
                       >
+                        {isSelected && (
+                          <motion.div
+                            layoutId="activeDayTabIndicator"
+                            transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                            className="absolute inset-0 bg-[#DF3B2B] rounded-full shadow-md shadow-[#DF3B2B]/25 -z-10"
+                          />
+                        )}
                         <span>{dayProg.fullName}</span>
                         {isToday && (
                           <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#DF3B2B]"}`} />
@@ -1140,7 +1155,7 @@ export default function App() {
               {programViewMode === "all" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
                   {weeklyScheduleList.map((dayProg) => (
-                    <div key={dayProg.day} className="flex flex-col gap-4 bg-white/50 p-5 rounded-3xl border border-black/[0.06]">
+                    <div key={dayProg.day} className="flex flex-col gap-4 bg-white/60 backdrop-blur-md p-5 rounded-3xl border border-white/80 shadow-xs">
                       <div className="flex items-center justify-between border-b border-black/[0.06] pb-2.5 px-1">
                         <div className="flex items-center gap-2">
                           <span className="font-black text-base text-[#1C1917]">{dayProg.fullName}</span>
@@ -1734,7 +1749,7 @@ export default function App() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 15 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-xl bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-black/10 relative my-auto"
+                className="w-full max-w-xl bg-[#F7F4EC]/92 backdrop-blur-2xl rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/80 relative my-auto"
               >
                 <button
                   onClick={() => setSelectedShowId(null)}
@@ -1804,7 +1819,7 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-black/10 relative my-auto"
+              className="w-full max-w-lg bg-[#F7F4EC]/92 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/80 relative my-auto"
             >
               <button
                 onClick={() => setIsOpenCallModalOpen(false)}
