@@ -235,7 +235,8 @@ export default function App() {
       playingBtn: "ΠΑΙΖΕΙ ΤΩΡΑ",
       heroTag: "LIVE ON AIR • 24/7 MUSIC STREAM",
       heroTitle1: "Ο Ηχητικός Παλμός",
-      heroTitle2: "του Campus.",
+      heroPrefix: "του ",
+      heroTitle2: "Campus.",
       heroSub: "Φοιτητική Ραδιοφωνική Κοινότητα Πανεπιστημίου Θεσσαλίας. Φτιαγμένη από φοιτητές, για φοιτητές. Συντονιστείτε σε underground sets, debate panels και αυθεντική ενέργεια.",
       listenLive: "Ακούστε Ζωντανά",
       liveChat: "Live Chat",
@@ -280,6 +281,7 @@ export default function App() {
       playingBtn: "NOW PLAYING",
       heroTag: "LIVE ON AIR • 24/7 MUSIC STREAM",
       heroTitle1: "The Sonic Pulse of",
+      heroPrefix: "the ",
       heroTitle2: "Campus.",
       heroSub: "University of Thessaly Student Radio Community. Made by students, for students. Tune in for underground sets, debate panels, and raw authentic energy.",
       listenLive: "Listen Live",
@@ -650,6 +652,7 @@ export default function App() {
                   {/* Creative Bold Display Headline (Unbounded Ultra-Bold) */}
                   <h1 className="font-display text-4xl sm:text-6xl lg:text-[66px] leading-[1.02] font-black tracking-tight text-[#1C1917]">
                     {currentT.heroTitle1} <br />
+                    <span className="text-[#1C1917]">{currentT.heroPrefix}</span>
                     <span className="text-[#DF3B2B] inline-block mt-1">{currentT.heroTitle2}</span>
                   </h1>
 
