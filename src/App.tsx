@@ -641,20 +641,20 @@ export default function App() {
                 {/* Left Column: Hero Copy & CTAs */}
                 <div className="lg:col-span-7 flex flex-col items-start text-left">
                   
-                  {/* Top Pill Tag */}
-                  <div className="inline-flex items-center gap-2 bg-[#FEECEB] border border-[#F7C8C4] px-3.5 py-1.5 rounded-full text-xs font-bold text-[#DF3B2B] mb-6 shadow-xs">
-                    <span className="w-2 h-2 rounded-full bg-[#DF3B2B] animate-pulse" />
+                  {/* Top Pill Tag - Bold & Stylized */}
+                  <div className="inline-flex items-center gap-2 bg-[#FEECEB] border border-[#DF3B2B]/30 px-4 py-2 rounded-full text-xs font-grotesk font-extrabold text-[#DF3B2B] mb-6 shadow-xs tracking-wider uppercase">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#DF3B2B] animate-pulse" />
                     <span>{currentT.heroTag}</span>
                   </div>
 
-                  {/* Creative Bold Editorial Headline */}
-                  <h1 className="font-editorial text-4xl sm:text-6xl lg:text-[68px] leading-[1.04] font-medium tracking-tight text-[#1C1917]">
+                  {/* Creative Bold Display Headline (Unbounded Ultra-Bold) */}
+                  <h1 className="font-display text-4xl sm:text-6xl lg:text-[66px] leading-[1.02] font-black tracking-tight text-[#1C1917]">
                     {currentT.heroTitle1} <br />
-                    <span className="font-editorial italic font-bold text-[#DF3B2B]">{currentT.heroTitle2}</span>
+                    <span className="text-[#DF3B2B] inline-block mt-1">{currentT.heroTitle2}</span>
                   </h1>
 
-                  {/* Subtitle */}
-                  <p className="mt-6 text-base sm:text-lg text-[#6B6560] leading-relaxed max-w-xl font-normal">
+                  {/* Subtitle - Crisp, Legible & Strong */}
+                  <p className="mt-6 text-base sm:text-lg text-[#3A3532] leading-relaxed max-w-xl font-medium">
                     {currentT.heroSub}
                   </p>
 
@@ -1057,7 +1057,7 @@ export default function App() {
               {programViewMode === "day" && (
                 <div className="w-full flex flex-col gap-6">
                   <div className="flex items-center justify-between border-b border-black/[0.08] pb-3">
-                    <h3 className="font-editorial text-2xl font-bold text-[#1C1917]">
+                    <h3 className="font-display text-2xl font-black text-[#1C1917] tracking-tight">
                       {weeklyScheduleList[selectedProgramDay].fullName}
                     </h3>
                     <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-3 py-1 rounded-full border border-black/5">
@@ -1222,7 +1222,7 @@ export default function App() {
                         </span>
                       </div>
 
-                      <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#1C1917] leading-tight">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
                         Campus Spring Festival 2026
                       </h3>
 
@@ -1258,7 +1258,7 @@ export default function App() {
                         </span>
                       </div>
 
-                      <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#1C1917] leading-tight">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
                         Workshop: Podcast & Audio Production
                       </h3>
 
@@ -1294,7 +1294,7 @@ export default function App() {
                         </span>
                       </div>
 
-                      <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#1C1917] leading-tight">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
                         Vinyl Night: Lo-Fi Beats & Analog Sound
                       </h3>
 
@@ -1751,7 +1751,7 @@ export default function App() {
                         </span>
                       ))}
                     </div>
-                    <h2 className="font-editorial text-2xl sm:text-3xl font-bold text-[#1C1917]">
+                    <h2 className="font-display text-2xl sm:text-3xl font-black text-[#1C1917] tracking-tight">
                       {selectedShow.title}
                     </h2>
                     <p className="text-xs font-bold text-[#DF3B2B] mt-0.5">
@@ -1807,7 +1807,7 @@ export default function App() {
               {openCallSubmitted ? (
                 <div className="flex flex-col items-center text-center py-6 gap-3">
                   <CheckCircle2 className="w-14 h-14 text-[#DF3B2B]" />
-                  <h3 className="font-bold text-xl text-[#1C1917]">
+                  <h3 className="font-display text-2xl font-black text-[#1C1917] tracking-tight">
                     {isGreek ? "Η αίτηση καταχωρήθηκε!" : "Application Submitted!"}
                   </h3>
                   <p className="text-xs text-[#6B6560] max-w-sm">
