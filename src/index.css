@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Unbounded", "Plus Jakarta Sans", sans-serif;
+  --font-sans: "Jost", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Unbounded", "Jost", sans-serif;
   --font-editorial: "Fraunces", Georgia, serif;
   --font-serif: "Fraunces", Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-grotesk: "Space Grotesk", "Plus Jakarta Sans", sans-serif;
-  --font-mono: "Space Grotesk", ui-monospace, monospace;
+  --font-grotesk: "Space Grotesk", "Jost", sans-serif;
+  --font-mono: "Space Grotesk", "Jost", ui-monospace, monospace;
 
   --color-canvas: #F7F4EC;
   --color-canvas-subtle: #EFECE3;
