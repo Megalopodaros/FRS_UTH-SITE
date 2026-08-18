@@ -313,7 +313,7 @@ export default function MainPlayer({
   return (
     <div className={`w-full ${className}`}>
       {/* UNIFIED STUDIO HERO IMAGE + LIVE PLAYER IN ONE SINGLE BOX */}
-      <div className="bg-white md:bg-white/60 md:backdrop-blur-2xl rounded-3xl overflow-hidden shadow-2xl border border-black/10 md:border-white/80 flex flex-col transition-all">
+      <div className="glass-panel rounded-3xl overflow-hidden shadow-2xl border border-white/90 flex flex-col transition-all">
         
         {/* Top Portion: Studio Photo with Live Now Overlay */}
         <div className="relative aspect-[16/10] sm:aspect-[16/9] md:aspect-[4/3] bg-stone-900 overflow-hidden group">
@@ -337,7 +337,7 @@ export default function MainPlayer({
         </div>
 
         {/* Bottom Portion: Live Player Controls inside the SAME box */}
-        <div className="p-4 sm:p-5 bg-white md:bg-white/45 md:backdrop-blur-xl flex flex-col gap-3.5 border-t border-black/[0.06] md:border-white/60">
+        <div className="p-4 sm:p-5 bg-white md:bg-white/75 md:backdrop-blur-md flex flex-col gap-3.5 border-t border-black/[0.05]">
           
           {/* Row 1: Play/Pause Button + Live Progress Bar & Elapsed Time */}
           <div className="flex items-center gap-3 sm:gap-4 w-full">
@@ -372,7 +372,7 @@ export default function MainPlayer({
               </div>
 
               {/* Dynamic Progress Bar */}
-              <div className="relative w-full h-2.5 bg-[#EFECE3] md:bg-black/[0.06] rounded-full overflow-hidden flex items-center">
+              <div className="relative w-full h-2.5 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
                 <div 
                   className="h-full bg-[#DF3B2B] rounded-full transition-all duration-500 ease-linear"
                   style={{ width: `${Math.max(4, showProgress.percent)}%` }}
@@ -385,7 +385,7 @@ export default function MainPlayer({
           </div>
 
           {/* Row 2: Red Volume Slider & Share Button */}
-          <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-black/[0.06] md:border-white/50">
+          <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-black/[0.06]">
             
             {/* Volume Control */}
             <div className="flex items-center gap-2.5">
@@ -430,7 +430,7 @@ export default function MainPlayer({
             <div className="relative flex items-center">
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-3 py-1.5 rounded-full bg-[#FAF8F4] md:bg-white/60 md:backdrop-blur-md hover:bg-white border border-black/5 md:border-white/80 transition-all cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-3 py-1.5 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer"
                 title={isGreek ? "Αντιγραφή συνδέσμου ιστοσελίδας" : "Copy site link"}
               >
                 {copiedShare ? (
