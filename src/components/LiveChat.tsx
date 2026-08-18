@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, X, Edit3, Users, Volume2, VolumeX, MessageSquare, Sparkles } from "lucide-react";
+import { Send, X, Edit3, Volume2, VolumeX, MessageSquare, Maximize2, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChatMessage } from "../types";
 import { collection, addDoc, query, limit, onSnapshot, serverTimestamp, getDocs, deleteDoc, orderBy } from "firebase/firestore";
@@ -79,9 +79,19 @@ export default function LiveChat({
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [onlineCount, setOnlineCount] = useState(1);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Screen size detection for desktop floating window vs mobile slide-over
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Close on Escape key
   useEffect(() => {
@@ -261,33 +271,48 @@ export default function LiveChat({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+        <div 
+          className={`fixed inset-0 z-50 overflow-hidden ${
+            isMobile 
+              ? "flex justify-end" 
+              : "flex items-center justify-center p-4 sm:p-6"
+          }`}
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity cursor-pointer"
           />
 
-          {/* Slide-over Drawer */}
+          {/* Chat Window: Desktop Floating Card vs Mobile Slide-Over Drawer */}
           <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="relative w-full max-w-md bg-[#F7F4EC] h-full shadow-2xl flex flex-col z-10 border-l border-black/10"
+            initial={isMobile ? { x: "100%" } : { opacity: 0, scale: 0.93, y: 20 }}
+            animate={isMobile ? { x: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={isMobile ? { x: "100%" } : { opacity: 0, scale: 0.93, y: 20 }}
+            transition={{
+              type: "spring",
+              damping: isMobile ? 28 : 25,
+              stiffness: isMobile ? 280 : 320
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className={`relative bg-[#F7F4EC] shadow-2xl flex flex-col z-10 ${
+              isMobile
+                ? "w-full max-w-md h-full border-l border-black/10"
+                : "w-full max-w-2xl h-[700px] max-h-[85vh] rounded-3xl border border-black/10 overflow-hidden my-auto"
+            }`}
           >
             {/* Header */}
-            <div className="bg-white px-5 py-4 border-b border-black/10 flex items-center justify-between shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold shadow-xs">
+            <div className="bg-white px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between shadow-xs shrink-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold shadow-xs border border-[#F7C8C4]/60 shrink-0">
                   <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-base text-[#1C1917]">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="font-bold text-base sm:text-lg text-[#1C1917]">
                       {isGreek ? "Live Chat Κοινότητας" : "Community Live Chat"}
                     </h3>
                     <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
@@ -320,7 +345,7 @@ export default function LiveChat({
             </div>
 
             {/* User Profile Bar (Rename / Color) */}
-            <div className="bg-white/80 px-5 py-2.5 border-b border-black/[0.06] flex items-center justify-between text-xs">
+            <div className="bg-white/80 px-5 sm:px-6 py-2.5 border-b border-black/[0.06] flex items-center justify-between text-xs shrink-0">
               {isEditingName ? (
                 <div className="flex items-center gap-2 w-full">
                   <input
@@ -355,7 +380,7 @@ export default function LiveChat({
                       className="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs" 
                       style={{ backgroundColor: avatarColor }}
                     />
-                    <span className="font-semibold text-[#1C1917] truncate max-w-[180px]">
+                    <span className="font-semibold text-[#1C1917] truncate max-w-[200px]">
                       {userName}
                     </span>
                   </div>
@@ -374,15 +399,17 @@ export default function LiveChat({
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#78716C]">
-                  <MessageSquare className="w-12 h-12 text-[#DF3B2B]/40 mb-2.5" />
-                  <p className="font-bold text-base text-[#1C1917]">
+                  <MessageSquare className="w-14 h-14 text-[#DF3B2B]/30 mb-3" />
+                  <p className="font-bold text-base sm:text-lg text-[#1C1917]">
                     {isGreek ? "Καλώς ήρθατε στο FRS UTH Chat!" : "Welcome to FRS UTH Chat!"}
                   </p>
-                  <p className="text-xs mt-1 max-w-xs">
-                    {isGreek ? "Γίνετε οι πρώτοι που θα στείλουν μήνυμα στους υπόλοιπους φοιτητές και ακροατές." : "Be the first to say hi to your fellow students and listeners."}
+                  <p className="text-xs sm:text-sm mt-1 max-w-sm leading-relaxed">
+                    {isGreek 
+                      ? "Γίνετε οι πρώτοι που θα στείλουν μήνυμα στους υπόλοιπους φοιτητές και ακροατές της πανεπιστημιακής κοινότητας." 
+                      : "Be the first to say hi to your fellow students and listeners across campus."}
                   </p>
                 </div>
               ) : (
@@ -422,12 +449,12 @@ export default function LiveChat({
             </div>
 
             {/* Quick Emoji Bar */}
-            <div className="bg-white/90 px-4 py-2 border-t border-black/[0.06] flex items-center justify-between gap-1 overflow-x-auto">
+            <div className="bg-white/90 px-4 sm:px-6 py-2.5 border-t border-black/[0.06] flex items-center justify-between gap-1 overflow-x-auto shrink-0">
               {QUICK_EMOJIS.map((emoji) => (
                 <button
                   key={emoji}
                   onClick={() => handleSendMessage(undefined, emoji)}
-                  className="p-1.5 text-lg hover:scale-125 transition-transform cursor-pointer rounded-lg hover:bg-[#F7F4EC]"
+                  className="p-1.5 text-xl hover:scale-125 transition-transform cursor-pointer rounded-lg hover:bg-[#F7F4EC]"
                   title={`Send ${emoji}`}
                 >
                   {emoji}
@@ -436,7 +463,7 @@ export default function LiveChat({
             </div>
 
             {/* Message Input Box */}
-            <form onSubmit={handleSendMessage} className="bg-white p-3.5 border-t border-black/10 flex items-center gap-2">
+            <form onSubmit={handleSendMessage} className="bg-white p-3.5 sm:p-4 border-t border-black/10 flex items-center gap-2.5 shrink-0">
               <input
                 ref={inputRef}
                 type="text"
@@ -444,12 +471,12 @@ export default function LiveChat({
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder={isGreek ? "Γράψτε μήνυμα στην κοινότητα..." : "Type a message to the community..."}
                 maxLength={300}
-                className="field py-2.5 px-3.5 text-sm"
+                className="field py-3 px-4 text-sm"
               />
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="w-11 h-11 rounded-xl bg-[#DF3B2B] hover:bg-[#C62F20] text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#DF3B2B]/20 cursor-pointer"
+                className="w-12 h-12 rounded-2xl bg-[#DF3B2B] hover:bg-[#C62F20] text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#DF3B2B]/20 cursor-pointer"
               >
                 <Send className="w-4 h-4 ml-0.5" />
               </button>
