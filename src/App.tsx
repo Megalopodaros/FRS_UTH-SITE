@@ -891,9 +891,6 @@ export default function App() {
                     <h2 className="font-display text-3xl sm:text-4xl font-black text-[#1C1917] tracking-tight">
                       {currentT.eventsTitle}
                     </h2>
-                    <p className="mt-3 text-sm text-[#6B6560] leading-relaxed max-w-md">
-                      {currentT.eventsDesc}
-                    </p>
                   </div>
 
                   {/* Events List Cards (Clickable to navigate to Events tab) */}
@@ -1228,9 +1225,6 @@ export default function App() {
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
                   {currentT.eventsTitle}
                 </h1>
-                <p className="text-sm sm:text-base text-[#6B6560] leading-relaxed">
-                  {currentT.eventsDesc}
-                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-6 w-full">
