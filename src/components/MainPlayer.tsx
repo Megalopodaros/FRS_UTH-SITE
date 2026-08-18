@@ -476,14 +476,10 @@ export default function MainPlayer({
               {onOpenChat && (
                 <button
                   onClick={onOpenChat}
-                  className="flex items-center gap-1.5 text-xs font-bold text-[#DF3B2B] bg-[#FEECEB] hover:bg-[#FCD8D5] px-2.5 sm:px-3 py-1.5 rounded-full border border-[#F7C8C4]/60 transition-all cursor-pointer shadow-2xs group active:scale-95 whitespace-nowrap"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-2.5 sm:px-3 py-1.5 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer whitespace-nowrap group active:scale-95"
                   title={isGreek ? "Άνοιγμα Live Chat" : "Open Live Chat"}
                 >
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DF3B2B]"></span>
-                  </span>
-                  <MessageSquare className="w-3.5 h-3.5 text-[#DF3B2B] group-hover:scale-110 transition-transform" />
+                  <MessageSquare className="w-3.5 h-3.5 text-[#78716C] group-hover:text-[#1C1917] group-hover:scale-110 transition-all" />
                   <span>Chat</span>
                 </button>
               )}
