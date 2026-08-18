@@ -327,10 +327,10 @@ export default function MainPlayer({
 
           {/* Bottom Overlay on Image: Show Title & Producer */}
           <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 text-white">
-            <h4 className="font-editorial text-2xl sm:text-3xl font-bold leading-tight drop-shadow-sm truncate">
+            <h4 className="font-display text-xl sm:text-2xl lg:text-3xl font-black leading-tight drop-shadow-sm truncate tracking-tight">
               {displayTitle}
             </h4>
-            <p className="text-xs sm:text-sm text-stone-300 mt-0.5 truncate font-medium">
+            <p className="font-sans text-xs sm:text-sm text-stone-300 mt-1 truncate font-semibold">
               {displaySubtitle}
             </p>
           </div>
@@ -363,11 +363,11 @@ export default function MainPlayer({
 
             {/* Live Progress Bar & Timers */}
             <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-              <div className="flex items-center justify-between text-xs font-mono text-[#78716C]">
-                <span className="font-semibold">{showProgress.elapsedStr}</span>
+              <div className="flex items-center justify-between text-xs font-grotesk text-[#78716C]">
+                <span className="font-bold tracking-wide">{showProgress.elapsedStr}</span>
                 <div className="flex items-center gap-1.5">
                   <span className={`w-1.5 h-1.5 rounded-full ${stationPlaying ? "bg-[#DF3B2B] animate-pulse" : "bg-[#78716C]"}`} />
-                  <span className="text-[11px] font-extrabold text-[#DF3B2B] tracking-wider">LIVE</span>
+                  <span className="font-display text-[11px] font-black text-[#DF3B2B] tracking-wider">LIVE</span>
                 </div>
               </div>
 

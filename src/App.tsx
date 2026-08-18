@@ -647,10 +647,10 @@ export default function App() {
                     <span>{currentT.heroTag}</span>
                   </div>
 
-                  {/* Editorial Headline */}
-                  <h1 className="font-editorial text-4xl sm:text-5xl lg:text-[62px] leading-[1.08] font-medium tracking-tight text-[#1C1917]">
+                  {/* Creative Bold Editorial Headline */}
+                  <h1 className="font-editorial text-4xl sm:text-6xl lg:text-[68px] leading-[1.04] font-medium tracking-tight text-[#1C1917]">
                     {currentT.heroTitle1} <br />
-                    <span className="italic font-bold text-[#DF3B2B]">{currentT.heroTitle2}</span>
+                    <span className="font-editorial italic font-bold text-[#DF3B2B]">{currentT.heroTitle2}</span>
                   </h1>
 
                   {/* Subtitle */}
@@ -686,31 +686,31 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Metrics / Stats Row */}
+                  {/* Metrics / Stats Row with Creative Bold Numerals */}
                   <div className="mt-12 pt-8 border-t border-black/[0.08] grid grid-cols-3 gap-6 sm:gap-10 w-full max-w-lg">
                     <div>
-                      <div className="font-black text-2xl sm:text-3xl text-[#1C1917] tracking-tight">
+                      <div className="font-display font-black text-3xl sm:text-4xl text-[#1C1917] tracking-tighter">
                         {currentT.stat1}
                       </div>
-                      <div className="text-xs font-semibold text-[#6B6560] mt-1">
+                      <div className="text-xs font-grotesk font-semibold text-[#6B6560] mt-1">
                         {currentT.stat1Sub}
                       </div>
                     </div>
 
                     <div>
-                      <div className="font-black text-2xl sm:text-3xl text-[#1C1917] tracking-tight">
+                      <div className="font-display font-black text-3xl sm:text-4xl text-[#1C1917] tracking-tighter">
                         {currentT.stat2}
                       </div>
-                      <div className="text-xs font-semibold text-[#6B6560] mt-1">
+                      <div className="text-xs font-grotesk font-semibold text-[#6B6560] mt-1">
                         {currentT.stat2Sub}
                       </div>
                     </div>
 
                     <div>
-                      <div className="font-black text-2xl sm:text-3xl text-[#1C1917] tracking-tight">
+                      <div className="font-display font-black text-3xl sm:text-4xl text-[#1C1917] tracking-tighter">
                         {currentT.stat3}
                       </div>
-                      <div className="text-xs font-semibold text-[#6B6560] mt-1">
+                      <div className="text-xs font-grotesk font-semibold text-[#6B6560] mt-1">
                         {currentT.stat3Sub}
                       </div>
                     </div>
@@ -741,11 +741,11 @@ export default function App() {
                   {/* Section Title Header */}
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-black/[0.06] pb-4">
                     <div>
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-[#DF3B2B] tracking-wider uppercase mb-1">
+                      <div className="flex items-center gap-1.5 text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase mb-1">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{currentT.upcomingShowsTag}</span>
                       </div>
-                      <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-[#1C1917]">
+                      <h2 className="font-display text-2xl sm:text-3xl font-black text-[#1C1917] tracking-tight">
                         {currentT.todaysScheduleTitle}
                       </h2>
                     </div>
@@ -779,11 +779,11 @@ export default function App() {
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-lg sm:text-xl text-[#1C1917] leading-snug">
+                        <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
                           {currentLiveShow ? currentLiveShow.title : currentT.noLiveShow}
                         </h3>
 
-                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2.5 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2.5 line-clamp-2 leading-relaxed font-medium">
                           {currentLiveShow ? `Με παραγωγό ${currentLiveShow.host}` : currentT.autoStreamDesc}
                         </p>
                       </div>
@@ -809,7 +809,7 @@ export default function App() {
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-lg sm:text-xl text-[#1C1917] leading-snug">
+                        <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
                           {nextShow ? nextShow.title : "Indie Hour"}
                         </h3>
 
@@ -846,7 +846,7 @@ export default function App() {
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-lg sm:text-xl text-[#1C1917] leading-snug">
+                        <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
                           {laterShow ? laterShow.title : "Rock Anthems"}
                         </h3>
 
@@ -878,10 +878,10 @@ export default function App() {
                 {/* Left Column: Station Events */}
                 <div className="lg:col-span-6 flex flex-col justify-between">
                   <div>
-                    <div className="text-xs font-bold text-[#DF3B2B] tracking-wider uppercase mb-1">
+                    <div className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase mb-1">
                       {currentT.eventsTag}
                     </div>
-                    <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-[#1C1917]">
+                    <h2 className="font-display text-2xl sm:text-3xl font-black text-[#1C1917] tracking-tight">
                       {currentT.eventsTitle}
                     </h2>
                     <p className="mt-3 text-sm text-[#6B6560] leading-relaxed max-w-md">
@@ -898,11 +898,11 @@ export default function App() {
                     >
                       <div className="flex items-center gap-4 min-w-0">
                         <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60 group-hover:scale-105 transition-transform">
-                          <span className="font-black text-lg leading-none">18</span>
+                          <span className="font-display font-black text-xl leading-none">18</span>
                           <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <h4 className="font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate">
+                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate tracking-tight">
                             Campus Spring Festival 2026
                           </h4>
                           <p className="text-xs text-[#6B6560] truncate mt-0.5">
@@ -920,11 +920,11 @@ export default function App() {
                     >
                       <div className="flex items-center gap-4 min-w-0">
                         <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60 group-hover:scale-105 transition-transform">
-                          <span className="font-black text-lg leading-none">24</span>
+                          <span className="font-display font-black text-xl leading-none">24</span>
                           <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <h4 className="font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate">
+                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate tracking-tight">
                             Workshop: Podcast & Audio Production
                           </h4>
                           <p className="text-xs text-[#6B6560] truncate mt-0.5">
@@ -952,11 +952,11 @@ export default function App() {
                         {currentT.openCallBadge}
                       </span>
                       
-                      <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-white leading-tight">
+                      <h3 className="font-display text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight">
                         {currentT.openCallTitle}
                       </h3>
 
-                      <p className="text-xs sm:text-sm text-stone-300 mt-2 max-w-md leading-relaxed">
+                      <p className="text-xs sm:text-sm text-stone-300 mt-2 max-w-md leading-relaxed font-medium">
                         {currentT.openCallSub}
                       </p>
 
@@ -989,13 +989,13 @@ export default function App() {
             >
               {/* Program Header */}
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
                   {isGreek ? "ΡΟΗ ΕΚΠΟΜΠΩΝ" : "SHOW SCHEDULE"}
                 </span>
-                <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917]">
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
                   {isGreek ? "Εβδομαδιαίο Πρόγραμμα" : "Weekly Program"}
                 </h1>
-                <p className="text-sm sm:text-base text-[#6B6560] leading-relaxed">
+                <p className="text-sm sm:text-base text-[#6B6560] leading-relaxed font-normal">
                   {isGreek 
                     ? "Συντονιστείτε στον ηχητικό παλμό της φοιτητικής μας ομάδας. 40+ ραδιοφωνικοί παραγωγοί, εκλεκτικές μουσικές επιλογές και live panels όλη την εβδομάδα."
                     : "Tune in to the sonic pulse of our student broadcast team. 40+ radio producers, curated rotations, and live panels all week long."}
@@ -1192,10 +1192,10 @@ export default function App() {
               className="flex flex-col gap-10 max-w-5xl mx-auto w-full"
             >
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
                   {currentT.eventsTag}
                 </span>
-                <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917]">
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
                   {currentT.eventsTitle}
                 </h1>
                 <p className="text-sm sm:text-base text-[#6B6560] leading-relaxed">
@@ -1328,10 +1328,10 @@ export default function App() {
               className="flex flex-col gap-8 max-w-5xl mx-auto w-full"
             >
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
                   {isGreek ? "ΑΡΧΕΙΟ ΕΚΠΟΜΠΩΝ" : "AUDIO VAULT"}
                 </span>
-                <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917]">
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
                   {isGreek ? "Αρχείο Mixcloud" : "Mixcloud Archive"}
                 </h1>
                 <p className="text-sm text-[#6B6560] leading-relaxed">
@@ -1430,10 +1430,10 @@ export default function App() {
               className="flex flex-col gap-10 max-w-4xl mx-auto w-full"
             >
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
                   {isGreek ? "ΕΠΙΚΟΙΝΩΝΙΑ" : "GET IN TOUCH"}
                 </span>
-                <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917]">
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
                   {isGreek ? "Επικοινωνήστε Μαζί Μας" : "Contact Us"}
                 </h1>
                 <p className="text-sm text-[#6B6560] leading-relaxed">

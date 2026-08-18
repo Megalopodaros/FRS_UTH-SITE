@@ -47,10 +47,10 @@ export default function UthLogo({
       {/* Typography (Hidden on mobile if hideTextOnMobile is true) */}
       {showText && (
         <div className={`flex flex-col text-left leading-none ${hideTextOnMobile ? "hidden sm:flex" : "flex"}`}>
-          <span className={`font-black tracking-tight ${titleSizeClass} ${isDark ? "text-white" : "text-[#1C1917]"}`}>
+          <span className={`font-display font-black tracking-tight ${titleSizeClass} ${isDark ? "text-white" : "text-[#1C1917]"}`}>
             FRS UTH
           </span>
-          <span className={`font-bold tracking-widest mt-0.5 uppercase ${subSizeClass} text-[#DF3B2B]`}>
+          <span className={`font-grotesk font-extrabold tracking-widest mt-0.5 uppercase ${subSizeClass} text-[#DF3B2B]`}>
             Campus Radio
           </span>
         </div>

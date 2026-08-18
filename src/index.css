@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Newsreader", Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", "Jost", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: "Unbounded", "Plus Jakarta Sans", sans-serif;
+  --font-editorial: "Fraunces", Georgia, serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-grotesk: "Space Grotesk", "Plus Jakarta Sans", sans-serif;
+  --font-mono: "Space Grotesk", ui-monospace, monospace;
 
   --color-canvas: #F7F4EC;
   --color-canvas-subtle: #EFECE3;
@@ -39,10 +42,21 @@ body {
   padding: 0;
 }
 
-/* Editorial Title Typography */
+/* Creative Bold Display Typography */
+.font-display {
+  font-family: "Unbounded", "Plus Jakarta Sans", sans-serif;
+  letter-spacing: -0.03em;
+}
+
+/* Expressive Editorial Typography */
 .font-editorial {
-  font-family: "Newsreader", Georgia, serif;
-  font-feature-settings: "liga" 1, "dlig" 1;
+  font-family: "Fraunces", Georgia, serif;
+  font-feature-settings: "liga" 1, "dlig" 1, "swsh" 1;
+}
+
+/* Grotesk Technical Accents */
+.font-grotesk {
+  font-family: "Space Grotesk", sans-serif;
 }
 
 /* Custom Scrollbar */
