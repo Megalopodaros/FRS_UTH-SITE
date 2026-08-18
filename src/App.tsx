@@ -720,36 +720,6 @@ export default function App() {
                       <span className="whitespace-nowrap">{currentT.liveChat}</span>
                     </button>
                   </div>
-
-                  {/* Metrics / Stats Row with Creative Bold Numerals */}
-                  <div className="mt-12 pt-8 border-t border-black/[0.08] grid grid-cols-3 gap-6 sm:gap-10 w-full max-w-lg">
-                    <div>
-                      <div className="font-display font-black text-3xl sm:text-4xl text-[#1C1917] tracking-tighter">
-                        {currentT.stat1}
-                      </div>
-                      <div className="text-xs font-grotesk font-semibold text-[#6B6560] mt-1">
-                        {currentT.stat1Sub}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="font-display font-black text-3xl sm:text-4xl text-[#1C1917] tracking-tighter">
-                        {currentT.stat2}
-                      </div>
-                      <div className="text-xs font-grotesk font-semibold text-[#6B6560] mt-1">
-                        {currentT.stat2Sub}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="font-display font-black text-3xl sm:text-4xl text-[#1C1917] tracking-tighter">
-                        {currentT.stat3}
-                      </div>
-                      <div className="text-xs font-grotesk font-semibold text-[#6B6560] mt-1">
-                        {currentT.stat3Sub}
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Right Column: Unified Studio Visual & Live Player Card (Combined in same box) */}
