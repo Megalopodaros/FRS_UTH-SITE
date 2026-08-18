@@ -4,14 +4,16 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { Play, Pause, Volume, Volume1, Volume2, VolumeX, Share2, Check } from "lucide-react";
+import { Play, Pause, Volume, Volume1, Volume2, VolumeX, Share2, Check, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { RadioChannel } from "../types";
 
 interface MainPlayerProps {
   isGreek: boolean;
   stationPlaying: boolean;
-  setStationPlaying: (playing: boolean) => void;
+  setStationPlaying: (playing: boolean | ((prev: boolean) => boolean)) => void;
+  isLoadingAudio?: boolean;
+  setIsLoadingAudio?: (loading: boolean) => void;
   activeTrackId?: string;
   currentLiveShow?: any;
   onOpenChat?: () => void;
@@ -150,6 +152,8 @@ export default function MainPlayer({
   isGreek,
   stationPlaying,
   setStationPlaying,
+  isLoadingAudio = false,
+  setIsLoadingAudio,
   currentLiveShow,
   volume,
   setVolume,
@@ -236,10 +240,26 @@ export default function MainPlayer({
     const audio = audioRef.current;
 
     const handlePlaying = () => {
+      setIsLoadingAudio?.(false);
       synthEngine.stop();
     };
 
+    const handleWaiting = () => {
+      if (stationPlaying) {
+        setIsLoadingAudio?.(true);
+      }
+    };
+
+    const handleCanPlay = () => {
+      setIsLoadingAudio?.(false);
+    };
+
+    const handlePause = () => {
+      setIsLoadingAudio?.(false);
+    };
+
     const handleError = (e: any) => {
+      setIsLoadingAudio?.(false);
       console.warn("Audio stream fallback notice:", e);
       if (stationPlaying) {
         synthEngine.start(isMuted ? 0 : volume);
@@ -247,13 +267,19 @@ export default function MainPlayer({
     };
 
     audio.addEventListener("playing", handlePlaying);
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("canplay", handleCanPlay);
+    audio.addEventListener("pause", handlePause);
     audio.addEventListener("error", handleError);
 
     return () => {
       audio.removeEventListener("playing", handlePlaying);
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("canplay", handleCanPlay);
+      audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("error", handleError);
     };
-  }, [isMuted, volume, stationPlaying]);
+  }, [isMuted, volume, stationPlaying, setIsLoadingAudio]);
 
   // Handle play/pause
   useEffect(() => {
@@ -261,22 +287,29 @@ export default function MainPlayer({
     if (!audio) return;
 
     if (stationPlaying) {
+      setIsLoadingAudio?.(true);
       if (audio.src !== UNIVERSAL_CHANNEL.url) {
         audio.src = UNIVERSAL_CHANNEL.url;
         audio.load();
       }
       const playPromise = audio.play();
       if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          console.warn("Autoplay / network policy fallback to synth:", err);
-          synthEngine.start(isMuted ? 0 : volume);
-        });
+        playPromise
+          .then(() => {
+            setIsLoadingAudio?.(false);
+          })
+          .catch((err) => {
+            setIsLoadingAudio?.(false);
+            console.warn("Autoplay / network policy fallback to synth:", err);
+            synthEngine.start(isMuted ? 0 : volume);
+          });
       }
     } else {
+      setIsLoadingAudio?.(false);
       audio.pause();
       synthEngine.stop();
     }
-  }, [stationPlaying]);
+  }, [stationPlaying, isMuted, volume, setIsLoadingAudio]);
 
   // Sync volume
   useEffect(() => {
@@ -343,17 +376,27 @@ export default function MainPlayer({
           <div className="flex items-center gap-3 sm:gap-4 w-full">
             {/* Play/Pause Button */}
             <button
-              onClick={() => setStationPlaying(!stationPlaying)}
+              onClick={() => {
+                if (!stationPlaying) {
+                  setIsLoadingAudio?.(true);
+                  setStationPlaying(true);
+                } else {
+                  setStationPlaying(false);
+                  setIsLoadingAudio?.(false);
+                }
+              }}
               aria-label={stationPlaying ? "Pause stream" : "Play live radio"}
               className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1C1917] text-white flex items-center justify-center shrink-0 hover:bg-black transition-transform active:scale-95 cursor-pointer shadow-md group"
             >
-              {stationPlaying ? (
+              {isLoadingAudio ? (
+                <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-spin" />
+              ) : stationPlaying ? (
                 <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white" />
               ) : (
                 <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white ml-0.5" />
               )}
               {/* Red dot indicator on player button */}
-              {stationPlaying && (
+              {stationPlaying && !isLoadingAudio && (
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-[#DF3B2B] border-2 border-white"></span>

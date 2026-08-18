@@ -27,7 +27,8 @@ import {
   ChevronRight,
   Filter,
   Mic,
-  Menu
+  Menu,
+  Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -51,6 +52,7 @@ export default function App() {
   const [activeTab, setActiveTabState] = useState<TabId>("home");
   const [isGreek, setIsGreek] = useState(true);
   const [stationPlaying, setStationPlaying] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -324,6 +326,7 @@ export default function App() {
 
   const handleTuneChannel = (trackId: string) => {
     setActiveTrackId(trackId);
+    setIsLoadingAudio(true);
     setStationPlaying(true);
   };
 
@@ -508,13 +511,27 @@ export default function App() {
             {/* Primary Red Listen Button */}
             <button
               onClick={() => {
-                setStationPlaying(!stationPlaying);
+                if (!stationPlaying) {
+                  setIsLoadingAudio(true);
+                  setStationPlaying(true);
+                } else {
+                  setStationPlaying(false);
+                  setIsLoadingAudio(false);
+                }
                 scrollToLiveStation();
               }}
               className="flex items-center gap-1.5 sm:gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs shadow-md shadow-[#DF3B2B]/20 hover:shadow-lg hover:shadow-[#DF3B2B]/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
-              <span className={`w-1.5 h-1.5 rounded-full bg-white ${stationPlaying ? "animate-ping" : ""}`} />
-              <span>{stationPlaying ? currentT.playingBtn : currentT.listenBtn}</span>
+              {isLoadingAudio ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <span className={`w-1.5 h-1.5 rounded-full bg-white ${stationPlaying ? "animate-ping" : ""}`} />
+              )}
+              <span>
+                {isLoadingAudio 
+                  ? (isGreek ? "Σύνδεση..." : "Connecting...") 
+                  : (stationPlaying ? currentT.playingBtn : currentT.listenBtn)}
+              </span>
             </button>
 
             {/* Mobile Hamburger Menu Toggle Button */}
@@ -741,6 +758,8 @@ export default function App() {
                     isGreek={isGreek}
                     stationPlaying={stationPlaying}
                     setStationPlaying={setStationPlaying}
+                    isLoadingAudio={isLoadingAudio}
+                    setIsLoadingAudio={setIsLoadingAudio}
                     activeTrackId={activeTrackId}
                     currentLiveShow={currentLiveShow}
                     onOpenChat={() => setChatOpen(true)}
@@ -1568,6 +1587,7 @@ export default function App() {
                         <input
                           type="text"
                           required
+                          maxLength={100}
                           value={contactForm.name}
                           onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                           placeholder={isGreek ? "Το όνομά σας" : "Your name"}
@@ -1582,6 +1602,7 @@ export default function App() {
                         <input
                           type="email"
                           required
+                          maxLength={120}
                           value={contactForm.email}
                           onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                           placeholder="your.email@example.com"
@@ -1611,6 +1632,7 @@ export default function App() {
                         <textarea
                           required
                           rows={4}
+                          maxLength={2500}
                           value={contactForm.message}
                           onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                           placeholder={isGreek ? "Γράψτε το μήνυμά σας..." : "Write your message..."}
@@ -2009,6 +2031,8 @@ export default function App() {
         currentLiveShow={currentLiveShow}
         stationPlaying={stationPlaying}
         setStationPlaying={setStationPlaying}
+        isLoadingAudio={isLoadingAudio}
+        setIsLoadingAudio={setIsLoadingAudio}
         volume={volume}
         setVolume={setVolume}
         isMuted={isMuted}

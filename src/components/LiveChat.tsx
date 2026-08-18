@@ -15,7 +15,8 @@ import {
   MessageSquare, 
   Play, 
   Pause, 
-  Radio
+  Radio,
+  Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChatMessage } from "../types";
@@ -31,7 +32,9 @@ interface LiveChatProps {
   isInline?: boolean;
   currentLiveShow?: any;
   stationPlaying?: boolean;
-  setStationPlaying?: (playing: boolean) => void;
+  setStationPlaying?: (playing: boolean | ((prev: boolean) => boolean)) => void;
+  isLoadingAudio?: boolean;
+  setIsLoadingAudio?: (loading: boolean) => void;
   volume?: number;
   setVolume?: (v: number) => void;
   isMuted?: boolean;
@@ -88,6 +91,8 @@ export default function LiveChat({
   currentLiveShow,
   stationPlaying = false,
   setStationPlaying,
+  isLoadingAudio = false,
+  setIsLoadingAudio,
   volume = 0.85,
   setVolume,
   isMuted = false,
@@ -100,6 +105,7 @@ export default function LiveChat({
   const [tempName, setTempName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [onlineCount, setOnlineCount] = useState(1);
+  const lastSendTimeRef = useRef<number>(0);
   const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -239,8 +245,17 @@ export default function LiveChat({
 
   const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
     if (e) e.preventDefault();
-    const textToSend = (customText || inputText).trim();
-    if (!textToSend) return;
+    const rawText = (customText || inputText).trim();
+    if (!rawText) return;
+
+    // Rate limiting: at most 1 message every 500ms
+    const nowTimestamp = Date.now();
+    if (nowTimestamp - lastSendTimeRef.current < 500) return;
+    lastSendTimeRef.current = nowTimestamp;
+
+    // Security & payload truncation
+    const textToSend = rawText.slice(0, 500);
+    const safeUserName = (userName || "Listener").slice(0, 30);
 
     const now = new Date();
     const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
@@ -249,7 +264,7 @@ export default function LiveChat({
     try {
       if (!customText) setInputText("");
       await addDoc(collection(db, "messages"), {
-        user: userName,
+        user: safeUserName,
         text: textToSend,
         timestamp: timeStr,
         avatarColor: avatarColor,
@@ -259,18 +274,24 @@ export default function LiveChat({
 
       // Play soft pop sound
       try {
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const audioCtx = new AudioCtx();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.1);
+          setTimeout(() => {
+            try { audioCtx.close(); } catch {}
+          }, 200);
+        }
       } catch {}
     } catch (err) {
       console.error("Error sending message to Firestore:", err);
@@ -279,8 +300,9 @@ export default function LiveChat({
 
   const handleSaveName = () => {
     if (tempName.trim()) {
-      setUserName(tempName.trim());
-      localStorage.setItem(TAB_NAME_KEY, tempName.trim());
+      const safeName = tempName.trim().slice(0, 30);
+      setUserName(safeName);
+      localStorage.setItem(TAB_NAME_KEY, safeName);
     }
     setIsEditingName(false);
   };
@@ -490,11 +512,23 @@ export default function LiveChat({
               {/* Left: Mini Play Button & Show Info */}
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <button
-                  onClick={() => setStationPlaying && setStationPlaying(!stationPlaying)}
+                  onClick={() => {
+                    if (setStationPlaying) {
+                      if (!stationPlaying) {
+                        setIsLoadingAudio?.(true);
+                        setStationPlaying(true);
+                      } else {
+                        setStationPlaying(false);
+                        setIsLoadingAudio?.(false);
+                      }
+                    }
+                  }}
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1C1917] hover:bg-black text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
                   aria-label={stationPlaying ? "Pause stream" : "Play stream"}
                 >
-                  {stationPlaying ? (
+                  {isLoadingAudio ? (
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  ) : stationPlaying ? (
                     <Pause className="w-4 h-4 fill-white text-white" />
                   ) : (
                     <Play className="w-4 h-4 fill-white text-white ml-0.5" />
