@@ -321,14 +321,14 @@ export default function LiveChat({
               stiffness: isMobile ? 280 : 320
             }}
             onClick={(e) => e.stopPropagation()}
-            className={`relative bg-[#F7F4EC] shadow-2xl flex flex-col z-10 ${
+            className={`relative bg-[#F7F4EC]/90 backdrop-blur-2xl shadow-2xl flex flex-col z-10 ${
               isMobile
                 ? "w-full max-w-md h-full border-l border-black/10"
-                : "w-full max-w-3xl lg:max-w-4xl h-[720px] max-h-[88vh] rounded-3xl border border-black/10 overflow-hidden my-auto"
+                : "w-full max-w-3xl lg:max-w-4xl h-[720px] max-h-[88vh] rounded-3xl border border-white/80 overflow-hidden my-auto"
             }`}
           >
             {/* Top Bar Header (No Volume button here) */}
-            <div className="bg-white px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between shadow-xs shrink-0">
+            <div className="bg-white/80 backdrop-blur-md px-5 sm:px-6 py-4 border-b border-black/[0.07] flex items-center justify-between shadow-xs shrink-0">
               <div className="flex items-center gap-3.5">
                 <div className="w-10 h-10 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold shadow-xs border border-[#F7C8C4]/60 shrink-0">
                   <MessageSquare className="w-5 h-5" />
@@ -361,7 +361,7 @@ export default function LiveChat({
             </div>
 
             {/* User Profile Bar (Rename / Color) */}
-            <div className="bg-white/80 px-5 sm:px-6 py-2.5 border-b border-black/[0.06] flex items-center justify-between text-xs shrink-0">
+            <div className="bg-white/70 backdrop-blur-sm px-5 sm:px-6 py-2.5 border-b border-black/[0.06] flex items-center justify-between text-xs shrink-0">
               {isEditingName ? (
                 <div className="flex items-center gap-2 w-full">
                   <input
@@ -484,8 +484,8 @@ export default function LiveChat({
               </button>
             </form>
 
-            {/* SLEEK COMPACT BOTTOM MINI-PLAY BAR WITH VOLUME SLIDER */}
-            <div className="bg-[#FAF8F4] px-4 sm:px-6 py-3 border-t border-black/[0.08] flex items-center justify-between gap-4 shrink-0">
+            {/* SLEEK COMPACT BOTTOM MINI-PLAY BAR WITH VOLUME SLIDER (Glassmorphic Dock) */}
+            <div className="bg-white/80 backdrop-blur-md px-4 sm:px-6 py-3 border-t border-black/[0.07] flex items-center justify-between gap-4 shrink-0">
               
               {/* Left: Mini Play Button & Show Info */}
               <div className="flex items-center gap-3 min-w-0 flex-1">

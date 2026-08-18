@@ -313,7 +313,7 @@ export default function MainPlayer({
   return (
     <div className={`w-full ${className}`}>
       {/* UNIFIED STUDIO HERO IMAGE + LIVE PLAYER IN ONE SINGLE BOX */}
-      <div className="warm-card rounded-3xl overflow-hidden shadow-2xl border border-black/10 flex flex-col bg-white transition-all">
+      <div className="glass-panel rounded-3xl overflow-hidden shadow-2xl border border-white/90 flex flex-col transition-all">
         
         {/* Top Portion: Studio Photo with Live Now Overlay */}
         <div className="relative aspect-[16/10] sm:aspect-[16/9] md:aspect-[4/3] bg-stone-900 overflow-hidden group">
@@ -337,7 +337,7 @@ export default function MainPlayer({
         </div>
 
         {/* Bottom Portion: Live Player Controls inside the SAME box */}
-        <div className="p-4 sm:p-5 bg-white flex flex-col gap-3.5">
+        <div className="p-4 sm:p-5 bg-white/75 backdrop-blur-md flex flex-col gap-3.5 border-t border-black/[0.05]">
           
           {/* Row 1: Play/Pause Button + Live Progress Bar & Elapsed Time */}
           <div className="flex items-center gap-3 sm:gap-4 w-full">

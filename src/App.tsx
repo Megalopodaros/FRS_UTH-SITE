@@ -418,8 +418,15 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B] relative">
       
-      {/* 1. TOP NAVIGATION HEADER (Slim & Sleek) */}
-      <header className="w-full sticky top-0 z-40 bg-[#F7F4EC]/95 backdrop-blur-md border-b border-black/[0.06] transition-all">
+      {/* Ambient Glassmorphic Background Glow Orbs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-24 right-[-10%] w-[520px] h-[520px] rounded-full bg-[#DF3B2B]/8 blur-[130px]" />
+        <div className="absolute top-[35%] left-[-10%] w-[580px] h-[580px] rounded-full bg-amber-500/7 blur-[150px]" />
+        <div className="absolute bottom-[10%] right-[15%] w-[480px] h-[480px] rounded-full bg-[#DF3B2B]/6 blur-[130px]" />
+      </div>
+
+      {/* 1. TOP NAVIGATION HEADER (Slim, Sleek & Glassmorphic) */}
+      <header className="w-full sticky top-0 z-40 bg-[#F7F4EC]/75 backdrop-blur-xl border-b border-black/[0.06] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 md:h-18 flex items-center justify-between">
           
           {/* Logo Brand */}
@@ -432,36 +439,36 @@ export default function App() {
             <UthLogo size="header" hideTextOnMobile={true} />
           </button>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs sm:text-sm font-semibold">
+          {/* Desktop Navigation Links (Frosted Glass Dock) */}
+          <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-full bg-white/50 backdrop-blur-md border border-white/80 shadow-xs text-xs sm:text-sm font-semibold">
             <button
               onClick={() => setActiveTab("home")}
-              className={`cursor-pointer transition-colors ${
-                activeTab === "home" ? "text-[#DF3B2B] font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
+              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
+                activeTab === "home" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
               }`}
             >
               {currentT.navHome}
             </button>
             <button
               onClick={() => setActiveTab("program")}
-              className={`cursor-pointer transition-colors ${
-                activeTab === "program" ? "text-[#DF3B2B] font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
+              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
+                activeTab === "program" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
               }`}
             >
               {currentT.navProgram}
             </button>
             <button
               onClick={() => setActiveTab("events")}
-              className={`cursor-pointer transition-colors ${
-                activeTab === "events" ? "text-[#DF3B2B] font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
+              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
+                activeTab === "events" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
               }`}
             >
               {currentT.navEvents}
             </button>
             <button
               onClick={() => setActiveTab("archive")}
-              className={`cursor-pointer transition-colors ${
-                activeTab === "archive" ? "text-[#DF3B2B] font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
+              className={`cursor-pointer transition-all px-4 py-1.5 rounded-full ${
+                activeTab === "archive" ? "bg-[#DF3B2B] text-white shadow-xs font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
               }`}
             >
               {currentT.navArchive}
@@ -643,8 +650,8 @@ export default function App() {
                 {/* Left Column: Hero Copy & CTAs */}
                 <div className="lg:col-span-7 flex flex-col items-start text-left">
                   
-                  {/* Top Pill Tag - Bold & Stylized */}
-                  <div className="inline-flex items-center gap-2 bg-[#FEECEB] border border-[#DF3B2B]/30 px-4 py-2 rounded-full text-xs font-grotesk font-extrabold text-[#DF3B2B] mb-6 shadow-xs tracking-wider uppercase">
+                  {/* Top Pill Tag - Frosted Glass & Stylized */}
+                  <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-md border border-[#DF3B2B]/30 px-4 py-2 rounded-full text-xs font-grotesk font-extrabold text-[#DF3B2B] mb-6 shadow-xs tracking-wider uppercase">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#DF3B2B] animate-pulse" />
                     <span>{currentT.heroTag}</span>
                   </div>
