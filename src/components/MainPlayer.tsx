@@ -323,29 +323,10 @@ export default function MainPlayer({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
           {/* Smooth bottom gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-          
-          {/* Top Badges */}
-          <div className="absolute top-3.5 left-3.5 right-3.5 sm:top-4 sm:left-4 sm:right-4 flex items-center justify-between">
-            <div className="flex items-center gap-1.5 bg-[#DF3B2B] text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-md shadow-[#DF3B2B]/30">
-              <span className={`w-2 h-2 rounded-full bg-white ${stationPlaying ? "animate-ping" : "animate-pulse"}`} />
-              <span>{isGreek ? "ΤΩΡΑ ΣΤΟΝ ΑΕΡΑ" : "NOW ON AIR"}</span>
-            </div>
-            <span className="bg-black/60 backdrop-blur-md text-stone-200 px-3 py-1 rounded-full text-[11px] font-mono border border-white/10 shadow-xs">
-              Volos Studio A
-            </span>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
           {/* Bottom Overlay on Image: Show Title & Producer */}
           <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 text-white">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-white/20 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded tracking-wider uppercase border border-white/20">
-                ON AIR
-              </span>
-              <span className="text-[10px] font-mono font-semibold text-stone-300">
-                320KBPS HD AUDIO
-              </span>
-            </div>
             <h4 className="font-editorial text-2xl sm:text-3xl font-bold leading-tight drop-shadow-sm truncate">
               {displayTitle}
             </h4>
