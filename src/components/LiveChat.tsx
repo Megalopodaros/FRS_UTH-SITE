@@ -125,14 +125,14 @@ export default function LiveChat({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Focus input when chat opens
+  // Focus input only on desktop when chat opens (avoids auto-opening virtual keyboard on mobile)
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isMobile) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 150);
     }
-  }, [isOpen]);
+  }, [isOpen, isMobile]);
 
   // Initialize unique session identifier and default random name
   useEffect(() => {

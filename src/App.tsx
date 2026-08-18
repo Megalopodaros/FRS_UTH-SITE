@@ -1690,20 +1690,27 @@ export default function App() {
         </div>
       </footer>
 
-      {/* FLOATING QUICK-ACCESS LIVE CHAT BUTTON */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setChatOpen(true)}
-        className="fixed bottom-6 right-6 z-40 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-black/10 flex items-center gap-2.5 cursor-pointer group"
-      >
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#DF3B2B]"></span>
-        </span>
-        <MessageSquare className="w-4 h-4 text-[#DF3B2B] group-hover:scale-110 transition-transform" />
-        <span>Live Chat</span>
-      </motion.button>
+      {/* FLOATING QUICK-ACCESS LIVE CHAT BUTTON (Visible only when chat is closed) */}
+      <AnimatePresence>
+        {!chatOpen && !isMobileMenuOpen && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setChatOpen(true)}
+            className="fixed bottom-6 right-6 z-30 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-black/10 flex items-center gap-2.5 cursor-pointer group"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#DF3B2B]"></span>
+            </span>
+            <MessageSquare className="w-4 h-4 text-[#DF3B2B] group-hover:scale-110 transition-transform" />
+            <span>Live Chat</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* SHOW DESCRIPTION MODAL OVERLAY */}
       <AnimatePresence>
