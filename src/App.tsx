@@ -107,7 +107,7 @@ export default function App() {
     };
     
     registerPresence();
-    const interval = setInterval(registerPresence, 15000); // Heartbeat every 15s
+    const interval = setInterval(registerPresence, 15000);
 
     const handleUnload = () => {
       deleteDoc(presenceRef).catch(() => {});
@@ -373,7 +373,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B]">
+    <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B] relative">
       
       {/* 1. TOP NAVIGATION HEADER (Image 1) */}
       <header className="w-full sticky top-0 z-40 bg-[#F7F4EC]/90 backdrop-blur-md border-b border-black/[0.06] transition-all">
@@ -1402,6 +1402,21 @@ export default function App() {
 
         </div>
       </footer>
+
+      {/* FLOATING QUICK-ACCESS LIVE CHAT BUTTON */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setChatOpen(true)}
+        className="fixed bottom-6 right-6 z-40 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-black/10 flex items-center gap-2.5 cursor-pointer group"
+      >
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#DF3B2B]"></span>
+        </span>
+        <MessageSquare className="w-4 h-4 text-[#DF3B2B] group-hover:scale-110 transition-transform" />
+        <span>Live Chat</span>
+      </motion.button>
 
       {/* SHOW DESCRIPTION MODAL OVERLAY */}
       <AnimatePresence>

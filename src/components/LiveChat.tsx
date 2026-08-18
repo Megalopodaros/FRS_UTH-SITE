@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, X, Edit3, Smile, Users, Volume2, VolumeX, MessageSquare } from "lucide-react";
+import { Send, X, Edit3, Users, Volume2, VolumeX, MessageSquare, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChatMessage } from "../types";
 import { collection, addDoc, query, limit, onSnapshot, serverTimestamp, getDocs, deleteDoc, orderBy } from "firebase/firestore";
@@ -81,6 +81,27 @@ export default function LiveChat({
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Focus input when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 150);
+    }
+  }, [isOpen]);
 
   // Initialize unique session identifier and default random name
   useEffect(() => {
@@ -212,8 +233,8 @@ export default function LiveChat({
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = "sine";
-          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08); // A5
+          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
           gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
           gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
           osc.connect(gain);
@@ -247,7 +268,7 @@ export default function LiveChat({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
           />
 
           {/* Slide-over Drawer */}
@@ -255,13 +276,13 @@ export default function LiveChat({
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            transition={{ type: "spring", damping: 28, stiffness: 280 }}
             className="relative w-full max-w-md bg-[#F7F4EC] h-full shadow-2xl flex flex-col z-10 border-l border-black/10"
           >
             {/* Header */}
             <div className="bg-white px-5 py-4 border-b border-black/10 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-full bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold shadow-xs">
                   <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
@@ -269,12 +290,12 @@ export default function LiveChat({
                     <h3 className="font-bold text-base text-[#1C1917]">
                       {isGreek ? "Live Chat Κοινότητας" : "Community Live Chat"}
                     </h3>
-                    <span className="flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       {onlineCount} {isGreek ? "online" : "online"}
                     </span>
                   </div>
-                  <p className="text-xs text-[#78716C]">
+                  <p className="text-xs text-[#78716C] mt-0.5">
                     {currentLiveShow ? currentLiveShow.title : "FRS UTH 24/7 Live Stream"}
                   </p>
                 </div>
@@ -291,7 +312,7 @@ export default function LiveChat({
                 <button
                   onClick={onClose}
                   className="text-[#78716C] hover:text-[#1C1917] p-2 rounded-full hover:bg-[#F7F4EC] transition-colors cursor-pointer"
-                  title={isGreek ? "Κλείσιμο" : "Close"}
+                  title={isGreek ? "Κλείσιμο (Esc)" : "Close (Esc)"}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -299,7 +320,7 @@ export default function LiveChat({
             </div>
 
             {/* User Profile Bar (Rename / Color) */}
-            <div className="bg-white/60 px-5 py-2.5 border-b border-black/[0.06] flex items-center justify-between text-xs">
+            <div className="bg-white/80 px-5 py-2.5 border-b border-black/[0.06] flex items-center justify-between text-xs">
               {isEditingName ? (
                 <div className="flex items-center gap-2 w-full">
                   <input
@@ -310,6 +331,9 @@ export default function LiveChat({
                     maxLength={25}
                     className="field py-1 px-2.5 text-xs flex-1"
                     autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSaveName();
+                    }}
                   />
                   <button
                     onClick={handleSaveName}
@@ -319,7 +343,7 @@ export default function LiveChat({
                   </button>
                   <button
                     onClick={() => setIsEditingName(false)}
-                    className="text-[#78716C] px-2 py-1 text-xs cursor-pointer"
+                    className="text-[#78716C] px-2 py-1 text-xs cursor-pointer hover:text-[#1C1917]"
                   >
                     Cancel
                   </button>
@@ -353,12 +377,12 @@ export default function LiveChat({
             <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#78716C]">
-                  <MessageSquare className="w-10 h-10 text-[#DF3B2B]/40 mb-2" />
-                  <p className="font-semibold text-sm text-[#1C1917]">
+                  <MessageSquare className="w-12 h-12 text-[#DF3B2B]/40 mb-2.5" />
+                  <p className="font-bold text-base text-[#1C1917]">
                     {isGreek ? "Καλώς ήρθατε στο FRS UTH Chat!" : "Welcome to FRS UTH Chat!"}
                   </p>
-                  <p className="text-xs mt-1">
-                    {isGreek ? "Γίνετε οι πρώτοι που θα στείλουν μήνυμα στην κοινότητα." : "Be the first to say hi to the community."}
+                  <p className="text-xs mt-1 max-w-xs">
+                    {isGreek ? "Γίνετε οι πρώτοι που θα στείλουν μήνυμα στους υπόλοιπους φοιτητές και ακροατές." : "Be the first to say hi to your fellow students and listeners."}
                   </p>
                 </div>
               ) : (
@@ -398,7 +422,7 @@ export default function LiveChat({
             </div>
 
             {/* Quick Emoji Bar */}
-            <div className="bg-white/80 px-4 py-2 border-t border-black/[0.06] flex items-center justify-between gap-1 overflow-x-auto">
+            <div className="bg-white/90 px-4 py-2 border-t border-black/[0.06] flex items-center justify-between gap-1 overflow-x-auto">
               {QUICK_EMOJIS.map((emoji) => (
                 <button
                   key={emoji}
@@ -414,10 +438,11 @@ export default function LiveChat({
             {/* Message Input Box */}
             <form onSubmit={handleSendMessage} className="bg-white p-3.5 border-t border-black/10 flex items-center gap-2">
               <input
+                ref={inputRef}
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={isGreek ? "Γράψτε μήνυμα..." : "Type a message..."}
+                placeholder={isGreek ? "Γράψτε μήνυμα στην κοινότητα..." : "Type a message to the community..."}
                 maxLength={300}
                 className="field py-2.5 px-3.5 text-sm"
               />
