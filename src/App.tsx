@@ -748,7 +748,7 @@ export default function App() {
                         <Clock className="w-3.5 h-3.5" />
                         <span>{currentT.upcomingShowsTag}</span>
                       </div>
-                      <h2 className="font-display text-2xl sm:text-3xl font-black text-[#1C1917] tracking-tight">
+                      <h2 className="font-display text-3xl sm:text-4xl font-black text-[#1C1917] tracking-tight">
                         {currentT.todaysScheduleTitle}
                       </h2>
                     </div>
@@ -884,7 +884,7 @@ export default function App() {
                     <div className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase mb-1">
                       {currentT.eventsTag}
                     </div>
-                    <h2 className="font-display text-2xl sm:text-3xl font-black text-[#1C1917] tracking-tight">
+                    <h2 className="font-display text-3xl sm:text-4xl font-black text-[#1C1917] tracking-tight">
                       {currentT.eventsTitle}
                     </h2>
                     <p className="mt-3 text-sm text-[#6B6560] leading-relaxed max-w-md">
