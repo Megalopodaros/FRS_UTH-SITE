@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { Play, Pause, Volume, Volume1, Volume2, VolumeX, Share2, Check, Loader2 } from "lucide-react";
+import { Play, Pause, Volume, Volume1, Volume2, VolumeX, Share2, Check, Loader2, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { RadioChannel } from "../types";
 
@@ -155,6 +155,7 @@ export default function MainPlayer({
   isLoadingAudio = false,
   setIsLoadingAudio,
   currentLiveShow,
+  onOpenChat,
   volume,
   setVolume,
   isMuted,
@@ -427,11 +428,11 @@ export default function MainPlayer({
             </div>
           </div>
 
-          {/* Row 2: Red Volume Slider & Share Button */}
-          <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-black/[0.06]">
+          {/* Row 2: Red Volume Slider & Share / Live Chat Buttons */}
+          <div className="flex items-center justify-between gap-2 sm:gap-3 pt-2.5 border-t border-black/[0.06]">
             
             {/* Volume Control */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsMuted(!isMuted)}
                 className="text-[#78716C] hover:text-[#DF3B2B] transition-colors cursor-pointer p-1"
@@ -463,26 +464,44 @@ export default function MainPlayer({
                   style={{
                     background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
                   }}
-                  className="w-24 sm:w-32 h-2 rounded-lg appearance-none cursor-pointer accent-[#1C1917] transition-all"
+                  className="w-16 sm:w-24 h-2 rounded-lg appearance-none cursor-pointer accent-[#1C1917] transition-all"
                   aria-label="Volume slider"
                 />
               </div>
             </div>
 
-            {/* Share Button (Copies Site Link) */}
-            <div className="relative flex items-center">
-              <button
-                onClick={handleShare}
-                className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-3 py-1.5 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer"
-                title={isGreek ? "Αντιγραφή συνδέσμου ιστοσελίδας" : "Copy site link"}
-              >
-                {copiedShare ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-600 animate-bounce" />
-                ) : (
-                  <Share2 className="w-3.5 h-3.5 text-[#78716C]" />
-                )}
-                <span>{copiedShare ? (isGreek ? "Αντιγράφηκε" : "Copied") : (isGreek ? "Κοινοποίηση" : "Share")}</span>
-              </button>
+            {/* Right Action Buttons: Live Chat & Share */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Quick Live Chat Button */}
+              {onOpenChat && (
+                <button
+                  onClick={onOpenChat}
+                  className="flex items-center gap-1.5 text-xs font-bold text-[#DF3B2B] bg-[#FEECEB] hover:bg-[#FCD8D5] px-2.5 sm:px-3 py-1.5 rounded-full border border-[#F7C8C4]/60 transition-all cursor-pointer shadow-2xs group active:scale-95 whitespace-nowrap"
+                  title={isGreek ? "Άνοιγμα Live Chat" : "Open Live Chat"}
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DF3B2B]"></span>
+                  </span>
+                  <MessageSquare className="w-3.5 h-3.5 text-[#DF3B2B] group-hover:scale-110 transition-transform" />
+                  <span>Chat</span>
+                </button>
+              )}
+
+              {/* Share Button (Copies Site Link) */}
+              <div className="relative flex items-center">
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-2.5 sm:px-3 py-1.5 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer whitespace-nowrap"
+                  title={isGreek ? "Αντιγραφή συνδέσμου ιστοσελίδας" : "Copy site link"}
+                >
+                  {copiedShare ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-600 animate-bounce" />
+                  ) : (
+                    <Share2 className="w-3.5 h-3.5 text-[#78716C]" />
+                  )}
+                  <span>{copiedShare ? (isGreek ? "Αντιγράφηκε" : "Copied") : (isGreek ? "Κοινοποίηση" : "Share")}</span>
+                </button>
 
               {/* Tooltip feedback for copy */}
               <AnimatePresence>
@@ -498,12 +517,10 @@ export default function MainPlayer({
                 )}
               </AnimatePresence>
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
+  </div>
   );
 }
