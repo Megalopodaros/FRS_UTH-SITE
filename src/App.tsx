@@ -418,8 +418,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B] relative">
       
-      {/* Ambient Glassmorphic Background Glow Orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {/* Ambient Glassmorphic Background Glow Orbs (Desktop only to prevent mobile GPU compositing artifacts) */}
+      <div className="hidden md:block fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-24 right-[-10%] w-[520px] h-[520px] rounded-full bg-[#DF3B2B]/8 blur-[130px]" />
         <div className="absolute top-[35%] left-[-10%] w-[580px] h-[580px] rounded-full bg-amber-500/7 blur-[150px]" />
         <div className="absolute bottom-[10%] right-[15%] w-[480px] h-[480px] rounded-full bg-[#DF3B2B]/6 blur-[130px]" />
@@ -658,8 +658,8 @@ export default function App() {
                 {/* Left Column: Hero Copy & CTAs */}
                 <div className="lg:col-span-7 flex flex-col items-start text-left">
                   
-                  {/* Top Pill Tag - Frosted Glass & Stylized */}
-                  <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-md border border-[#DF3B2B]/30 px-4 py-2 rounded-full text-xs font-grotesk font-extrabold text-[#DF3B2B] mb-6 shadow-xs tracking-wider uppercase">
+                  {/* Top Pill Tag */}
+                  <div className="inline-flex items-center gap-2 bg-[#FEECEB] md:bg-white/70 md:backdrop-blur-md border border-[#DF3B2B]/30 px-4 py-2 rounded-full text-xs font-grotesk font-extrabold text-[#DF3B2B] mb-6 shadow-xs tracking-wider uppercase">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#DF3B2B] animate-pulse" />
                     <span>{currentT.heroTag}</span>
                   </div>
@@ -1023,8 +1023,8 @@ export default function App() {
               {/* View Mode Controls & Day Selector Pills */}
               <div className="flex flex-col items-center gap-5 w-full">
                 
-                {/* View Mode Tabs (Day View vs Full Week with Sliding Glass Indicator) */}
-                <div className="flex items-center bg-white/55 backdrop-blur-md p-1 rounded-full text-xs font-bold text-[#6B6560] border border-white/80 shadow-xs relative">
+                {/* View Mode Tabs (Day View vs Full Week with Sliding Indicator) */}
+                <div className="flex items-center bg-[#EFECE3] md:bg-white/55 md:backdrop-blur-md p-1 rounded-full text-xs font-bold text-[#6B6560] border border-black/[0.06] md:border-white/80 shadow-xs relative">
                   <button
                     onClick={() => setProgramViewMode("day")}
                     className={`relative px-4 py-1.5 rounded-full transition-colors cursor-pointer z-10 ${
@@ -1057,9 +1057,9 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Day Selector Buttons with Unified Frosted Glass Border Dock & Sliding Indicator */}
+                {/* Day Selector Buttons with Unified Border Dock & Sliding Indicator */}
                 <div className="flex items-center justify-start sm:justify-center overflow-x-auto max-w-full pb-2 no-scrollbar px-1">
-                  <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full bg-white/55 backdrop-blur-md border border-white/80 shadow-xs relative">
+                  <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full bg-white md:bg-white/55 md:backdrop-blur-md border border-black/[0.08] md:border-white/80 shadow-xs relative">
                     {weeklyScheduleList.map((dayProg, idx) => {
                       const isSelected = selectedProgramDay === idx;
                       const isToday = currentDayIndex === idx;
@@ -1171,7 +1171,7 @@ export default function App() {
               {programViewMode === "all" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
                   {weeklyScheduleList.map((dayProg) => (
-                    <div key={dayProg.day} className="flex flex-col gap-4 bg-white/60 backdrop-blur-md p-5 rounded-3xl border border-white/80 shadow-xs">
+                    <div key={dayProg.day} className="flex flex-col gap-4 bg-white md:bg-white/60 md:backdrop-blur-md p-5 rounded-3xl border border-black/[0.07] md:border-white/80 shadow-xs">
                       <div className="flex items-center justify-between border-b border-black/[0.06] pb-2.5 px-1">
                         <div className="flex items-center gap-2">
                           <span className="font-black text-base text-[#1C1917]">{dayProg.fullName}</span>
@@ -1765,7 +1765,7 @@ export default function App() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 15 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-xl bg-[#F7F4EC]/92 backdrop-blur-2xl rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/80 relative my-auto"
+                className="w-full max-w-xl bg-[#F7F4EC] md:bg-[#F7F4EC]/92 md:backdrop-blur-2xl rounded-3xl p-6 sm:p-7 shadow-2xl border border-black/10 md:border-white/80 relative my-auto"
               >
                 <button
                   onClick={() => setSelectedShowId(null)}
@@ -1835,7 +1835,7 @@ export default function App() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg bg-[#F7F4EC]/92 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/80 relative my-auto"
+              className="w-full max-w-lg bg-[#F7F4EC] md:bg-[#F7F4EC]/92 md:backdrop-blur-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-black/10 md:border-white/80 relative my-auto"
             >
               <button
                 onClick={() => setIsOpenCallModalOpen(false)}

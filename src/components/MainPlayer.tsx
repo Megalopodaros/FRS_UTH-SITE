@@ -337,7 +337,7 @@ export default function MainPlayer({
         </div>
 
         {/* Bottom Portion: Live Player Controls inside the SAME box */}
-        <div className="p-4 sm:p-5 bg-white/75 backdrop-blur-md flex flex-col gap-3.5 border-t border-black/[0.05]">
+        <div className="p-4 sm:p-5 bg-white md:bg-white/75 md:backdrop-blur-md flex flex-col gap-3.5 border-t border-black/[0.05]">
           
           {/* Row 1: Play/Pause Button + Live Progress Bar & Elapsed Time */}
           <div className="flex items-center gap-3 sm:gap-4 w-full">
