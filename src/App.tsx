@@ -892,38 +892,50 @@ export default function App() {
                     </p>
                   </div>
 
-                  {/* Events List Cards */}
+                  {/* Events List Cards (Clickable to navigate to Events tab) */}
                   <div className="mt-6 flex flex-col gap-3.5">
                     {/* Event 1 */}
-                    <div className="warm-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60">
-                        <span className="font-black text-lg leading-none">18</span>
-                        <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
+                    <div 
+                      onClick={() => setActiveTab("events")}
+                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#DF3B2B]/40 transition-all"
+                    >
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60 group-hover:scale-105 transition-transform">
+                          <span className="font-black text-lg leading-none">18</span>
+                          <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <h4 className="font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate">
+                            Campus Spring Festival 2026
+                          </h4>
+                          <p className="text-xs text-[#6B6560] truncate mt-0.5">
+                            Live bands & outdoor dj stage στο Πεδίον του Άρεως
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex flex-col min-w-0">
-                        <h4 className="font-bold text-sm sm:text-base text-[#1C1917] truncate">
-                          Campus Spring Festival 2026
-                        </h4>
-                        <p className="text-xs text-[#6B6560] truncate mt-0.5">
-                          Live bands & outdoor dj stage στο Πεδίον του Άρεως
-                        </p>
-                      </div>
+                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#DF3B2B] group-hover:translate-x-1 transition-all shrink-0" />
                     </div>
 
                     {/* Event 2 */}
-                    <div className="warm-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60">
-                        <span className="font-black text-lg leading-none">24</span>
-                        <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
+                    <div 
+                      onClick={() => setActiveTab("events")}
+                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#DF3B2B]/40 transition-all"
+                    >
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60 group-hover:scale-105 transition-transform">
+                          <span className="font-black text-lg leading-none">24</span>
+                          <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <h4 className="font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate">
+                            Workshop: Podcast & Audio Production
+                          </h4>
+                          <p className="text-xs text-[#6B6560] truncate mt-0.5">
+                            Εισαγωγή στη φωνητική τοποθέτηση και μίξη ήχου
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex flex-col min-w-0">
-                        <h4 className="font-bold text-sm sm:text-base text-[#1C1917] truncate">
-                          Workshop: Podcast & Audio Production
-                        </h4>
-                        <p className="text-xs text-[#6B6560] truncate mt-0.5">
-                          Εισαγωγή στη φωνητική τοποθέτηση και μίξη ήχου
-                        </p>
-                      </div>
+                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#DF3B2B] group-hover:translate-x-1 transition-all shrink-0" />
                     </div>
                   </div>
                 </div>
@@ -1171,7 +1183,7 @@ export default function App() {
           )}
 
           {/* =========================================================================
-              EVENTS VIEW
+              EVENTS VIEW (Spacious Cards, Rich Descriptions, No Buttons)
              ========================================================================= */}
           {activeTab === "events" && (
             <motion.div
@@ -1180,7 +1192,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-10 max-w-4xl mx-auto w-full"
+              className="flex flex-col gap-10 max-w-5xl mx-auto w-full"
             >
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
                 <span className="text-xs font-bold text-[#DF3B2B] tracking-wider uppercase">
@@ -1189,53 +1201,119 @@ export default function App() {
                 <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1917]">
                   {currentT.eventsTitle}
                 </h1>
-                <p className="text-sm text-[#6B6560] leading-relaxed">
+                <p className="text-sm sm:text-base text-[#6B6560] leading-relaxed">
                   {currentT.eventsDesc}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-6 w-full">
                 {/* Event 1 */}
-                <div className="warm-card rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                  <div className="w-20 h-20 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]">
-                    <span className="font-black text-2xl leading-none">18</span>
-                    <span className="text-xs font-extrabold uppercase mt-1">ΜΑΙ</span>
+                <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4] shadow-sm">
+                    <span className="font-black text-2xl sm:text-3xl leading-none">18</span>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΜΑΙ</span>
                   </div>
-                  <div className="flex-1">
-                    <span className="text-xs font-bold text-[#DF3B2B] uppercase tracking-wider">Festival</span>
-                    <h3 className="font-bold text-xl text-[#1C1917] mt-0.5">Campus Spring Festival 2026</h3>
-                    <p className="text-xs sm:text-sm text-[#6B6560] mt-1.5 leading-relaxed">
-                      Το μεγαλύτερο φοιτητικό φεστιβάλ του Βόλου με live acts, indie & techno stages στο Πεδίον του Άρεως. Είσοδος ελεύθερη για όλους.
-                    </p>
+                  
+                  <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="text-[11px] font-bold text-[#DF3B2B] bg-[#FEECEB] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                          Festival & Outdoor Stage
+                        </span>
+                        <span className="text-xs font-mono text-[#6B6560]">
+                          🕒 19:30 • 📍 Πεδίον του Άρεως, Βόλος
+                        </span>
+                      </div>
+
+                      <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#1C1917] leading-tight">
+                        Campus Spring Festival 2026
+                      </h3>
+
+                      <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
+                        Το μεγαλύτερο φοιτητικό φεστιβάλ του Βόλου επιστρέφει με live bands, indie alternative acts και DJ stages στο Πεδίον του Άρεως. Μια ολόκληρη ημέρα γεμάτη μουσική, live ραδιοφωνικές συνεντεύξεις στον αέρα και ελεύθερη είσοδο για όλη την πανεπιστημιακή κοινότητα.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#LiveBands</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#FreeEntry</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#OutdoorStage</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#VolosCampus</span>
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => setActiveTab("contact")}
-                    className="px-5 py-2.5 rounded-full bg-[#1C1917] text-white font-bold text-xs hover:bg-black transition-colors shrink-0 cursor-pointer"
-                  >
-                    {isGreek ? "Πληροφορίες" : "Details"}
-                  </button>
                 </div>
 
                 {/* Event 2 */}
-                <div className="warm-card rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                  <div className="w-20 h-20 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]">
-                    <span className="font-black text-2xl leading-none">24</span>
-                    <span className="text-xs font-extrabold uppercase mt-1">ΜΑΙ</span>
+                <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4] shadow-sm">
+                    <span className="font-black text-2xl sm:text-3xl leading-none">24</span>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΜΑΙ</span>
                   </div>
-                  <div className="flex-1">
-                    <span className="text-xs font-bold text-[#DF3B2B] uppercase tracking-wider">Workshop</span>
-                    <h3 className="font-bold text-xl text-[#1C1917] mt-0.5">Workshop: Podcast & Audio Production</h3>
-                    <p className="text-xs sm:text-sm text-[#6B6560] mt-1.5 leading-relaxed">
-                      Hands-on εκπαίδευση στο broadcast studio του σταθμού. Μάθετε μίξη, mastering, φωνητική τοποθέτηση και live stream management.
-                    </p>
+                  
+                  <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="text-[11px] font-bold text-[#DF3B2B] bg-[#FEECEB] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                          Workshop & Studio Training
+                        </span>
+                        <span className="text-xs font-mono text-[#6B6560]">
+                          🕒 17:00 • 📍 FRS Broadcast Studio A
+                        </span>
+                      </div>
+
+                      <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#1C1917] leading-tight">
+                        Workshop: Podcast & Audio Production
+                      </h3>
+
+                      <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
+                        Εξειδικευμένο εργαστήριο ήχου και παραγωγής εκπομπών από τους τεχνικούς και παραγωγούς του σταθμού. Πρακτική εκπαίδευση σε κονσόλες μίξης, μικροφωνικές τεχνικές, ηχογράφηση φωνής, mastering podcast επεισοδίων και live streaming workflows.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#Podcast</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#SoundMixing</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#StudioA</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#RadioSkills</span>
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => setActiveTab("contact")}
-                    className="px-5 py-2.5 rounded-full bg-[#1C1917] text-white font-bold text-xs hover:bg-black transition-colors shrink-0 cursor-pointer"
-                  >
-                    {isGreek ? "Συμμετοχή" : "Register"}
-                  </button>
                 </div>
+
+                {/* Event 3 */}
+                <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4] shadow-sm">
+                    <span className="font-black text-2xl sm:text-3xl leading-none">06</span>
+                    <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΙΟΥΝ</span>
+                  </div>
+                  
+                  <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="text-[11px] font-bold text-[#DF3B2B] bg-[#FEECEB] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                          Vinyl Session & DJ Set
+                        </span>
+                        <span className="text-xs font-mono text-[#6B6560]">
+                          🕒 21:00 • 📍 Πολυτεχνείο Βόλου
+                        </span>
+                      </div>
+
+                      <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#1C1917] leading-tight">
+                        Vinyl Night: Lo-Fi Beats & Analog Sound
+                      </h3>
+
+                      <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
+                        Βραδιά αφιερωμένη στον αναλογικό ήχο και τη μαγεία του βινυλίου. Οι DJs του σταθμού επιλέγουν rare grooves, soul, funk και lo-fi hip hop αποκλειστικά από δίσκους βινυλίου με ζωντανή αναμετάδοση στο web stream.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#VinylOnly</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#Analog</span>
+                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#ChillVibes</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </motion.div>
           )}
