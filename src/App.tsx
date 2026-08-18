@@ -401,7 +401,7 @@ export default function App() {
             className="cursor-pointer flex items-center hover:opacity-90 transition-opacity"
             aria-label="FRS UTH Campus Radio"
           >
-            <UthLogo size="md" />
+            <UthLogo size="header" hideTextOnMobile={true} />
           </button>
 
           {/* Desktop Navigation Links */}
