@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, Volume, Volume1, Volume2, VolumeX, Radio, Music, Disc, Settings, CheckCircle2, AlertCircle, RefreshCw, X, Wifi, MessageSquare } from "lucide-react";
+import { Play, Pause, Volume, Volume1, Volume2, VolumeX, Share2, Settings, Check, Radio, X, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { RadioChannel } from "../types";
 
@@ -17,104 +17,14 @@ interface MainPlayerProps {
   onOpenChat?: () => void;
 }
 
-// Ultra-smooth dynamic SVG Volume icon with 3 distinct sound waves and continuous spring transitions
-const SmoothVolumeIcon = ({ volume, isMuted }: { volume: number; isMuted: boolean }) => {
-  const effectiveVol = isMuted ? 0 : volume;
-
-  // Exact 3-wave threshold tiers:
-  // Wave 1: 0.1% -> 33.3%
-  // Wave 2: 33.3% -> 66.6%
-  // Wave 3: 66.6% -> 100%
-  const wave1Opacity = effectiveVol > 0.001 ? Math.min(1, effectiveVol / 0.15) : 0;
-  const wave2Opacity = effectiveVol > 0.333 ? Math.min(1, (effectiveVol - 0.333) / 0.15) : 0;
-  const wave3Opacity = effectiveVol > 0.666 ? Math.min(1, (effectiveVol - 0.666) / 0.15) : 0;
-
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="w-5 h-5 overflow-visible"
-    >
-      {/* Speaker Body */}
-      <polygon
-        points="10 5 5 9 1 9 1 15 5 15 10 19 10 5"
-        className={isMuted || effectiveVol === 0 ? "text-error transition-colors duration-300" : "text-primary transition-colors duration-300"}
-      />
-
-      {/* Mute X lines */}
-      <AnimatePresence>
-        {(isMuted || effectiveVol === 0) && (
-          <motion.g
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.6 }}
-            transition={{ duration: 0.2 }}
-            className="text-error"
-          >
-            <line x1="21" y1="9" x2="15" y2="15" stroke="currentColor" />
-            <line x1="15" y1="9" x2="21" y2="15" stroke="currentColor" />
-          </motion.g>
-        )}
-      </AnimatePresence>
-
-      {/* Sound Wave 1 (Inner Arc: 1% - 33.3%) */}
-      <motion.path
-        d="M13.5 9.5a3.5 3.5 0 0 1 0 5"
-        className="text-primary"
-        initial={false}
-        animate={{
-          opacity: wave1Opacity,
-          scale: wave1Opacity > 0 ? 1 : 0.6,
-          originX: "10px",
-          originY: "12px"
-        }}
-        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-      />
-
-      {/* Sound Wave 2 (Middle Arc: 33.3% - 66.6%) */}
-      <motion.path
-        d="M16.5 7.5a7.5 7.5 0 0 1 0 9"
-        className="text-primary"
-        initial={false}
-        animate={{
-          opacity: wave2Opacity,
-          scale: wave2Opacity > 0 ? 1 : 0.6,
-          originX: "10px",
-          originY: "12px"
-        }}
-        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-      />
-
-      {/* Sound Wave 3 (Outer Arc: 66.6% - 100%) */}
-      <motion.path
-        d="M19.5 5.5a11.5 11.5 0 0 1 0 13"
-        className="text-primary"
-        initial={false}
-        animate={{
-          opacity: wave3Opacity,
-          scale: wave3Opacity > 0 ? 1 : 0.6,
-          originX: "10px",
-          originY: "12px"
-        }}
-        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-      />
-    </svg>
-  );
-};
-
 // Single 24/7 live MP3 radio stream link connected for FRS UTH Radio
 const DEFAULT_CHANNELS: RadioChannel[] = [
   {
     id: "coderadio",
-    name: "FRS UTH Live Radio",
-    greekName: "FRS UTH Live Radio",
-    dj: "24/7 Music Rotation",
-    genre: "Lo-Fi / Ambient / Study Beats",
+    name: "Αυτόματη Ροή FRS UTH",
+    greekName: "Αυτόματη Ροή FRS UTH",
+    dj: "Non-Stop Campus Radio Rotation",
+    genre: "High Quality 320kbps Stream",
     url: "https://peridot.streamguys1.com:7830/WUCF"
   }
 ];
@@ -155,7 +65,7 @@ class ChillBeatsWebAudioSynth {
         const now = this.ctx.currentTime;
         const currentChord = chillChords[Math.floor(beatStep / 4) % chillChords.length];
 
-        // 1. Kick drum on beat 0 and 2
+        // Kick drum on beat 0 and 2
         if (beatStep % 2 === 0) {
           const kickOsc = this.ctx.createOscillator();
           const kickGain = this.ctx.createGain();
@@ -169,7 +79,7 @@ class ChillBeatsWebAudioSynth {
           kickOsc.stop(now + 0.15);
         }
 
-        // 2. Soft Snare Rim on beat 1 and 3
+        // Soft Snare Rim on beat 1 and 3
         if (beatStep % 2 === 1) {
           const snareOsc = this.ctx.createOscillator();
           const snareGain = this.ctx.createGain();
@@ -183,8 +93,8 @@ class ChillBeatsWebAudioSynth {
           snareOsc.stop(now + 0.1);
         }
 
-        // 3. Warm Rhodes Chords
-        currentChord.forEach((freq, idx) => {
+        // Warm Rhodes Chords
+        currentChord.forEach((freq) => {
           if (!this.ctx || !this.masterGain) return;
           const osc = this.ctx.createOscillator();
           const chordGain = this.ctx.createGain();
@@ -240,12 +150,20 @@ const STREAM_NAME_KEY = "frs_custom_station_name";
 
 type AudioStatus = "idle" | "connecting" | "playing" | "error";
 
-export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying, activeTrackId, currentLiveShow, onOpenChat }: MainPlayerProps) {
+export default function MainPlayer({
+  isGreek,
+  stationPlaying,
+  setStationPlaying,
+  activeTrackId,
+  currentLiveShow
+}: MainPlayerProps) {
   const [currentChannelIndex, setCurrentChannelIndex] = useState(0);
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
-  
-  // Custom Radio.co / stream configuration
+  const [copiedShare, setCopiedShare] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  // Custom Stream configuration
   const [customUrl, setCustomUrl] = useState("");
   const [customName, setCustomName] = useState("");
   const [isSetupOpen, setIsSetupOpen] = useState(false);
@@ -263,7 +181,22 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
     if (savedName) setCustomName(savedName);
   }, []);
 
-  // Compute total channel options
+  // Timer for elapsed stream playback
+  useEffect(() => {
+    let interval: any = null;
+    if (stationPlaying) {
+      interval = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setElapsedSeconds(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [stationPlaying]);
+
+  // Compute channel options
   const allChannels: RadioChannel[] = React.useMemo(() => {
     if (customUrl.trim() !== "") {
       const name = customName.trim() || (isGreek ? "Προσαρμοσμένη Ροή" : "Custom Live Stream");
@@ -283,65 +216,35 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
     return DEFAULT_CHANNELS;
   }, [customUrl, customName, isGreek]);
 
-  // Ensure currentChannelIndex remains valid
   const activeChannel = allChannels[currentChannelIndex] || allChannels[0];
 
-  // Dynamically compute display details (title, host, genre) when listening to the main FRS channel
-  const displayChannel = React.useMemo(() => {
-    if (currentChannelIndex === 0 && !activeChannel.isCustom) {
-      if (currentLiveShow) {
-        return {
-          ...activeChannel,
-          name: currentLiveShow.title,
-          dj: currentLiveShow.host,
-          genre: `${currentLiveShow.time} • FRS UTH Live`
-        };
-      } else {
-        return {
-          ...activeChannel,
-          name: isGreek ? "Αυτόματη Ροή FRS UTH" : "FRS UTH Automated Stream",
-          dj: "",
-          genre: "Non-Stop Music Rotation"
-        };
-      }
-    }
-    return activeChannel;
-  }, [activeChannel, currentChannelIndex, currentLiveShow, isGreek]);
+  // Dynamically compute display title and description
+  const displayTitle = currentLiveShow?.title || (isGreek ? activeChannel.greekName : activeChannel.name);
+  const displaySubtitle = currentLiveShow 
+    ? `${currentLiveShow.host} • ${currentLiveShow.time}` 
+    : (isGreek ? "Non-Stop Campus Radio Rotation" : "Non-Stop Campus Radio Rotation");
 
-  // Sync index from activeTrackId (when clicked from schedule/cards)
+  // Audio lifecycle
   useEffect(() => {
-    if (activeTrackId) {
-      const idx = allChannels.findIndex(c => {
-        if (activeTrackId.includes("m3") || activeTrackId.includes("arc1") || activeTrackId.includes("desc4")) return c.id === "techno";
-        if (activeTrackId.includes("m4") || activeTrackId.includes("arc2") || activeTrackId.includes("desc1")) return c.id === "ambient";
-        if (activeTrackId.includes("m1") || activeTrackId.includes("desc5")) return c.id === "lofi";
-        return false;
-      });
-      if (idx !== -1) {
-        setCurrentChannelIndex(idx);
-        setStationPlaying(true);
-      }
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.preload = "none";
+      audioRef.current.crossOrigin = "anonymous";
     }
-  }, [activeTrackId, allChannels]);
 
-  // Handle audio lifecycle & stream switching
-  useEffect(() => {
-    let audio = audioRef.current;
-    if (!audio) {
-      audio = new Audio();
-      audioRef.current = audio;
-    }
+    const audio = audioRef.current;
 
     const handlePlaying = () => {
       setAudioStatus("playing");
-      synthEngine.stop(); // Stop synth if real MP3 audio stream plays sound
+      synthEngine.stop();
     };
 
-    const handleWaiting = () => setAudioStatus("connecting");
+    const handleWaiting = () => {
+      setAudioStatus("connecting");
+    };
 
     const handleError = (e: any) => {
-      console.warn("Audio stream error for URL:", activeChannel.url, e);
-      // If MP3 stream fails or is blocked by browser CORS, start Web Audio synth so music ALWAYS plays!
+      console.warn("Audio stream fallback notice:", e);
       if (stationPlaying) {
         setAudioStatus("playing");
         synthEngine.start(isMuted ? 0 : volume);
@@ -349,344 +252,312 @@ export default function MainPlayer({ isGreek, stationPlaying, setStationPlaying,
     };
 
     audio.addEventListener("playing", handlePlaying);
-    audio.addEventListener("play", handlePlaying);
-    audio.addEventListener("canplay", handlePlaying);
-    audio.addEventListener("timeupdate", handlePlaying);
     audio.addEventListener("waiting", handleWaiting);
     audio.addEventListener("error", handleError);
 
-    const effVol = isMuted ? 0 : volume;
-    audio.volume = effVol;
-
-    if (stationPlaying) {
-      // Start Web Audio synth immediately so sound is 100% audible instantly
-      synthEngine.start(effVol);
-
-      if (!audio.src || !audio.src.includes(activeChannel.url)) {
-        setAudioStatus("connecting");
-        audio.src = activeChannel.url;
-      }
-
-      audio.play()
-        .then(() => setAudioStatus("playing"))
-        .catch((err) => {
-          console.warn("Audio play promise fallback notice:", err);
-          // If browser blocks HTML5 Audio play promise, synthEngine is already playing audio!
-          setAudioStatus("playing");
-        });
-    } else {
-      audio.pause();
-      synthEngine.stop();
-      setAudioStatus("idle");
-    }
-
     return () => {
       audio.removeEventListener("playing", handlePlaying);
-      audio.removeEventListener("play", handlePlaying);
-      audio.removeEventListener("canplay", handlePlaying);
-      audio.removeEventListener("timeupdate", handlePlaying);
       audio.removeEventListener("waiting", handleWaiting);
       audio.removeEventListener("error", handleError);
     };
-  }, [currentChannelIndex, stationPlaying, activeChannel.url]);
+  }, [isMuted, volume, stationPlaying]);
 
-  // Handle Volume & Mute dynamically
+  // Handle play/pause & URL changes
   useEffect(() => {
-    const effVol = isMuted ? 0 : volume;
-    if (audioRef.current) {
-      audioRef.current.volume = effVol;
-    }
-    synthEngine.setVolume(effVol);
-  }, [volume, isMuted]);
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  const togglePlay = () => {
-    const nextState = !stationPlaying;
-    setStationPlaying(nextState);
-
-    let audio = audioRef.current;
-    if (!audio) {
-      audio = new Audio();
-      audioRef.current = audio;
-    }
-
-    const effVol = isMuted ? 0 : volume;
-
-    if (nextState) {
-      setAudioStatus("connecting");
-      audio.volume = effVol;
-      if (!audio.src || !audio.src.includes(activeChannel.url)) {
+    if (stationPlaying) {
+      if (audio.src !== activeChannel.url) {
         audio.src = activeChannel.url;
+        audio.load();
       }
-      synthEngine.start(effVol);
-      audio.play()
-        .then(() => setAudioStatus("playing"))
-        .catch((err) => console.warn("Direct play click error:", err));
+      setAudioStatus("connecting");
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn("Autoplay / network policy fallback to synth:", err);
+          synthEngine.start(isMuted ? 0 : volume);
+          setAudioStatus("playing");
+        });
+      }
     } else {
       audio.pause();
       synthEngine.stop();
       setAudioStatus("idle");
     }
-  };
+  }, [stationPlaying, activeChannel.url]);
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setVolume(val);
-    if (val > 0) setIsMuted(false);
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
-  const switchChannel = (idx: number) => {
-    setCurrentChannelIndex(idx);
-    setStationPlaying(true);
-  };
-
-  const handleRetryStream = () => {
+  // Sync volume
+  useEffect(() => {
+    const effectiveVol = isMuted ? 0 : volume;
     if (audioRef.current) {
-      setAudioStatus("connecting");
-      audioRef.current.src = activeChannel.url;
-      audioRef.current.play().catch(() => setAudioStatus("error"));
-    } else {
-      setStationPlaying(false);
-      setTimeout(() => setStationPlaying(true), 100);
+      audioRef.current.volume = effectiveVol;
+    }
+    synthEngine.setVolume(effectiveVol);
+  }, [volume, isMuted]);
+
+  // Format elapsed time string
+  const formatTime = (secs: number) => {
+    const mins = Math.floor(secs / 60);
+    const remainder = secs % 60;
+    return `${mins.toString().padStart(2, "0")}:${remainder.toString().padStart(2, "0")}`;
+  };
+
+  const handleShare = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      setCopiedShare(true);
+      setTimeout(() => setCopiedShare(false), 2000);
     }
   };
 
   const handleSaveCustomStream = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem(STREAM_URL_KEY, customUrl.trim());
-    localStorage.setItem(STREAM_NAME_KEY, customName.trim());
-    
+    if (customUrl.trim()) {
+      localStorage.setItem(STREAM_URL_KEY, customUrl.trim());
+      localStorage.setItem(STREAM_NAME_KEY, customName.trim());
+    } else {
+      localStorage.removeItem(STREAM_URL_KEY);
+      localStorage.removeItem(STREAM_NAME_KEY);
+    }
     setSaveSuccess(true);
     setTimeout(() => {
       setSaveSuccess(false);
       setIsSetupOpen(false);
-      setCurrentChannelIndex(0); // Select the newly saved stream
-      setStationPlaying(true);
-    }, 900);
-  };
-
-  const handleClearCustomStream = () => {
-    localStorage.removeItem(STREAM_URL_KEY);
-    localStorage.removeItem(STREAM_NAME_KEY);
-    setCustomUrl("");
-    setCustomName("");
-    setCurrentChannelIndex(0);
+    }, 1200);
   };
 
   return (
     <>
-      {/* PERSISTENT BOTTOM PLAYER BAR */}
-      <motion.div
-        id="persistent-player"
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="above-tabbar fixed left-0 right-0 w-full z-[50]"
-      >
-        {/* ===== DESKTOP PLAYER (hidden on mobile) ===== */}
-        <div className="hidden md:flex relative h-[84px] glass-player px-5 lg:px-8 xl:px-12 items-center justify-between gap-4">
-        {/* Left Section: Active Show / Station Info & Visualizer */}
-        <div className="flex items-center gap-3.5 max-w-[42%] md:max-w-[38%] min-w-0 z-10">
-          <div className="relative flex-shrink-0">
-            <div
-              className={`w-11 h-11 md:w-13 md:h-13 rounded-2xl bg-white/5 border border-white/12 flex items-center justify-center overflow-hidden shadow-lg shadow-black/60 ${
-                stationPlaying && audioStatus === "playing" ? "animate-spin [animation-duration:8s]" : ""
-              }`}
+      {/* Sleek Floating Live Audio Player matching Image 2 */}
+      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="bg-white rounded-2xl md:rounded-[22px] border border-black/[0.07] shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-3.5 sm:p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
+          
+          {/* Left: Big Dark Play Button + Metadata */}
+          <div className="flex items-center gap-3.5 sm:gap-4 w-full md:w-auto">
+            {/* Play/Pause Button */}
+            <button
+              onClick={() => setStationPlaying(!stationPlaying)}
+              aria-label={stationPlaying ? "Pause stream" : "Play live radio"}
+              className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#1C1917] text-white flex items-center justify-center shrink-0 hover:bg-black transition-transform active:scale-95 cursor-pointer shadow-md group"
             >
-              <Disc className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+              {stationPlaying ? (
+                <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white" />
+              ) : (
+                <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white ml-0.5" />
+              )}
+              {/* Red dot indicator on player */}
+              {stationPlaying && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#DF3B2B] border-2 border-white"></span>
+                </span>
+              )}
+            </button>
+
+            {/* Title & Status */}
+            <div className="flex flex-col min-w-0 flex-1 md:flex-initial">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="bg-[#DF3B2B] text-white text-[10px] font-black px-1.5 py-0.5 rounded tracking-wider uppercase">
+                  ON AIR
+                </span>
+                <span className="text-[10px] font-bold text-[#78716C] uppercase tracking-wider">
+                  HIGH QUALITY 320KBPS
+                </span>
+              </div>
+              <h3 className="font-bold text-sm sm:text-base text-[#1C1917] truncate leading-tight">
+                {displayTitle}
+              </h3>
+              <p className="text-xs text-[#78716C] truncate mt-0.5 font-medium">
+                {displaySubtitle}
+              </p>
             </div>
-            {stationPlaying && audioStatus === "playing" && !isMuted && (
-              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-primary border-2 border-background" />
-              </span>
-            )}
           </div>
 
-          <div className="min-w-0 flex flex-col justify-center">
-            <div className="flex items-center gap-2">
-              <span className="inline-block px-2.5 py-0.5 text-[9px] md:text-[10px] text-white bg-primary font-bold tracking-widest rounded-full uppercase shadow-xs">
-                {audioStatus === "connecting" ? (isGreek ? "ΣΥΝΔΕΣΗ..." : "CONNECTING...") : "ON AIR"}
-              </span>
+          {/* Center: Live Waveform / Progress bar & Timer */}
+          <div className="flex items-center gap-3 w-full md:max-w-xs lg:max-w-md flex-1 px-1 sm:px-4">
+            <span className="font-mono text-xs font-semibold text-[#78716C] shrink-0">
+              {formatTime(elapsedSeconds)}
+            </span>
+            
+            {/* Sleek Red Live Audio Bar */}
+            <div className="relative flex-1 h-2 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
+              <div 
+                className={`h-full bg-[#DF3B2B] rounded-full transition-all duration-300 ${
+                  stationPlaying ? "w-full opacity-100" : "w-0 opacity-40"
+                }`}
+              />
+              {stationPlaying && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
+              )}
+            </div>
 
-              {/* Animated Equalizer Bars when playing */}
-              {stationPlaying && audioStatus === "playing" && !isMuted && (
-                <div className="flex items-end gap-[3px] h-3.5 px-1" aria-hidden="true">
-                  {[0, 0.18, 0.36, 0.09].map((delay, i) => (
-                    <span
-                      key={i}
-                      className="eq-bar w-1 h-full bg-primary rounded-full"
-                      style={{ animationDelay: `${delay}s` }}
-                    />
-                  ))}
+            {/* LIVE Tag */}
+            <div className="flex items-center gap-1 shrink-0">
+              <span className={`w-1.5 h-1.5 rounded-full ${stationPlaying ? "bg-[#DF3B2B] animate-pulse" : "bg-[#78716C]"}`} />
+              <span className="text-[11px] font-extrabold text-[#DF3B2B] tracking-wider">
+                LIVE
+              </span>
+            </div>
+          </div>
+
+          {/* Right: Volume & Share Controls */}
+          <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-black/[0.05]">
+            {/* Volume Control */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="text-[#78716C] hover:text-[#1C1917] transition-colors cursor-pointer p-1"
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted || volume === 0 ? (
+                  <VolumeX className="w-4 h-4 text-[#DF3B2B]" />
+                ) : volume < 0.4 ? (
+                  <Volume className="w-4 h-4" />
+                ) : volume < 0.75 ? (
+                  <Volume1 className="w-4 h-4" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
+              </button>
+
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={isMuted ? 0 : volume}
+                onChange={(e) => {
+                  setVolume(parseFloat(e.target.value));
+                  if (isMuted) setIsMuted(false);
+                }}
+                className="w-16 sm:w-20 h-1.5 bg-[#EFECE3] rounded-lg appearance-none cursor-pointer accent-[#DF3B2B]"
+                aria-label="Volume slider"
+              />
+            </div>
+
+            {/* Share Stream Button */}
+            <button
+              onClick={handleShare}
+              className="text-[#78716C] hover:text-[#1C1917] p-2 rounded-full hover:bg-[#FAF8F4] transition-colors cursor-pointer relative"
+              title={isGreek ? "Αντιγραφή συνδέσμου ροής" : "Copy stream link"}
+            >
+              {copiedShare ? (
+                <Check className="w-4 h-4 text-emerald-600" />
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
+            </button>
+
+            {/* Custom stream settings modal button */}
+            <button
+              onClick={() => setIsSetupOpen(true)}
+              className="text-[#78716C] hover:text-[#1C1917] p-2 rounded-full hover:bg-[#FAF8F4] transition-colors cursor-pointer"
+              title={isGreek ? "Ρυθμίσεις ροής" : "Stream Settings"}
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Stream Configuration Modal */}
+      <AnimatePresence>
+        {isSetupOpen && (
+          <div 
+            onClick={() => setIsSetupOpen(false)}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-black/10 relative"
+            >
+              <button
+                onClick={() => setIsSetupOpen(false)}
+                className="absolute top-4 right-4 text-[#78716C] hover:text-[#1C1917] p-1.5 rounded-full hover:bg-[#FAF8F4] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-full bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center">
+                  <Radio className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-[#1C1917]">
+                    {isGreek ? "Ρύθμιση Ροής Ήχου" : "Audio Stream Settings"}
+                  </h3>
+                  <p className="text-xs text-[#78716C]">
+                    {isGreek ? "Σύνδεση με Radio.co ή προσαρμοσμένο MP3 stream" : "Connect custom Radio.co or MP3 stream"}
+                  </p>
+                </div>
+              </div>
+
+              {saveSuccess && (
+                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl flex items-center gap-2">
+                  <Check className="w-4 h-4" />
+                  <span>{isGreek ? "Οι ρυθμίσεις αποθηκεύτηκαν επιτυχώς!" : "Settings saved successfully!"}</span>
                 </div>
               )}
 
+              <form onSubmit={handleSaveCustomStream} className="flex flex-col gap-3.5">
+                <div>
+                  <label className="block text-xs font-bold text-[#1C1917] mb-1">
+                    {isGreek ? "Όνομα Σταθμού" : "Station Name"}
+                  </label>
+                  <input
+                    type="text"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                    placeholder="FRS UTH Radio Live"
+                    className="field text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#1C1917] mb-1">
+                    {isGreek ? "Stream URL (MP3 / AAC)" : "Stream URL (MP3 / AAC)"}
+                  </label>
+                  <input
+                    type="url"
+                    value={customUrl}
+                    onChange={(e) => setCustomUrl(e.target.value)}
+                    placeholder="https://stream.radio.co/..."
+                    className="field text-sm font-mono"
+                  />
+                </div>
+
+                <div className="mt-2 flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-[#DF3B2B] hover:bg-[#C62F20] text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-colors cursor-pointer"
+                  >
+                    {isGreek ? "Αποθήκευση" : "Save Stream"}
+                  </button>
+                  {customUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomUrl("");
+                        setCustomName("");
+                        localStorage.removeItem(STREAM_URL_KEY);
+                        localStorage.removeItem(STREAM_NAME_KEY);
+                      }}
+                      className="px-4 py-2.5 border border-stone-300 text-[#78716C] hover:text-[#1C1917] font-semibold rounded-xl text-sm transition-colors cursor-pointer"
+                    >
+                      {isGreek ? "Επαναφορά" : "Reset"}
+                    </button>
+                  )}
+                </div>
+              </form>
+            </motion.div>
           </div>
-
-          <h4 className="font-headline text-xs md:text-sm font-bold text-on-surface truncate mt-0.5 max-w-[150px] lg:max-w-xs">
-            {displayChannel.name}
-          </h4>
-          <p className="text-[10px] md:text-[11px] text-on-surface-variant truncate font-mono max-w-[150px] lg:max-w-xs">
-            {displayChannel.dj ? `${displayChannel.dj} • ${displayChannel.genre}` : displayChannel.genre}
-          </p>
-          </div>
-        </div>
-
-        {/* Center Section: Play / Pause Controls & Status - ABSOLUTE CENTERED SO IT IS NEVER OFF-CENTER */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
-          {audioStatus === "error" ? (
-            <button
-              onClick={handleRetryStream}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-error text-on-error text-xs font-bold hover:brightness-110 transition-all shadow-md cursor-pointer animate-pulse"
-              title={isGreek ? "Σφάλμα Ροής - Κλικ για Επανασύνδεση" : "Stream Error - Click to Retry"}
-            >
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span className="hidden sm:inline">{isGreek ? "Επανασύνδεση" : "Retry Stream"}</span>
-            </button>
-          ) : (
-            <button
-              onClick={togglePlay}
-              id="control-play-pause"
-              className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary text-white hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-lg shadow-primary/30 flex items-center justify-center border border-white/20 group"
-            >
-              {audioStatus === "connecting" ? (
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : stationPlaying ? (
-                <Pause className="w-7 h-7 text-white fill-white" />
-              ) : (
-                <Play className="w-7 h-7 text-white fill-white ml-0.5" />
-              )}
-            </button>
-          )}
-        </div>
-
-        {/* Right Section: Volume & Live Chat Controls */}
-        <div className="flex items-center gap-3.5 justify-end max-w-[42%] md:max-w-[38%] z-10 ml-auto">
-          {/* Dynamic Sound Waves Volume Control */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleMute}
-              className="hidden md:flex text-on-surface-variant hover:text-primary transition-all p-1 cursor-pointer hover:scale-115 active:scale-90 relative flex items-center justify-center"
-              title={isMuted ? (isGreek ? "Ενεργοποίηση Ήχου" : "Unmute") : (isGreek ? "Σίγαση" : "Mute")}
-            >
-              <SmoothVolumeIcon volume={volume} isMuted={isMuted} />
-            </button>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.02"
-              value={isMuted ? 0 : volume}
-              onChange={handleVolumeChange}
-              aria-label={isGreek ? "Ένταση ήχου" : "Volume"}
-              style={{ "--range-fill": `${(isMuted ? 0 : volume) * 100}%` } as React.CSSProperties}
-              className="range-brand w-20 lg:w-24 cursor-pointer"
-            />
-          </div>
-
-          {/* Live Chat Toggle Button right next to volume */}
-          {onOpenChat && (
-            <button
-              onClick={onOpenChat}
-              className="relative w-11 h-11 md:w-13 md:h-13 rounded-2xl bg-white/5 border border-primary/40 hover:border-primary hover:bg-primary/20 active:scale-95 transition-all duration-300 cursor-pointer shadow-lg shadow-primary/10 flex items-center justify-center flex-shrink-0 ml-1.5 group"
-              title={isGreek ? "Άνοιγμα Live Chat" : "Open Live Chat"}
-            >
-              <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-primary transition-all duration-300 group-hover:scale-110" />
-            </button>
-          )}
-        </div>
-        </div>
-        {/* ===== END DESKTOP PLAYER ===== */}
-
-        {/* ===== MOBILE MINI-PLAYER (md:hidden) ===== */}
-        <div className="md:hidden glass-player h-[64px] px-3 flex items-center gap-2.5 active">
-          {/* Spinning disc with live badge */}
-          <div className="relative flex-shrink-0">
-            <div
-              className={`w-10 h-10 rounded-full bg-white/5 border border-white/15 flex items-center justify-center shadow-lg shadow-black/50 ${
-                stationPlaying && audioStatus === "playing" ? "animate-spin [animation-duration:8s]" : ""
-              }`}
-            >
-              <Disc className="w-5 h-5 text-primary" />
-            </div>
-            {stationPlaying && audioStatus === "playing" && !isMuted && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary border-2 border-background" />
-              </span>
-            )}
-          </div>
-
-          {/* Track info — full show name, no truncation */}
-          <div className="flex-1 min-w-0 flex flex-col justify-center pr-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-bold tracking-wider text-primary uppercase flex-shrink-0">
-                {audioStatus === "connecting" ? "●" : "ON AIR"}
-              </span>
-            </div>
-            <div className="text-[13px] font-bold text-on-surface leading-tight font-headline whitespace-normal break-words">
-              {displayChannel.name}
-            </div>
-            <div className="text-[10px] text-on-surface-variant/80 truncate leading-tight">
-              {displayChannel.dj}
-            </div>
-          </div>
-
-          {/* Small animated volume icon + slider (no mute button) */}
-          <div className="flex-shrink-0 flex items-center gap-1.5">
-            <span className="flex items-center justify-center text-on-surface-variant" title={isGreek ? "Ένταση Ήχου" : "Volume"}>
-              <SmoothVolumeIcon volume={volume} isMuted={isMuted} />
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.02"
-              value={isMuted ? 0 : volume}
-              onChange={handleVolumeChange}
-              aria-label={isGreek ? "Ένταση ήχου" : "Volume"}
-              style={{ "--range-fill": `${(isMuted ? 0 : volume) * 100}%` } as React.CSSProperties}
-              className="range-brand w-14 cursor-pointer"
-              title={isGreek ? "Ένταση Ήχου" : "Volume"}
-            />
-          </div>
-
-          {/* Chat */}
-          {onOpenChat && (
-            <button
-              onClick={onOpenChat}
-              className="flex-shrink-0 w-9 h-9 rounded-full bg-white/5 border border-primary/40 flex items-center justify-center text-primary active:scale-90 transition-all"
-              title={isGreek ? "Άνοιγμα Live Chat" : "Open Live Chat"}
-            >
-              <MessageSquare className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Play / Pause */}
-          <button
-            onClick={togglePlay}
-            id="control-play-pause"
-            className="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center border border-white/20 active:scale-95 transition-all shadow-lg shadow-primary/30"
-          >
-            {audioStatus === "error" ? (
-              <RefreshCw className="w-5 h-5 animate-spin" />
-            ) : audioStatus === "connecting" ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : stationPlaying ? (
-              <Pause className="w-6 h-6 fill-white" />
-            ) : (
-              <Play className="w-6 h-6 fill-white ml-0.5" />
-            )}
-          </button>
-        </div>
-        {/* ===== END MOBILE MINI-PLAYER ===== */}
-      </motion.div>
-      {/* HIDDEN HTML5 AUDIO ENGINE DOM ELEMENT */}
-      <audio ref={audioRef} preload="none" />
+        )}
+      </AnimatePresence>
     </>
   );
 }
