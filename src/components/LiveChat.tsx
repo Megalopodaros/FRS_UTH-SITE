@@ -8,6 +8,8 @@ import {
   Send, 
   X, 
   Edit3, 
+  Volume, 
+  Volume1, 
   Volume2, 
   VolumeX, 
   MessageSquare, 
@@ -30,6 +32,10 @@ interface LiveChatProps {
   currentLiveShow?: any;
   stationPlaying?: boolean;
   setStationPlaying?: (playing: boolean) => void;
+  volume?: number;
+  setVolume?: (v: number) => void;
+  isMuted?: boolean;
+  setIsMuted?: (m: boolean) => void;
 }
 
 const TAB_NAME_KEY = "frs_tab_user_name";
@@ -83,7 +89,11 @@ export default function LiveChat({
   onClose,
   currentLiveShow,
   stationPlaying = false,
-  setStationPlaying
+  setStationPlaying,
+  volume = 0.85,
+  setVolume,
+  isMuted = false,
+  setIsMuted
 }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -92,7 +102,6 @@ export default function LiveChat({
   const [tempName, setTempName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [onlineCount, setOnlineCount] = useState(1);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -250,23 +259,21 @@ export default function LiveChat({
         createdAt: serverTimestamp()
       });
 
-      // Play soft pop sound if enabled
-      if (soundEnabled) {
-        try {
-          const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.1);
-        } catch {}
-      }
+      // Play soft pop sound
+      try {
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch {}
     } catch (err) {
       console.error("Error sending message to Firestore:", err);
     }
@@ -281,6 +288,7 @@ export default function LiveChat({
   };
 
   const currentSessionId = sessionStorage.getItem(TAB_SESSION_KEY);
+  const effectiveVolPercent = isMuted ? 0 : volume * 100;
 
   const displayShowTitle = currentLiveShow?.title || (isGreek ? "Αυτόματη Ροή FRS UTH" : "FRS UTH Auto Stream");
   const displayShowHost = currentLiveShow ? currentLiveShow.host : "24/7 Campus Radio Rotation";
@@ -318,42 +326,35 @@ export default function LiveChat({
             className={`relative bg-[#F7F4EC] shadow-2xl flex flex-col z-10 ${
               isMobile
                 ? "w-full max-w-md h-full border-l border-black/10"
-                : "w-full max-w-3xl lg:max-w-4xl h-[700px] max-h-[88vh] rounded-3xl border border-black/10 overflow-hidden my-auto"
+                : "w-full max-w-3xl lg:max-w-4xl h-[720px] max-h-[88vh] rounded-3xl border border-black/10 overflow-hidden my-auto"
             }`}
           >
-            {/* Top Bar Header */}
-            <div className="bg-white px-5 sm:px-6 py-3.5 border-b border-black/10 flex items-center justify-between shadow-xs shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold shadow-xs border border-[#F7C8C4]/60 shrink-0">
-                  <MessageSquare className="w-4 h-4" />
+            {/* Top Bar Header (No Volume button here) */}
+            <div className="bg-white px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between shadow-xs shrink-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold shadow-xs border border-[#F7C8C4]/60 shrink-0">
+                  <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-sm sm:text-base text-[#1C1917]">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="font-bold text-base text-[#1C1917]">
                       {isGreek ? "Live Chat Κοινότητας" : "Community Live Chat"}
                     </h3>
-                    <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       {onlineCount} {isGreek ? "online" : "online"}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#78716C] mt-0.2">
-                    {displayShowTitle}
+                  <p className="text-xs text-[#78716C] mt-0.5">
+                    {displayShowTitle} • {displayShowHost}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => setSoundEnabled(!soundEnabled)}
-                  className="text-[#78716C] hover:text-[#1C1917] p-1.5 rounded-full hover:bg-[#F7F4EC] transition-colors cursor-pointer"
-                  title={soundEnabled ? "Mute chat sounds" : "Enable chat sounds"}
-                >
-                  {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-[#DF3B2B]" />}
-                </button>
-                <button
                   onClick={onClose}
-                  className="text-[#78716C] hover:text-[#1C1917] p-1.5 rounded-full hover:bg-[#F7F4EC] transition-colors cursor-pointer"
+                  className="text-[#78716C] hover:text-[#1C1917] p-2 rounded-full hover:bg-[#F7F4EC] transition-colors cursor-pointer"
                   title={isGreek ? "Κλείσιμο (Esc)" : "Close (Esc)"}
                 >
                   <X className="w-5 h-5" />
@@ -362,7 +363,7 @@ export default function LiveChat({
             </div>
 
             {/* User Profile Bar (Rename / Color) */}
-            <div className="bg-white/80 px-5 sm:px-6 py-2 border-b border-black/[0.06] flex items-center justify-between text-xs shrink-0">
+            <div className="bg-white/80 px-5 sm:px-6 py-2.5 border-b border-black/[0.06] flex items-center justify-between text-xs shrink-0">
               {isEditingName ? (
                 <div className="flex items-center gap-2 w-full">
                   <input
@@ -394,10 +395,10 @@ export default function LiveChat({
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
                     <span 
-                      className="w-3 h-3 rounded-full shrink-0 shadow-xs" 
+                      className="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs" 
                       style={{ backgroundColor: avatarColor }}
                     />
-                    <span className="font-semibold text-xs text-[#1C1917] truncate max-w-[200px]">
+                    <span className="font-semibold text-xs sm:text-sm text-[#1C1917] truncate max-w-[220px]">
                       {userName}
                     </span>
                   </div>
@@ -408,25 +409,25 @@ export default function LiveChat({
                     }}
                     className="text-[#DF3B2B] hover:text-[#C62F20] font-bold text-xs flex items-center gap-1 cursor-pointer"
                   >
-                    <Edit3 className="w-3 h-3" />
+                    <Edit3 className="w-3.5 h-3.5" />
                     <span>{isGreek ? "Αλλαγή ονόματος" : "Edit Name"}</span>
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Main Chat Message Stream (Clean, Crisp Typography) */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-2.5">
+            {/* Main Chat Message Stream (Comfortable Readable Scale) */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#78716C]">
-                  <MessageSquare className="w-10 h-10 text-[#DF3B2B]/30 mb-2" />
-                  <p className="font-bold text-sm sm:text-base text-[#1C1917]">
+                  <MessageSquare className="w-12 h-12 text-[#DF3B2B]/30 mb-2.5" />
+                  <p className="font-bold text-base text-[#1C1917]">
                     {isGreek ? "Καλώς ήρθατε στο FRS UTH Chat!" : "Welcome to FRS UTH Chat!"}
                   </p>
-                  <p className="text-xs mt-1 max-w-xs leading-relaxed text-[#78716C]">
+                  <p className="text-xs sm:text-sm mt-1 max-w-sm leading-relaxed text-[#78716C]">
                     {isGreek 
                       ? "Γίνετε οι πρώτοι που θα στείλουν μήνυμα στους υπόλοιπους φοιτητές και ακροατές." 
-                      : "Be the first to say hi to your fellow students and listeners."}
+                      : "Be the first to say hi to your fellow students and listeners across campus."}
                   </p>
                 </div>
               ) : (
@@ -437,20 +438,20 @@ export default function LiveChat({
                       key={msg.id}
                       className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
                     >
-                      <div className="flex items-center gap-1.5 mb-0.5 px-1">
+                      <div className="flex items-center gap-1.5 mb-1 px-1">
                         <span
-                          className="w-1.5 h-1.5 rounded-full"
+                          className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: msg.avatarColor || "#DF3B2B" }}
                         />
-                        <span className="text-[10px] font-bold text-[#1C1917]">
+                        <span className="text-[11px] font-bold text-[#1C1917]">
                           {msg.user}
                         </span>
-                        <span className="text-[9px] text-[#78716C] font-mono">
+                        <span className="text-[10px] text-[#78716C] font-mono">
                           {msg.timestamp}
                         </span>
                       </div>
                       <div
-                        className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-xs sm:text-[13px] shadow-xs break-words leading-relaxed ${
+                        className={`max-w-[80%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 text-sm shadow-xs break-words leading-relaxed ${
                           isMe
                             ? "bg-[#DF3B2B] text-white rounded-tr-xs"
                             : "bg-white text-[#1C1917] border border-black/[0.07] rounded-tl-xs"
@@ -466,12 +467,12 @@ export default function LiveChat({
             </div>
 
             {/* Quick Emoji Bar */}
-            <div className="bg-white/90 px-4 py-1.5 border-t border-black/[0.06] flex items-center justify-between gap-1 overflow-x-auto shrink-0">
+            <div className="bg-white/90 px-4 sm:px-6 py-2 border-t border-black/[0.06] flex items-center justify-between gap-1 overflow-x-auto shrink-0">
               {QUICK_EMOJIS.map((emoji) => (
                 <button
                   key={emoji}
                   onClick={() => handleSendMessage(undefined, emoji)}
-                  className="p-1 text-base sm:text-lg hover:scale-125 transition-transform cursor-pointer rounded-lg hover:bg-[#F7F4EC]"
+                  className="p-1.5 text-lg sm:text-xl hover:scale-125 transition-transform cursor-pointer rounded-lg hover:bg-[#F7F4EC]"
                   title={`Send ${emoji}`}
                 >
                   {emoji}
@@ -480,7 +481,7 @@ export default function LiveChat({
             </div>
 
             {/* Message Input Box */}
-            <form onSubmit={handleSendMessage} className="bg-white p-3 border-t border-black/10 flex items-center gap-2 shrink-0">
+            <form onSubmit={handleSendMessage} className="bg-white p-3.5 sm:p-4 border-t border-black/10 flex items-center gap-2.5 shrink-0">
               <input
                 ref={inputRef}
                 type="text"
@@ -488,60 +489,100 @@ export default function LiveChat({
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder={isGreek ? "Γράψτε μήνυμα στην κοινότητα..." : "Type a message to the community..."}
                 maxLength={300}
-                className="field py-2 px-3 text-xs sm:text-sm"
+                className="field py-2.5 px-4 text-sm"
               />
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#DF3B2B] hover:bg-[#C62F20] text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#DF3B2B]/20 cursor-pointer"
+                className="w-11 h-11 rounded-2xl bg-[#DF3B2B] hover:bg-[#C62F20] text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#DF3B2B]/20 cursor-pointer"
               >
-                <Send className="w-3.5 h-3.5 ml-0.5" />
+                <Send className="w-4 h-4 ml-0.5" />
               </button>
             </form>
 
-            {/* SLEEK COMPACT BOTTOM MINI-PLAY BAR */}
-            <div className="bg-[#FAF8F4] px-4 sm:px-5 py-2.5 border-t border-black/[0.08] flex items-center justify-between gap-3 shrink-0">
+            {/* SLEEK COMPACT BOTTOM MINI-PLAY BAR WITH VOLUME SLIDER */}
+            <div className="bg-[#FAF8F4] px-4 sm:px-6 py-3 border-t border-black/[0.08] flex items-center justify-between gap-4 shrink-0">
               
               {/* Left: Mini Play Button & Show Info */}
-              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <button
                   onClick={() => setStationPlaying && setStationPlaying(!stationPlaying)}
-                  className="w-8 h-8 rounded-full bg-[#1C1917] hover:bg-black text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1C1917] hover:bg-black text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
                   aria-label={stationPlaying ? "Pause stream" : "Play stream"}
                 >
                   {stationPlaying ? (
-                    <Pause className="w-3.5 h-3.5 fill-white text-white" />
+                    <Pause className="w-4 h-4 fill-white text-white" />
                   ) : (
-                    <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+                    <Play className="w-4 h-4 fill-white text-white ml-0.5" />
                   )}
                 </button>
 
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#DF3B2B] animate-pulse" />
-                    <span className="text-[11px] font-bold text-[#1C1917] truncate leading-tight">
+                    <span className="text-xs sm:text-sm font-bold text-[#1C1917] truncate leading-tight">
                       {displayShowTitle}
                     </span>
                   </div>
-                  <span className="text-[10px] text-[#78716C] truncate">
+                  <span className="text-[11px] text-[#78716C] truncate mt-0.5 font-medium">
                     {displayShowHost}
                   </span>
                 </div>
               </div>
 
-              {/* Right: Soundwave Equalizer & Live Tag */}
-              <div className="flex items-center gap-2 shrink-0">
+              {/* Right: Soundwave Equalizer, Red Volume Slider & Live Tag */}
+              <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                
+                {/* Soundwave Equalizer */}
                 {stationPlaying && (
-                  <div className="flex items-end gap-0.5 h-3">
+                  <div className="hidden sm:flex items-end gap-0.5 h-3.5">
                     <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-1" />
                     <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-2" />
                     <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-3" />
                     <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-4" />
                   </div>
                 )}
+
+                {/* Volume Slider in Playbar */}
+                {setVolume && setIsMuted && (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setIsMuted(!isMuted)}
+                      className="text-[#78716C] hover:text-[#DF3B2B] transition-colors cursor-pointer p-1"
+                      aria-label={isMuted ? "Unmute" : "Mute"}
+                    >
+                      {isMuted || volume === 0 ? (
+                        <VolumeX className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                      ) : volume < 0.4 ? (
+                        <Volume className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                      ) : volume < 0.75 ? (
+                        <Volume1 className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                      ) : (
+                        <Volume2 className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                      )}
+                    </button>
+
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={isMuted ? 0 : volume}
+                      onChange={(e) => {
+                        setVolume(parseFloat(e.target.value));
+                        if (isMuted) setIsMuted(false);
+                      }}
+                      style={{
+                        background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
+                      }}
+                      className="w-16 sm:w-20 h-1.5 rounded-lg appearance-none cursor-pointer accent-[#1C1917]"
+                      aria-label="Volume in chat"
+                    />
+                  </div>
+                )}
                 
-                <span className="bg-[#DF3B2B] text-white text-[9px] font-black px-1.5 py-0.5 rounded tracking-wider uppercase">
-                  LIVE 320K
+                <span className="bg-[#DF3B2B] text-white text-[9px] font-black px-2 py-0.5 rounded tracking-wider uppercase">
+                  LIVE
                 </span>
               </div>
 

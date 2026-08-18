@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Play, Pause, Volume, Volume1, Volume2, VolumeX, Share2, Check } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { RadioChannel } from "../types";
@@ -15,6 +15,10 @@ interface MainPlayerProps {
   activeTrackId?: string;
   currentLiveShow?: any;
   onOpenChat?: () => void;
+  volume: number;
+  setVolume: (v: number) => void;
+  isMuted: boolean;
+  setIsMuted: (m: boolean) => void;
 }
 
 // Single 24/7 universal live MP3 radio stream for FRS UTH
@@ -147,12 +151,14 @@ export default function MainPlayer({
   isGreek,
   stationPlaying,
   setStationPlaying,
-  currentLiveShow
+  currentLiveShow,
+  volume,
+  setVolume,
+  isMuted,
+  setIsMuted
 }: MainPlayerProps) {
-  const [volume, setVolume] = useState(0.85);
-  const [isMuted, setIsMuted] = useState(false);
-  const [copiedShare, setCopiedShare] = useState(false);
-  const [, setTick] = useState(Date.now());
+  const [copiedShare, setCopiedShare] = React.useState(false);
+  const [, setTick] = React.useState(Date.now());
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 

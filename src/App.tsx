@@ -50,6 +50,8 @@ export default function App() {
   const [activeTab, setActiveTabState] = useState<TabId>("home");
   const [isGreek, setIsGreek] = useState(true);
   const [stationPlaying, setStationPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.85);
+  const [isMuted, setIsMuted] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [activeTrackId, setActiveTrackId] = useState<string>("");
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
@@ -613,6 +615,10 @@ export default function App() {
                   activeTrackId={activeTrackId}
                   currentLiveShow={currentLiveShow}
                   onOpenChat={() => setChatOpen(true)}
+                  volume={volume}
+                  setVolume={setVolume}
+                  isMuted={isMuted}
+                  setIsMuted={setIsMuted}
                 />
 
                 {/* Today's Schedule Section with Spacious, Well-Aligned Cards */}
@@ -1762,6 +1768,10 @@ export default function App() {
         currentLiveShow={currentLiveShow}
         stationPlaying={stationPlaying}
         setStationPlaying={setStationPlaying}
+        volume={volume}
+        setVolume={setVolume}
+        isMuted={isMuted}
+        setIsMuted={setIsMuted}
       />
 
     </div>
