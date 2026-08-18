@@ -471,23 +471,37 @@ export default function App() {
 
           {/* Right Actions (Language Pill, Listen Button, Mobile Hamburger) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Language Switch Pill */}
-            <div className="flex items-center bg-[#EFECE3] p-0.5 sm:p-1 rounded-full text-[11px] font-bold text-[#6B6560]">
+            {/* Language Switch Pill (with Smooth Sliding Spring Indicator) */}
+            <div className="flex items-center bg-[#EFECE3] p-0.5 sm:p-1 rounded-full text-[11px] font-bold text-[#6B6560] relative">
               <button
                 onClick={() => setIsGreek(true)}
-                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-all cursor-pointer ${
-                  isGreek ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
+                className={`relative px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-colors cursor-pointer z-10 ${
+                  isGreek ? "text-[#1C1917] font-bold" : "hover:text-[#1C1917]"
                 }`}
               >
-                GR
+                {isGreek && (
+                  <motion.div
+                    layoutId="activeLanguageIndicator"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                    className="absolute inset-0 bg-white rounded-full shadow-xs -z-10"
+                  />
+                )}
+                <span>GR</span>
               </button>
               <button
                 onClick={() => setIsGreek(false)}
-                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-all cursor-pointer ${
-                  !isGreek ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
+                className={`relative px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-colors cursor-pointer z-10 ${
+                  !isGreek ? "text-[#1C1917] font-bold" : "hover:text-[#1C1917]"
                 }`}
               >
-                EN
+                {!isGreek && (
+                  <motion.div
+                    layoutId="activeLanguageIndicator"
+                    transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                    className="absolute inset-0 bg-white rounded-full shadow-xs -z-10"
+                  />
+                )}
+                <span>EN</span>
               </button>
             </div>
 
