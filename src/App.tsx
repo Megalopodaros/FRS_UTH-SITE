@@ -390,9 +390,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B] relative">
       
-      {/* 1. TOP NAVIGATION HEADER (Image 1) */}
-      <header className="w-full sticky top-0 z-40 bg-[#F7F4EC]/90 backdrop-blur-md border-b border-black/[0.06] transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between">
+      {/* 1. TOP NAVIGATION HEADER (Slim & Sleek) */}
+      <header className="w-full sticky top-0 z-40 bg-[#F7F4EC]/95 backdrop-blur-md border-b border-black/[0.06] transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 md:h-18 flex items-center justify-between">
           
           {/* Logo Brand */}
           <button
@@ -405,7 +405,7 @@ export default function App() {
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-7 lg:gap-9 text-sm font-semibold">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs sm:text-sm font-semibold">
             <button
               onClick={() => setActiveTab("home")}
               className={`cursor-pointer transition-colors ${
@@ -441,12 +441,12 @@ export default function App() {
           </nav>
 
           {/* Right Actions (Language Pill, Listen Button, Mobile Hamburger) */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Language Switch Pill */}
-            <div className="flex items-center bg-[#EFECE3] p-1 rounded-full text-xs font-bold text-[#6B6560]">
+            <div className="flex items-center bg-[#EFECE3] p-0.5 sm:p-1 rounded-full text-[11px] font-bold text-[#6B6560]">
               <button
                 onClick={() => setIsGreek(true)}
-                className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-all cursor-pointer ${
                   isGreek ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
                 }`}
               >
@@ -454,7 +454,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setIsGreek(false)}
-                className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-all cursor-pointer ${
                   !isGreek ? "bg-white text-[#1C1917] shadow-xs" : "hover:text-[#1C1917]"
                 }`}
               >
@@ -471,22 +471,22 @@ export default function App() {
                   playerEl.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
               }}
-              className="flex items-center gap-1.5 sm:gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-4 sm:px-5 py-2.5 rounded-full font-bold text-xs shadow-md shadow-[#DF3B2B]/25 hover:shadow-lg hover:shadow-[#DF3B2B]/35 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-1.5 sm:gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs shadow-md shadow-[#DF3B2B]/20 hover:shadow-lg hover:shadow-[#DF3B2B]/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
-              <span className={`w-2 h-2 rounded-full bg-white ${stationPlaying ? "animate-ping" : ""}`} />
+              <span className={`w-1.5 h-1.5 rounded-full bg-white ${stationPlaying ? "animate-ping" : ""}`} />
               <span>{stationPlaying ? currentT.playingBtn : currentT.listenBtn}</span>
             </button>
 
             {/* Mobile Hamburger Menu Toggle Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden w-10 h-10 rounded-full bg-white border border-black/10 text-[#1C1917] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#FAF8F4] transition-all active:scale-95"
+              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-black/10 text-[#1C1917] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#FAF8F4] transition-all active:scale-95"
               aria-label={isMobileMenuOpen ? "Close menu" : "Open navigation menu"}
             >
               {isMobileMenuOpen ? (
-                <X className="w-5 h-5 text-[#DF3B2B]" />
+                <X className="w-4 h-4 text-[#DF3B2B]" />
               ) : (
-                <Menu className="w-5 h-5 text-[#1C1917]" />
+                <Menu className="w-4 h-4 text-[#1C1917]" />
               )}
             </button>
           </div>
@@ -500,8 +500,8 @@ export default function App() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.24, ease: "easeOut" }}
-            className="md:hidden fixed inset-x-0 top-20 bottom-0 z-40 bg-[#F7F4EC] border-b border-black/10 overflow-y-auto flex flex-col justify-between p-6 shadow-2xl"
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="md:hidden fixed inset-x-0 top-14 sm:top-16 md:top-18 bottom-0 z-40 bg-[#F7F4EC] border-b border-black/10 overflow-y-auto flex flex-col justify-between p-6 shadow-2xl"
           >
             {/* Navigation Links */}
             <div className="flex flex-col gap-3 pt-2">
