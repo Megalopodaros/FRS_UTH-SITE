@@ -636,27 +636,27 @@ export default function App() {
                   </p>
 
                   {/* Hero Action Buttons */}
-                  <div className="mt-8 flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                  <div className="mt-8 flex flex-row items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
                     {/* Primary Button */}
                     <button
                       onClick={() => setStationPlaying(!stationPlaying)}
-                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2.5 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-md shadow-[#DF3B2B]/25 hover:shadow-lg hover:shadow-[#DF3B2B]/35 transition-all cursor-pointer active:scale-95"
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-4 sm:px-7 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm shadow-md shadow-[#DF3B2B]/25 hover:shadow-lg hover:shadow-[#DF3B2B]/35 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
                     >
                       {stationPlaying ? (
-                        <Pause className="w-4 h-4 fill-white text-white" />
+                        <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white text-white shrink-0" />
                       ) : (
-                        <Play className="w-4 h-4 fill-white text-white ml-0.5" />
+                        <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white text-white ml-0.5 shrink-0" />
                       )}
-                      <span>{currentT.listenLive}</span>
+                      <span className="whitespace-nowrap">{currentT.listenLive}</span>
                     </button>
 
                     {/* Live Chat Button */}
                     <button
                       onClick={() => setChatOpen(true)}
-                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2.5 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-6 py-3.5 rounded-full font-bold text-sm shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95"
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 sm:px-6 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95 whitespace-nowrap"
                     >
-                      <MessageSquare className="w-4 h-4 text-[#DF3B2B]" />
-                      <span>{currentT.liveChat}</span>
+                      <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#DF3B2B] shrink-0" />
+                      <span className="whitespace-nowrap">{currentT.liveChat}</span>
                     </button>
                   </div>
 
