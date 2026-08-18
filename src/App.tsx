@@ -26,7 +26,8 @@ import {
   Sparkles,
   ChevronRight,
   Filter,
-  Mic
+  Mic,
+  Menu
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -56,6 +57,7 @@ export default function App() {
   const [activeTrackId, setActiveTrackId] = useState<string>("");
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [isOpenCallModalOpen, setIsOpenCallModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Active day index in weekly program (defaults to current day of week)
   const currentDayIndex = useMemo(() => {
@@ -70,6 +72,7 @@ export default function App() {
   const setActiveTab = (tab: TabId) => {
     setActiveTabState(tab);
     setSelectedShowId(null);
+    setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -83,9 +86,9 @@ export default function App() {
   const [openCallLoading, setOpenCallLoading] = useState(false);
   const [openCallForm, setOpenCallForm] = useState({ name: "", email: "", showConcept: "", musicGenres: "", phone: "" });
 
-  // Prevent background scrolling when modal is open
+  // Prevent background scrolling when modal or mobile menu is open
   useEffect(() => {
-    if (selectedShowId || isOpenCallModalOpen) {
+    if (selectedShowId || isOpenCallModalOpen || isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -93,7 +96,7 @@ export default function App() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [selectedShowId, isOpenCallModalOpen]);
+  }, [selectedShowId, isOpenCallModalOpen, isMobileMenuOpen]);
 
   // Global site presence: registers exactly once per browser tab instance
   const siteTabId = useMemo(() => {
@@ -437,8 +440,8 @@ export default function App() {
             </button>
           </nav>
 
-          {/* Right Actions (Language Pill & Listen Button) */}
-          <div className="flex items-center gap-3">
+          {/* Right Actions (Language Pill, Listen Button, Mobile Hamburger) */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Language Switch Pill */}
             <div className="flex items-center bg-[#EFECE3] p-1 rounded-full text-xs font-bold text-[#6B6560]">
               <button
@@ -468,14 +471,129 @@ export default function App() {
                   playerEl.scrollIntoView({ behavior: "smooth", block: "center" });
                 }
               }}
-              className="flex items-center gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-md shadow-[#DF3B2B]/25 hover:shadow-lg hover:shadow-[#DF3B2B]/35 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-1.5 sm:gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-4 sm:px-5 py-2.5 rounded-full font-bold text-xs shadow-md shadow-[#DF3B2B]/25 hover:shadow-lg hover:shadow-[#DF3B2B]/35 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <span className={`w-2 h-2 rounded-full bg-white ${stationPlaying ? "animate-ping" : ""}`} />
               <span>{stationPlaying ? currentT.playingBtn : currentT.listenBtn}</span>
             </button>
+
+            {/* Mobile Hamburger Menu Toggle Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden w-10 h-10 rounded-full bg-white border border-black/10 text-[#1C1917] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#FAF8F4] transition-all active:scale-95"
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open navigation menu"}
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5 text-[#DF3B2B]" />
+              ) : (
+                <Menu className="w-5 h-5 text-[#1C1917]" />
+              )}
+            </button>
           </div>
         </div>
       </header>
+
+      {/* MOBILE NAVIGATION DRAWER (Full-Screen / Slide-Down Editorial Menu) */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
+            className="md:hidden fixed inset-x-0 top-20 bottom-0 z-40 bg-[#F7F4EC] border-b border-black/10 overflow-y-auto flex flex-col justify-between p-6 shadow-2xl"
+          >
+            {/* Navigation Links */}
+            <div className="flex flex-col gap-3 pt-2">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-[#DF3B2B] uppercase">
+                {isGreek ? "ΜΕΝΟΥ ΠΛΟΗΓΗΣΗΣ" : "NAVIGATION MENU"}
+              </span>
+
+              <nav className="flex flex-col gap-2 mt-1">
+                {[
+                  { id: "home", num: "01", label: currentT.navHome },
+                  { id: "program", num: "02", label: currentT.navProgram },
+                  { id: "events", num: "03", label: currentT.navEvents },
+                  { id: "archive", num: "04", label: currentT.navArchive },
+                  { id: "contact", num: "05", label: isGreek ? "Επικοινωνία" : "Contact" }
+                ].map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id as TabId)}
+                      className={`flex items-center justify-between p-4 rounded-2xl transition-all text-left cursor-pointer ${
+                        isActive
+                          ? "bg-[#DF3B2B] text-white shadow-md shadow-[#DF3B2B]/20 font-bold"
+                          : "bg-white text-[#1C1917] border border-black/[0.07] font-semibold hover:bg-[#FAF8F4]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <span className={`text-xs font-mono font-bold ${isActive ? "text-white/80" : "text-[#DF3B2B]"}`}>
+                          {item.num}
+                        </span>
+                        <span className="font-editorial text-xl">
+                          {item.label}
+                        </span>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 ${isActive ? "text-white" : "text-[#78716C]"}`} />
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Quick Action Cards in Menu */}
+            <div className="flex flex-col gap-3 pt-6 border-t border-black/[0.08] mt-6">
+              
+              {/* Live Chat CTA Button */}
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setChatOpen(true);
+                }}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-black/10 shadow-xs cursor-pointer hover:bg-[#FAF8F4] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-bold text-[#1C1917]">{currentT.liveChat}</span>
+                    <span className="text-[10px] text-[#78716C]">
+                      {isGreek ? "Συνομιλήστε με τους ακροατές" : "Chat with listeners live"}
+                    </span>
+                  </div>
+                </div>
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DF3B2B]"></span>
+                </span>
+              </button>
+
+              {/* Open Call Button */}
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsOpenCallModalOpen(true);
+                }}
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-[#1C1917] text-white shadow-md cursor-pointer hover:bg-black transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 text-[#DF3B2B]" />
+                  <span className="text-xs font-bold">{currentT.openCallBadge}</span>
+                </div>
+                <span className="text-[11px] font-bold text-stone-300">{currentT.applyNow} →</span>
+              </button>
+
+              {/* Station Location Info */}
+              <div className="text-center text-[11px] text-[#78716C] pt-2 font-mono">
+                {currentT.cities}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* MAIN CONTAINER */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col gap-16 sm:gap-24">
