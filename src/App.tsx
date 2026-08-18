@@ -387,6 +387,32 @@ export default function App() {
 
   const weeklyScheduleList = isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
 
+  // Precise scrolling to the studio hero card & player view as shown on mobile
+  const scrollToLiveStation = () => {
+    if (activeTab !== "home") {
+      setActiveTab("home");
+    }
+
+    setTimeout(() => {
+      const studioEl = document.getElementById("hero-studio-card");
+      if (studioEl) {
+        const headerOffset = 64;
+        const elementPosition = studioEl.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      } else {
+        const playerEl = document.getElementById("floating-player-section");
+        if (playerEl) {
+          playerEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }, activeTab !== "home" ? 150 : 20);
+  };
+
   return (
     <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B] relative">
       
@@ -466,10 +492,7 @@ export default function App() {
             <button
               onClick={() => {
                 setStationPlaying(!stationPlaying);
-                const playerEl = document.getElementById("floating-player-section");
-                if (playerEl) {
-                  playerEl.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
+                scrollToLiveStation();
               }}
               className="flex items-center gap-1.5 sm:gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs shadow-md shadow-[#DF3B2B]/20 hover:shadow-lg hover:shadow-[#DF3B2B]/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
@@ -639,7 +662,10 @@ export default function App() {
                   <div className="mt-8 flex flex-row items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
                     {/* Primary Button */}
                     <button
-                      onClick={() => setStationPlaying(!stationPlaying)}
+                      onClick={() => {
+                        setStationPlaying(!stationPlaying);
+                        scrollToLiveStation();
+                      }}
                       className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-4 sm:px-7 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm shadow-md shadow-[#DF3B2B]/25 hover:shadow-lg hover:shadow-[#DF3B2B]/35 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
                     >
                       {stationPlaying ? (
@@ -692,7 +718,7 @@ export default function App() {
                 </div>
 
                 {/* Right Column: Hero Studio Visual Card */}
-                <div className="lg:col-span-5 relative">
+                <div id="hero-studio-card" className="lg:col-span-5 relative scroll-mt-20">
                   <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-black/10 aspect-square sm:aspect-[4/5] bg-stone-900 group">
                     <img
                       src="/hero-studio.jpg"
