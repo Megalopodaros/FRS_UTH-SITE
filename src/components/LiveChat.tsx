@@ -309,42 +309,55 @@ export default function LiveChat({
   }, []);
 
   // Automated Chat Announcement when a Poll concludes
+  const announcedPollIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!activePoll) return;
+    if (!activePoll || !activePoll.id) return;
     const isOver = Date.now() >= activePoll.expiresAt || !activePoll.isActive;
-    if (isOver && !activePoll.announcedResult && activePoll.totalVotes > 0) {
+    
+    // Check remote flag AND local synchronous lock to prevent double-firing
+    if (
+      isOver && 
+      !activePoll.announcedResult && 
+      activePoll.totalVotes > 0 &&
+      announcedPollIdRef.current !== activePoll.id
+    ) {
+      // Lock synchronously before any async operations
+      announcedPollIdRef.current = activePoll.id;
+
       const maxVotes = Math.max(...activePoll.options.map((o) => o.votes || 0));
       if (maxVotes > 0) {
         const winners = activePoll.options.filter((o) => (o.votes || 0) === maxVotes);
-        markPollResultAnnounced().then(() => {
-          const percent = Math.round((maxVotes / activePoll.totalVotes) * 100);
-          const now = new Date();
-          const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-          
-          let announcementText = "";
-          if (winners.length > 1) {
-            // Tie between 2 or more options
-            const tiedNames = winners.map((w) => `«${w.text}»`).join(" & ");
-            announcementText = isGreek
-              ? `Poll: «${activePoll.question}» • Ισοψηφία: ${tiedNames} (${percent}% έκαστο)`
-              : `Poll: "${activePoll.question}" • Tie: ${winners.map((w) => `"${w.text}"`).join(" & ")} (${percent}% each)`;
-          } else {
-            const winner = winners[0];
-            announcementText = isGreek
-              ? `Poll: «${activePoll.question}» • Νικητής: «${winner.text}» (${percent}%)`
-              : `Poll: "${activePoll.question}" • Winner: "${winner.text}" (${percent}%)`;
-          }
+        
+        markPollResultAnnounced().catch((err) => console.warn("Notice marking poll result:", err));
 
-          addDoc(collection(db, "messages"), {
-            user: "FRS UTH System",
-            text: announcementText,
-            timestamp: timeStr,
-            isSystem: true,
-            avatarColor: "#ad021a",
-            sessionId: "system",
-            createdAt: serverTimestamp()
-          }).catch((err) => console.warn("Notice broadcasting poll winner:", err));
-        }).catch((err) => console.warn("Notice marking poll result:", err));
+        const percent = Math.round((maxVotes / activePoll.totalVotes) * 100);
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+        
+        let announcementText = "";
+        if (winners.length > 1) {
+          // Tie between 2 or more options
+          const tiedNames = winners.map((w) => `«${w.text}»`).join(" & ");
+          announcementText = isGreek
+            ? `Poll: «${activePoll.question}» • Ισοψηφία: ${tiedNames} (${percent}%)`
+            : `Poll: "${activePoll.question}" • Tie: ${winners.map((w) => `"${w.text}"`).join(" & ")} (${percent}%)`;
+        } else {
+          const winner = winners[0];
+          announcementText = isGreek
+            ? `Poll: «${activePoll.question}» • Νικητής: «${winner.text}» (${percent}%)`
+            : `Poll: "${activePoll.question}" • Winner: "${winner.text}" (${percent}%)`;
+        }
+
+        addDoc(collection(db, "messages"), {
+          user: "FRS UTH System",
+          text: announcementText,
+          timestamp: timeStr,
+          isSystem: true,
+          avatarColor: "#ad021a",
+          sessionId: "system",
+          createdAt: serverTimestamp()
+        }).catch((err) => console.warn("Notice broadcasting poll winner:", err));
       }
     }
   }, [activePoll, isGreek]);
@@ -617,14 +630,25 @@ export default function LiveChat({
                   </p>
                 </div>
               ) : (
-                messages.map((msg) => {
-                  if (msg.isSystem) {
-                    const cleanText = msg.text
-                      .replace(/^[📊✨\s]+/, "")
-                      .replace(/📊|✨/g, "")
-                      .replace(/^Ολοκληρώθηκε το Live Poll:\s*/i, "Poll: ")
-                      .replace(/^Live Poll Ended:\s*/i, "Poll: ")
-                      .trim();
+                messages
+                  .filter((msg, idx, arr) => {
+                    if (!msg.isSystem) return true;
+                    // Deduplicate consecutive identical system messages
+                    if (idx > 0 && arr[idx - 1].isSystem && arr[idx - 1].text === msg.text) {
+                      return false;
+                    }
+                    return true;
+                  })
+                  .map((msg) => {
+                    if (msg.isSystem) {
+                      const cleanText = msg.text
+                        .replace(/^[📊✨\s]+/, "")
+                        .replace(/📊|✨/g, "")
+                        .replace(/^Ολοκληρώθηκε το Live Poll:\s*/i, "Poll: ")
+                        .replace(/^Live Poll Ended:\s*/i, "Poll: ")
+                        .replace(/\s*έκαστο\)/gi, ")")
+                        .replace(/\s*each\)/gi, ")")
+                        .trim();
 
                     return (
                       <div key={msg.id} className="w-full flex items-center gap-3 my-2.5 px-3">
