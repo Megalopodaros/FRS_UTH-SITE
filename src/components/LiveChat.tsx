@@ -440,17 +440,17 @@ export default function LiveChat({
                         <button
                           type="button"
                           onClick={() => setShowProducerCreateModal(true)}
-                          className="text-[#ad021a] hover:text-[#8f0115] font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                          className="text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-0.5"
                           title={isGreek ? "Δημιουργία νέου Poll" : "Create new Poll"}
+                          aria-label={isGreek ? "Δημιουργία νέου Poll" : "Create new Poll"}
                         >
-                          <ShieldCheck className="w-3.5 h-3.5" />
-                          <span>{isGreek ? "+ Poll" : "+ Poll"}</span>
+                          <ShieldCheck className="w-4 h-4" />
                         </button>
                         <span className="text-[#ad021a]/30 text-[10px]">•</span>
                         <button
                           type="button"
                           onClick={handleProducerLogout}
-                          className="text-[10px] text-[#78716C] hover:text-[#ad021a] transition-colors cursor-pointer"
+                          className="text-[10px] text-[#78716C] hover:text-[#ad021a] transition-colors cursor-pointer font-medium"
                           title={isGreek ? "Αποσύνδεση Παραγωγού" : "Logout Producer"}
                         >
                           {isGreek ? "Έξοδος" : "Exit"}
