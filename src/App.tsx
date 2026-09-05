@@ -28,13 +28,16 @@ import {
   Filter,
   Mic,
   Menu,
-  Loader2
+  Loader2,
+  BarChart2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 import UthLogo from "./components/UthLogo";
 import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
+import { subscribeToActivePoll } from "./lib/pollService";
+import { LivePollData } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
   WEEKLY_SCHEDULE_EN, 
@@ -60,6 +63,15 @@ export default function App() {
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [isOpenCallModalOpen, setIsOpenCallModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activePoll, setActivePoll] = useState<LivePollData | null>(null);
+
+  // Subscribe to real-time active poll from RTDB (Firebase Spark free tier zero-cost)
+  useEffect(() => {
+    const unsubscribe = subscribeToActivePoll((poll) => {
+      setActivePoll(poll);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Active day index in weekly program (defaults to current day of week)
   const currentDayIndex = useMemo(() => {
@@ -1706,6 +1718,27 @@ export default function App() {
         </div>
       </footer>
 
+      {/* FLOATING LIVE POLL ALERT BADGE (Visible when active poll exists and chat is closed) */}
+      <AnimatePresence>
+        {activePoll && activePoll.isActive && Date.now() < activePoll.expiresAt && !chatOpen && !isMobileMenuOpen && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.85, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: 15 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setChatOpen(true)}
+            className="fixed bottom-20 right-6 z-30 bg-[#ad021a] hover:bg-[#8f0115] text-white px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-[#ad021a]/30 flex items-center gap-2 cursor-pointer max-w-[280px] sm:max-w-xs transition-all border border-white/20"
+          >
+            <BarChart2 className="w-4 h-4 shrink-0 animate-bounce" />
+            <span className="truncate font-medium">{activePoll.question}</span>
+            <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full font-mono shrink-0">
+              {isGreek ? "Ψήφος" : "Vote"} →
+            </span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       {/* FLOATING QUICK-ACCESS LIVE CHAT BUTTON (Visible only when chat is closed) */}
       <AnimatePresence>
         {!chatOpen && !isMobileMenuOpen && (
@@ -1993,6 +2026,7 @@ export default function App() {
         setVolume={setVolume}
         isMuted={isMuted}
         setIsMuted={setIsMuted}
+        activePoll={activePoll}
       />
 
     </div>

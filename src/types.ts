@@ -57,3 +57,23 @@ export interface RadioChannel {
   isCustom?: boolean;
 }
 
+export interface PollOption {
+  id: string;
+  text: string;
+  votes: number;
+}
+
+export interface LivePollData {
+  id: string;
+  question: string;
+  options: PollOption[];
+  createdAt: number;
+  durationMinutes: number;
+  expiresAt: number;
+  isActive: boolean;
+  createdBy: string;
+  voters?: Record<string, string>; // sanitized sessionId -> optionId
+  totalVotes: number;
+  announcedResult?: boolean;
+}
+

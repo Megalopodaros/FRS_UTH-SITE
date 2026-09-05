@@ -16,13 +16,16 @@ import {
   Play, 
   Pause, 
   Radio,
-  Loader2
+  Loader2,
+  Sparkles
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChatMessage } from "../types";
+import { ChatMessage, LivePollData } from "../types";
 import { collection, addDoc, query, limit, onSnapshot, serverTimestamp, getDocs, deleteDoc, orderBy } from "firebase/firestore";
 import { db, rtdb } from "../lib/firebase";
 import { ref, onValue, onDisconnect, set } from "firebase/database";
+import LivePoll from "./LivePoll";
+import { markPollResultAnnounced } from "../lib/pollService";
 
 interface LiveChatProps {
   isGreek: boolean;
@@ -39,6 +42,7 @@ interface LiveChatProps {
   setVolume?: (v: number) => void;
   isMuted?: boolean;
   setIsMuted?: (m: boolean) => void;
+  activePoll?: LivePollData | null;
 }
 
 const TAB_NAME_KEY = "frs_tab_user_name";
@@ -96,7 +100,8 @@ export default function LiveChat({
   volume = 0.85,
   setVolume,
   isMuted = false,
-  setIsMuted
+  setIsMuted,
+  activePoll = null
 }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -223,7 +228,8 @@ export default function LiveChat({
             text: data.text || "",
             timestamp: data.timestamp || "Τώρα",
             avatarColor: data.avatarColor || "#ad021a",
-            sessionId: data.sessionId
+            sessionId: data.sessionId,
+            isSystem: Boolean(data.isSystem)
           });
         });
         setMessages(list);
@@ -235,6 +241,34 @@ export default function LiveChat({
 
     return () => unsubscribe();
   }, []);
+
+  // Automated Chat Announcement when a Poll concludes
+  useEffect(() => {
+    if (!activePoll) return;
+    const isOver = Date.now() >= activePoll.expiresAt || !activePoll.isActive;
+    if (isOver && !activePoll.announcedResult && activePoll.totalVotes > 0) {
+      const sorted = [...activePoll.options].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+      const winner = sorted[0];
+      if (winner && winner.votes > 0) {
+        markPollResultAnnounced().then(() => {
+          const percent = Math.round((winner.votes / activePoll.totalVotes) * 100);
+          const now = new Date();
+          const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+          addDoc(collection(db, "messages"), {
+            user: "FRS UTH System",
+            text: isGreek
+              ? `📊 Ολοκληρώθηκε το Live Poll: «${activePoll.question}». Νικητής: «${winner.text}» με ${percent}% (${winner.votes} ${winner.votes === 1 ? "ψήφο" : "ψήφους"})!`
+              : `📊 Live Poll Ended: "${activePoll.question}". Winner: "${winner.text}" with ${percent}% (${winner.votes} ${winner.votes === 1 ? "vote" : "votes"})!`,
+            timestamp: timeStr,
+            isSystem: true,
+            avatarColor: "#ad021a",
+            sessionId: "system",
+            createdAt: serverTimestamp()
+          }).catch((err) => console.warn("Notice broadcasting poll winner:", err));
+        }).catch((err) => console.warn("Notice marking poll result:", err));
+      }
+    }
+  }, [activePoll, isGreek]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -447,6 +481,15 @@ export default function LiveChat({
               )}
             </div>
 
+            {/* PINNED LIVE POLL / PRODUCER POLL SECTION */}
+            <div className="px-4 sm:px-6 pt-2.5 pb-1 border-b border-black/[0.06] bg-[#FAF8F4]/80 shrink-0">
+              <LivePoll
+                isGreek={isGreek}
+                poll={activePoll || null}
+                sessionId={currentSessionId || ""}
+              />
+            </div>
+
             {/* Main Chat Message Stream (Comfortable Readable Scale) */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
               {messages.length === 0 ? (
@@ -463,6 +506,16 @@ export default function LiveChat({
                 </div>
               ) : (
                 messages.map((msg) => {
+                  if (msg.isSystem) {
+                    return (
+                      <div key={msg.id} className="w-full flex justify-center my-1.5 px-2">
+                        <div className="bg-[#FCECEE] border border-[#ad021a]/25 text-[#ad021a] text-xs font-semibold px-4 py-2 rounded-2xl shadow-xs text-center max-w-[95%] leading-relaxed flex items-center justify-center gap-2">
+                          <Sparkles className="w-4 h-4 shrink-0 text-[#ad021a]" />
+                          <span>{msg.text}</span>
+                        </div>
+                      </div>
+                    );
+                  }
                   const isMe = msg.sessionId === currentSessionId;
                   return (
                     <div
