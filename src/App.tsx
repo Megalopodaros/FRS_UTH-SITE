@@ -180,61 +180,104 @@ export default function App() {
   // Dynamically compute live, next, and later shows according to current day and exact time
   const { currentLiveShow, nextShow, laterShow } = useMemo(() => {
     const now = new Date();
-    const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const todayAbbr = daysMap[now.getDay()];
+    const daysMapEN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const daysMapGR = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"];
+    const todayAbbr = isGreek ? daysMapGR[now.getDay()] : daysMapEN[now.getDay()];
     
-    const todayProgram = WEEKLY_SCHEDULE_EN.find(d => d.day === todayAbbr) || WEEKLY_SCHEDULE_EN[0];
-    const shows = todayProgram.shows;
+    const currentSchedule = isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
+    const todayProgram = currentSchedule.find(d => d.day === todayAbbr) || currentSchedule[0];
+    const shows = todayProgram?.shows || [];
     
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const parseTimeRange = (timeStr: string) => {
+      const parts = timeStr.split("-").map(s => s.trim());
+      if (parts.length === 2) {
+        const [sH, sM] = parts[0].split(":").map(Number);
+        const [eH, eM] = parts[1].split(":").map(Number);
+        let startMin = (sH || 0) * 60 + (sM || 0);
+        let endMin = (eH || 0) * 60 + (eM || 0);
+        if (endMin <= startMin) endMin += 24 * 60;
+        return { startMin, endMin };
+      }
+      return { startMin: 0, endMin: 0 };
+    };
+
+    const getCountdownText = (diffMin: number, isGreekLang: boolean): string => {
+      if (diffMin <= 0) return isGreekLang ? "Τώρα" : "Now";
+      if (diffMin < 60) {
+        return diffMin === 1 
+          ? (isGreekLang ? "Σε 1 λεπτό" : "In 1 min")
+          : (isGreekLang ? `Σε ${diffMin} λεπτά` : `In ${diffMin} min`);
+      }
+      const hours = Math.round(diffMin / 60);
+      if (hours < 24) {
+        return hours === 1
+          ? (isGreekLang ? "Σε 1 ώρα" : "In 1 hour")
+          : (isGreekLang ? `Σε ${hours} ώρες` : `In ${hours} hours`);
+      }
+      const days = Math.round(diffMin / (24 * 60));
+      return days === 1
+        ? (isGreekLang ? "Σε 1 μέρα" : "In 1 day")
+        : (isGreekLang ? `Σε ${days} μέρες` : `In ${days} days`);
+    };
     
     let active: any = null;
     let next: any = null;
     let later: any = null;
     
+    // 1. Check today's shows
     for (let i = 0; i < shows.length; i++) {
       const show = shows[i];
-      const parts = show.time.split("-").map(s => s.trim());
-      if (parts.length === 2) {
-        const [startH, startM] = parts[0].split(":").map(Number);
-        const [endH, endM] = parts[1].split(":").map(Number);
-        let startMin = startH * 60 + startM;
-        let endMin = endH * 60 + endM;
-        if (endMin <= startMin) endMin += 24 * 60;
-        
-        if (nowMinutes >= startMin && nowMinutes < endMin) {
-          active = show;
-          next = shows[i + 1] || null;
-          later = shows[i + 2] || null;
+      const { startMin, endMin } = parseTimeRange(show.time);
+      
+      if (nowMinutes >= startMin && nowMinutes < endMin) {
+        active = { ...show, isLive: true };
+      } else if (startMin > nowMinutes) {
+        const diff = startMin - nowMinutes;
+        const candidate = {
+          ...show,
+          timeLabel: show.time,
+          countdown: getCountdownText(diff, isGreek),
+          badge: isGreek ? "ΕΠΟΜΕΝΟ" : "NEXT",
+          diffMinutes: diff
+        };
+        if (!next) {
+          next = candidate;
+        } else if (!later) {
+          later = { ...candidate, badge: isGreek ? "ΣΤΗ ΣΥΝΕΧΕΙΑ" : "LATER" };
           break;
-        } else if (startMin > nowMinutes && !next) {
-          next = show;
-          later = shows[i + 1] || null;
-        } else if (startMin > nowMinutes && next && !later) {
-          later = show;
         }
       }
     }
     
+    // 2. Look ahead to upcoming days if next or later is not yet found
     if (!next || !later) {
       for (let offset = 1; offset <= 7; offset++) {
         const nextDayIdx = (now.getDay() + offset) % 7;
-        const nextDayAbbr = daysMap[nextDayIdx];
-        const nextDayProgram = WEEKLY_SCHEDULE_EN.find(d => d.day === nextDayAbbr);
-        const nextDayProgramGR = WEEKLY_SCHEDULE_GR.find(d => d.day === (["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"][nextDayIdx]));
+        const nextDayAbbr = isGreek ? daysMapGR[nextDayIdx] : daysMapEN[nextDayIdx];
+        const nextDayProgram = currentSchedule.find(d => d.day === nextDayAbbr);
         
         if (nextDayProgram && nextDayProgram.shows && nextDayProgram.shows.length > 0) {
           const nextDayShows = nextDayProgram.shows;
           for (let j = 0; j < nextDayShows.length; j++) {
             const candidate = nextDayShows[j];
+            const { startMin } = parseTimeRange(candidate.time);
+            const diff = (offset * 24 * 60) + startMin - nowMinutes;
+
             const isTomorrow = offset === 1;
             const dayName = isTomorrow 
               ? (isGreek ? "Αύριο" : "Tomorrow") 
-              : (isGreek ? (nextDayProgramGR?.fullName || nextDayAbbr) : nextDayProgram.fullName);
+              : nextDayProgram.fullName;
               
             const candidateWithLabel = {
               ...candidate,
-              timeLabel: `${dayName} • ${candidate.time}`
+              timeLabel: `${dayName} • ${candidate.time}`,
+              countdown: getCountdownText(diff, isGreek),
+              badge: isTomorrow 
+                ? (isGreek ? "ΑΥΡΙΟ" : "TOMORROW") 
+                : (isGreek ? "ΠΡΟΣΕΧΩΣ" : "UPCOMING"),
+              diffMinutes: diff
             };
 
             if (!next) {
@@ -398,6 +441,14 @@ export default function App() {
     if (!show) return;
     setSelectedShowId(show.id || show.title);
   };
+
+  const nextShowDetails = useMemo(() => {
+    return nextShow ? getShowDetails(nextShow.id || nextShow.title) : null;
+  }, [nextShow, isGreek]);
+
+  const laterShowDetails = useMemo(() => {
+    return laterShow ? getShowDetails(laterShow.id || laterShow.title) : null;
+  }, [laterShow, isGreek]);
 
   // Archive data
   const archiveBase = isGreek ? ARCHIVE_ITEMS_GR : ARCHIVE_ITEMS_EN;
@@ -834,7 +885,7 @@ export default function App() {
                             {currentLiveShow ? currentLiveShow.time : "Non-Stop Stream"}
                           </span>
                           <span className="bg-[#FCECEE] text-[#ad021a] text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            {currentLiveShow ? (isGreek ? "ΖΩΝΤΑΝΑ ΤΩΡΑ" : "LIVE NOW") : (isGreek ? "ΤΩΡΑ • ΑΥΤΟΜΑΤΗ ΡΟΗ" : "NOW • AUTO STREAM")}
+                            {currentLiveShow ? (isGreek ? "ΖΩΝΤΑΝΑ ΤΩΡΑ" : "LIVE NOW") : (isGreek ? "ΤΩΡΑ • ΜΟΥΣΙΚΗ ΡΟΗ" : "NOW • MUSIC STREAM")}
                           </span>
                         </div>
 
@@ -861,32 +912,32 @@ export default function App() {
                       <div className="flex flex-col">
                         <div className="flex items-center justify-between mb-3.5">
                           <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-2.5 py-1 rounded-lg border border-black/5">
-                            {nextShow ? (nextShow.timeLabel || nextShow.time) : "11:00 - 13:00"}
+                            {nextShow ? (nextShow.timeLabel || nextShow.time) : "18:00 - 20:00"}
                           </span>
                           <span className="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            {isGreek ? "ΕΠΟΜΕΝΟ" : "NEXT"}
+                            {nextShow?.badge || (isGreek ? "ΕΠΟΜΕΝΟ" : "NEXT")}
                           </span>
                         </div>
 
                         <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
-                          {nextShow ? nextShow.title : "Indie Hour"}
+                          {nextShow ? nextShow.title : "Global Grooves"}
                         </h3>
 
                         <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
                           <Mic className="w-3.5 h-3.5" />
-                          <span>{nextShow ? nextShow.host : "Sarah V."}</span>
+                          <span>{nextShow ? nextShow.host : "World Tour"}</span>
                         </span>
 
                         <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
-                          {isGreek 
-                            ? "Indie rock anthems, shoegaze ανακαλύψεις και συνεντεύξεις από την τοπική μουσική σκηνή."
-                            : "Indie rock anthems, shoegaze discoveries and local music scene features."}
+                          {nextShowDetails?.description || (isGreek 
+                            ? "Μουσική εκπομπή από την ομάδα του FRS UTH." 
+                            : "Radio broadcast from the FRS UTH team.")}
                         </p>
                       </div>
 
                       <div className="mt-5 pt-3.5 border-t border-black/[0.05] flex items-center justify-between text-xs text-[#6B6560] font-semibold">
-                        <span>{isGreek ? "Εκπομπή Λόγου & Μουσικής" : "Music & Talk Show"}</span>
-                        <span className="text-[#6B6560] font-mono">{isGreek ? "Σε 2 ώρες" : "In 2 hours"}</span>
+                        <span>{nextShowDetails?.tags?.[0] || (isGreek ? "Εκπομπή Σταθμού" : "Station Show")}</span>
+                        <span className="text-[#6B6560] font-mono">{nextShow?.countdown || (isGreek ? "Σύντομα" : "Soon")}</span>
                       </div>
                     </div>
 
@@ -898,32 +949,32 @@ export default function App() {
                       <div className="flex flex-col">
                         <div className="flex items-center justify-between mb-3.5">
                           <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-2.5 py-1 rounded-lg border border-black/5">
-                            {laterShow ? (laterShow.timeLabel || laterShow.time) : "16:00 - 18:00"}
+                            {laterShow ? (laterShow.timeLabel || laterShow.time) : "12:00 - 15:00"}
                           </span>
                           <span className="bg-stone-100 text-[#6B6560] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            {isGreek ? "ΑΠΟΓΕΥΜΑ" : "EVENING"}
+                            {laterShow?.badge || (isGreek ? "ΣΤΗ ΣΥΝΕΧΕΙΑ" : "LATER")}
                           </span>
                         </div>
 
                         <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
-                          {laterShow ? laterShow.title : "Rock Anthems"}
+                          {laterShow ? laterShow.title : "Lazy Sunday"}
                         </h3>
 
                         <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
                           <Mic className="w-3.5 h-3.5" />
-                          <span>{laterShow ? laterShow.host : "DJ George"}</span>
+                          <span>{laterShow ? laterShow.host : "Chill Crew"}</span>
                         </span>
 
                         <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
-                          {isGreek 
-                            ? "Classic rock, grunge 90s riffs και progressive retrospectives σε ένα δυνατό δίωρο mix."
-                            : "Classic rock, 90s grunge riffs and progressive retrospectives in a powerhouse 2-hour set."}
+                          {laterShowDetails?.description || (isGreek 
+                            ? "Μουσική εκπομπή από την ομάδα του FRS UTH." 
+                            : "Radio broadcast from the FRS UTH team.")}
                         </p>
                       </div>
 
                       <div className="mt-5 pt-3.5 border-t border-black/[0.05] flex items-center justify-between text-xs text-[#6B6560] font-semibold">
-                        <span>{isGreek ? "Heavy Guitar Session" : "Heavy Guitar Session"}</span>
-                        <span className="text-[#6B6560] font-mono">{isGreek ? "Σε 7 ώρες" : "In 7 hours"}</span>
+                        <span>{laterShowDetails?.tags?.[0] || (isGreek ? "Εκπομπή Σταθμού" : "Station Show")}</span>
+                        <span className="text-[#6B6560] font-mono">{laterShow?.countdown || (isGreek ? "Σύντομα" : "Soon")}</span>
                       </div>
                     </div>
 

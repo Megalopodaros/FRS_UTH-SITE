@@ -194,12 +194,12 @@ export default function MainPlayer({
   }, [stationPlaying]);
 
   // Format seconds to MM:SS or HH:MM:SS
-  const formatTime = (secs: number) => {
+  const formatTime = (secs: number, forceHours = false) => {
     const totalSecs = Math.max(0, Math.floor(secs));
     const hours = Math.floor(totalSecs / 3600);
     const mins = Math.floor((totalSecs % 3600) / 60);
     const remainder = totalSecs % 60;
-    if (hours > 0) {
+    if (hours > 0 || forceHours) {
       return `${hours}:${mins.toString().padStart(2, "0")}:${remainder.toString().padStart(2, "0")}`;
     }
     return `${mins.toString().padStart(2, "0")}:${remainder.toString().padStart(2, "0")}`;
@@ -217,30 +217,31 @@ export default function MainPlayer({
         let endSec = (endH * 60 + endM) * 60;
         if (endSec <= startSec) endSec += 24 * 3600;
 
-        const nowSec = (now.getHours() * 60 + now.getMinutes()) * 60 + now.getSeconds();
+        let nowSec = (now.getHours() * 60 + now.getMinutes()) * 60 + now.getSeconds();
+        if (endSec > 24 * 3600 && nowSec < startSec) nowSec += 24 * 3600;
+
         const elapsed = Math.max(0, nowSec - startSec);
         const total = Math.max(1, endSec - startSec);
         const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+        const hasHours = total >= 3600;
 
         return {
           percent: pct,
-          elapsedStr: formatTime(elapsed),
-          totalStr: formatTime(total)
+          elapsedStr: `${formatTime(elapsed, hasHours)} / ${formatTime(total, hasHours)}`,
+          totalStr: formatTime(total, hasHours),
+          hasLiveShow: true
         };
       }
     }
 
-    // Default hourly stream progression
-    const nowSecInHour = now.getMinutes() * 60 + now.getSeconds();
-    const totalHourSec = 3600;
-    const pct = (nowSecInHour / totalHourSec) * 100;
-
+    // Continuous 24/7 Web Radio stream (no fake 60-min hourly loop)
     return {
-      percent: pct,
-      elapsedStr: formatTime(nowSecInHour),
-      totalStr: "60:00"
+      percent: stationPlaying ? 100 : 0,
+      elapsedStr: isGreek ? "Ζωντανή Ροή 24/7" : "24/7 Live Stream",
+      totalStr: "",
+      hasLiveShow: false
     };
-  }, [currentLiveShow, isGreek]);
+  }, [currentLiveShow, isGreek, tick, stationPlaying]);
 
   // Dynamically compute display title and description
   const displayTitle = currentLiveShow?.title || (isGreek ? UNIVERSAL_CHANNEL.greekName : UNIVERSAL_CHANNEL.name);
@@ -439,7 +440,7 @@ export default function MainPlayer({
               <div className="relative w-full h-2 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
                 <div 
                   className="h-full bg-[#ad021a] rounded-full transition-all duration-500 ease-linear"
-                  style={{ width: `${Math.max(4, showProgress.percent)}%` }}
+                  style={{ width: showProgress.hasLiveShow ? `${Math.max(4, showProgress.percent)}%` : (stationPlaying ? "100%" : "0%") }}
                 />
                 {stationPlaying && (
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
