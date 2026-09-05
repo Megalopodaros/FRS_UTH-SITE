@@ -401,8 +401,8 @@ export default function MainPlayer({
               {/* Red dot indicator on player button */}
               {stationPlaying && !isLoadingAudio && (
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#DF3B2B] border-2 border-white"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ad021a] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#ad021a] border-2 border-white"></span>
                 </span>
               )}
             </button>
@@ -412,15 +412,15 @@ export default function MainPlayer({
               <div className="flex items-center justify-between text-xs font-grotesk text-[#78716C]">
                 <span className="font-bold tracking-wide">{showProgress.elapsedStr}</span>
                 <div className="flex items-center gap-1.5">
-                  <span className={`w-1.5 h-1.5 rounded-full ${stationPlaying ? "bg-[#DF3B2B] animate-pulse" : "bg-[#78716C]"}`} />
-                  <span className="font-display text-[11px] font-black text-[#DF3B2B] tracking-wider">LIVE</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${stationPlaying ? "bg-[#ad021a] animate-pulse" : "bg-[#78716C]"}`} />
+                  <span className="font-display text-[11px] font-black text-[#ad021a] tracking-wider">LIVE</span>
                 </div>
               </div>
 
               {/* Dynamic Progress Bar */}
               <div className="relative w-full h-2 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
                 <div 
-                  className="h-full bg-[#DF3B2B] rounded-full transition-all duration-500 ease-linear"
+                  className="h-full bg-[#ad021a] rounded-full transition-all duration-500 ease-linear"
                   style={{ width: `${Math.max(4, showProgress.percent)}%` }}
                 />
                 {stationPlaying && (
@@ -441,17 +441,17 @@ export default function MainPlayer({
             >
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="text-[#78716C] hover:text-[#DF3B2B] hover:scale-115 active:scale-85 transition-transform duration-200 cursor-pointer p-1 shrink-0"
+                className="text-[#78716C] hover:text-[#ad021a] hover:scale-115 active:scale-85 transition-transform duration-200 cursor-pointer p-1 shrink-0"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
                 {isMuted || volume === 0 ? (
-                  <VolumeX className="w-4 h-4 text-[#DF3B2B]" />
+                  <VolumeX className="w-4 h-4 text-[#ad021a]" />
                 ) : volume < 0.4 ? (
-                  <Volume className="w-4 h-4 text-[#DF3B2B]" />
+                  <Volume className="w-4 h-4 text-[#ad021a]" />
                 ) : volume < 0.75 ? (
-                  <Volume1 className="w-4 h-4 text-[#DF3B2B]" />
+                  <Volume1 className="w-4 h-4 text-[#ad021a]" />
                 ) : (
-                  <Volume2 className="w-4 h-4 text-[#DF3B2B]" />
+                  <Volume2 className="w-4 h-4 text-[#ad021a]" />
                 )}
               </button>
 
@@ -487,7 +487,7 @@ export default function MainPlayer({
                     if (isMuted) setIsMuted(false);
                   }}
                   style={{
-                    background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
+                    background: `linear-gradient(to right, #ad021a 0%, #ad021a ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
                   }}
                   className={`w-16 sm:w-24 h-2 group-hover/vol:h-2.5 rounded-lg volume-slider transition-all duration-200 ${
                     stationPlaying && !isMuted && volume > 0 ? "volume-slider-playing" : ""

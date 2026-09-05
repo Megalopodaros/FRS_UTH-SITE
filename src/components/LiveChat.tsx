@@ -46,7 +46,7 @@ const TAB_COLOR_KEY = "frs_tab_avatar_color";
 const TAB_SESSION_KEY = "frs_tab_session_id";
 
 const AVATAR_COLORS = [
-  "#DF3B2B",
+  "#ad021a",
   "#E06D53",
   "#D97706",
   "#059669",
@@ -222,7 +222,7 @@ export default function LiveChat({
             user: data.user || "Ανώνυμος",
             text: data.text || "",
             timestamp: data.timestamp || "Τώρα",
-            avatarColor: data.avatarColor || "#DF3B2B",
+            avatarColor: data.avatarColor || "#ad021a",
             sessionId: data.sessionId
           });
         });
@@ -363,7 +363,7 @@ export default function LiveChat({
             {/* Top Bar Header */}
             <div className="bg-white md:bg-white/80 md:backdrop-blur-md px-5 sm:px-6 py-4 border-b border-black/[0.07] flex items-center justify-between shadow-xs shrink-0">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center font-bold shadow-xs border border-[#F7C8C4]/60 shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex items-center justify-center font-bold shadow-xs border border-[#F2C4C9]/60 shrink-0">
                   <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
@@ -411,7 +411,7 @@ export default function LiveChat({
                   />
                   <button
                     onClick={handleSaveName}
-                    className="bg-[#DF3B2B] text-white font-bold px-3 py-1 rounded-lg text-xs hover:bg-[#C62F20] transition-colors cursor-pointer"
+                    className="bg-[#ad021a] text-white font-bold px-3 py-1 rounded-lg text-xs hover:bg-[#8f0115] transition-colors cursor-pointer"
                   >
                     OK
                   </button>
@@ -438,7 +438,7 @@ export default function LiveChat({
                       setTempName(userName);
                       setIsEditingName(true);
                     }}
-                    className="text-[#DF3B2B] hover:text-[#C62F20] font-bold text-xs flex items-center gap-1 cursor-pointer"
+                    className="text-[#ad021a] hover:text-[#8f0115] font-bold text-xs flex items-center gap-1 cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>{isGreek ? "Αλλαγή ονόματος" : "Edit Name"}</span>
@@ -451,7 +451,7 @@ export default function LiveChat({
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#78716C]">
-                  <MessageSquare className="w-12 h-12 text-[#DF3B2B]/30 mb-2.5" />
+                  <MessageSquare className="w-12 h-12 text-[#ad021a]/30 mb-2.5" />
                   <p className="font-bold text-base text-[#1C1917]">
                     {isGreek ? "Καλώς ήρθατε στο FRS UTH Chat!" : "Welcome to FRS UTH Chat!"}
                   </p>
@@ -472,7 +472,7 @@ export default function LiveChat({
                       <div className="flex items-center gap-1.5 mb-1 px-1">
                         <span
                           className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: msg.avatarColor || "#DF3B2B" }}
+                          style={{ backgroundColor: msg.avatarColor || "#ad021a" }}
                         />
                         <span className="text-[11px] font-bold text-[#1C1917]">
                           {msg.user}
@@ -484,7 +484,7 @@ export default function LiveChat({
                       <div
                         className={`max-w-[80%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 text-sm shadow-xs break-words leading-relaxed ${
                           isMe
-                            ? "bg-[#DF3B2B] text-white rounded-tr-xs"
+                            ? "bg-[#ad021a] text-white rounded-tr-xs"
                             : "bg-white text-[#1C1917] border border-black/[0.07] rounded-tl-xs"
                         }`}
                       >
@@ -511,7 +511,7 @@ export default function LiveChat({
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="w-11 h-11 rounded-2xl bg-[#DF3B2B] hover:bg-[#C62F20] text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#DF3B2B]/20 cursor-pointer"
+                className="w-11 h-11 rounded-2xl bg-[#ad021a] hover:bg-[#8f0115] text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#ad021a]/20 cursor-pointer"
               >
                 <Send className="w-4 h-4 ml-0.5" />
               </button>
@@ -548,7 +548,7 @@ export default function LiveChat({
 
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#DF3B2B] animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#ad021a] animate-pulse" />
                     <span className="text-xs sm:text-sm font-bold text-[#1C1917] truncate leading-tight">
                       {displayShowTitle}
                     </span>
@@ -565,10 +565,10 @@ export default function LiveChat({
                 {/* Soundwave Equalizer */}
                 {stationPlaying && (
                   <div className="hidden sm:flex items-end gap-0.5 h-3.5">
-                    <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-1" />
-                    <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-2" />
-                    <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-3" />
-                    <span className="w-0.5 bg-[#DF3B2B] rounded-full animate-wave-4" />
+                    <span className="w-0.5 bg-[#ad021a] rounded-full animate-wave-1" />
+                    <span className="w-0.5 bg-[#ad021a] rounded-full animate-wave-2" />
+                    <span className="w-0.5 bg-[#ad021a] rounded-full animate-wave-3" />
+                    <span className="w-0.5 bg-[#ad021a] rounded-full animate-wave-4" />
                   </div>
                 )}
 
@@ -577,17 +577,17 @@ export default function LiveChat({
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setIsMuted(!isMuted)}
-                      className="text-[#78716C] hover:text-[#DF3B2B] transition-colors cursor-pointer p-1"
+                      className="text-[#78716C] hover:text-[#ad021a] transition-colors cursor-pointer p-1"
                       aria-label={isMuted ? "Unmute" : "Mute"}
                     >
                       {isMuted || volume === 0 ? (
-                        <VolumeX className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                        <VolumeX className="w-3.5 h-3.5 text-[#ad021a]" />
                       ) : volume < 0.4 ? (
-                        <Volume className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                        <Volume className="w-3.5 h-3.5 text-[#ad021a]" />
                       ) : volume < 0.75 ? (
-                        <Volume1 className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                        <Volume1 className="w-3.5 h-3.5 text-[#ad021a]" />
                       ) : (
-                        <Volume2 className="w-3.5 h-3.5 text-[#DF3B2B]" />
+                        <Volume2 className="w-3.5 h-3.5 text-[#ad021a]" />
                       )}
                     </button>
 
@@ -602,7 +602,7 @@ export default function LiveChat({
                         if (isMuted) setIsMuted(false);
                       }}
                       style={{
-                        background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
+                        background: `linear-gradient(to right, #ad021a 0%, #ad021a ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
                       }}
                       className="w-16 sm:w-20 h-1.5 hover:h-2 rounded-lg volume-slider transition-all duration-200"
                       aria-label="Volume in chat"
@@ -610,7 +610,7 @@ export default function LiveChat({
                   </div>
                 )}
                 
-                <span className="bg-[#DF3B2B] text-white text-[9px] font-black px-2 py-0.5 rounded tracking-wider uppercase">
+                <span className="bg-[#ad021a] text-white text-[9px] font-black px-2 py-0.5 rounded tracking-wider uppercase">
                   LIVE
                 </span>
               </div>

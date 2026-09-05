@@ -36,7 +36,7 @@ export default function UthLogo({
   return (
     <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
       {/* Official Circular Logo */}
-      <div className={`${iconSizeClass} rounded-full overflow-hidden shrink-0 shadow-sm shadow-[#B20710]/20 transition-transform hover:scale-105 border border-black/5 bg-[#A30014]`}>
+      <div className={`${iconSizeClass} rounded-full overflow-hidden shrink-0 shadow-sm shadow-[#ad021a]/20 transition-transform hover:scale-105 border border-black/5 bg-[#ad021a]`}>
         <img
           src="/frs-circle-logo.png"
           alt="FRS UTH Campus Radio"
@@ -50,7 +50,7 @@ export default function UthLogo({
           <span className={`font-display font-black tracking-tight ${titleSizeClass} ${isDark ? "text-white" : "text-[#1C1917]"}`}>
             FRS UTH
           </span>
-          <span className={`font-grotesk font-extrabold tracking-widest mt-0.5 uppercase ${subSizeClass} text-[#DF3B2B]`}>
+          <span className={`font-grotesk font-extrabold tracking-widest mt-0.5 uppercase ${subSizeClass} text-[#ad021a]`}>
             Campus Radio
           </span>
         </div>

@@ -417,13 +417,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#DF3B2B]/20 selection:text-[#DF3B2B] relative">
+    <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#ad021a]/20 selection:text-[#ad021a] relative">
       
       {/* Ambient Glassmorphic Background Glow Orbs (Desktop only to prevent mobile GPU compositing artifacts) */}
       <div className="hidden md:block fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-24 right-[-10%] w-[520px] h-[520px] rounded-full bg-[#DF3B2B]/8 blur-[130px]" />
+        <div className="absolute -top-24 right-[-10%] w-[520px] h-[520px] rounded-full bg-[#ad021a]/8 blur-[130px]" />
         <div className="absolute top-[35%] left-[-10%] w-[580px] h-[580px] rounded-full bg-amber-500/7 blur-[150px]" />
-        <div className="absolute bottom-[10%] right-[15%] w-[480px] h-[480px] rounded-full bg-[#DF3B2B]/6 blur-[130px]" />
+        <div className="absolute bottom-[10%] right-[15%] w-[480px] h-[480px] rounded-full bg-[#ad021a]/6 blur-[130px]" />
       </div>
 
       {/* 1. TOP NAVIGATION HEADER (Slim, Sleek & Glassmorphic) */}
@@ -461,7 +461,7 @@ export default function App() {
                     <motion.div
                       layoutId="activeNavTabIndicator"
                       transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                      className="absolute inset-0 bg-[#DF3B2B] rounded-full shadow-xs -z-10"
+                      className="absolute inset-0 bg-[#ad021a] rounded-full shadow-xs -z-10"
                     />
                   )}
                   <span>{tab.label}</span>
@@ -518,7 +518,7 @@ export default function App() {
                 }
                 scrollToLiveStation();
               }}
-              className="flex items-center gap-1.5 sm:gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs shadow-md shadow-[#DF3B2B]/20 hover:shadow-lg hover:shadow-[#DF3B2B]/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-1.5 sm:gap-2 bg-[#ad021a] hover:bg-[#8f0115] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs shadow-md shadow-[#ad021a]/20 hover:shadow-lg hover:shadow-[#ad021a]/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
               {isLoadingAudio ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -539,7 +539,7 @@ export default function App() {
               aria-label={isMobileMenuOpen ? "Close menu" : "Open navigation menu"}
             >
               {isMobileMenuOpen ? (
-                <X className="w-4 h-4 text-[#DF3B2B]" />
+                <X className="w-4 h-4 text-[#ad021a]" />
               ) : (
                 <Menu className="w-4 h-4 text-[#1C1917]" />
               )}
@@ -560,7 +560,7 @@ export default function App() {
           >
             {/* Navigation Links */}
             <div className="flex flex-col gap-3 pt-2">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#DF3B2B] uppercase">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-[#ad021a] uppercase">
                 {isGreek ? "ΜΕΝΟΥ ΠΛΟΗΓΗΣΗΣ" : "NAVIGATION MENU"}
               </span>
 
@@ -579,12 +579,12 @@ export default function App() {
                       onClick={() => setActiveTab(item.id as TabId)}
                       className={`flex items-center justify-between p-4 rounded-2xl transition-all text-left cursor-pointer ${
                         isActive
-                          ? "bg-[#DF3B2B] text-white shadow-md shadow-[#DF3B2B]/20 font-bold"
+                          ? "bg-[#ad021a] text-white shadow-md shadow-[#ad021a]/20 font-bold"
                           : "bg-white text-[#1C1917] border border-black/[0.07] font-semibold hover:bg-[#FAF8F4]"
                       }`}
                     >
                       <div className="flex items-center gap-3.5">
-                        <span className={`text-xs font-mono font-bold ${isActive ? "text-white/80" : "text-[#DF3B2B]"}`}>
+                        <span className={`text-xs font-mono font-bold ${isActive ? "text-white/80" : "text-[#ad021a]"}`}>
                           {item.num}
                         </span>
                         <span className="font-editorial text-xl">
@@ -610,7 +610,7 @@ export default function App() {
                 className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-black/10 shadow-xs cursor-pointer hover:bg-[#FAF8F4] transition-colors"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-[#FCECEE] text-[#ad021a] flex items-center justify-center">
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <div className="flex flex-col text-left">
@@ -621,8 +621,8 @@ export default function App() {
                   </div>
                 </div>
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DF3B2B]"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ad021a] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ad021a]"></span>
                 </span>
               </button>
 
@@ -635,7 +635,7 @@ export default function App() {
                 className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-[#1C1917] text-white shadow-md cursor-pointer hover:bg-black transition-colors"
               >
                 <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-4 h-4 text-[#DF3B2B]" />
+                  <Sparkles className="w-4 h-4 text-[#ad021a]" />
                   <span className="text-xs font-bold">{currentT.openCallBadge}</span>
                 </div>
                 <span className="text-[11px] font-bold text-stone-300">{currentT.applyNow} →</span>
@@ -677,7 +677,7 @@ export default function App() {
                   <h1 className="font-display text-4xl sm:text-6xl lg:text-[64px] leading-[1.04] font-black tracking-tight text-[#1C1917]">
                     {currentT.heroTitle1} <br />
                     <span className="text-[#1C1917]">{currentT.heroPrefix}</span>
-                    <span className="text-[#DF3B2B]">{currentT.heroTitle2}</span>
+                    <span className="text-[#ad021a]">{currentT.heroTitle2}</span>
                   </h1>
 
                   {/* Subtitle - Crisp, Legible & Strong */}
@@ -693,7 +693,7 @@ export default function App() {
                         setStationPlaying(!stationPlaying);
                         scrollToLiveStation();
                       }}
-                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-[#DF3B2B] hover:bg-[#C62F20] text-white px-4 sm:px-7 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm shadow-md shadow-[#DF3B2B]/25 hover:shadow-lg hover:shadow-[#DF3B2B]/35 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-[#ad021a] hover:bg-[#8f0115] text-white px-4 sm:px-7 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm shadow-md shadow-[#ad021a]/25 hover:shadow-lg hover:shadow-[#ad021a]/35 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
                     >
                       {stationPlaying ? (
                         <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white text-white shrink-0" />
@@ -708,7 +708,7 @@ export default function App() {
                       onClick={() => setChatOpen(true)}
                       className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 sm:px-6 py-3 sm:py-3.5 rounded-full font-bold text-xs sm:text-sm shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95 whitespace-nowrap"
                     >
-                      <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#DF3B2B] shrink-0" />
+                      <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ad021a] shrink-0" />
                       <span className="whitespace-nowrap">{currentT.liveChat}</span>
                     </button>
                   </div>
@@ -740,7 +740,7 @@ export default function App() {
                   {/* Section Title Header */}
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-black/[0.06] pb-4">
                     <div>
-                      <div className="flex items-center gap-1.5 text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase mb-1">
+                      <div className="flex items-center gap-1.5 text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase mb-1">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{currentT.upcomingShowsTag}</span>
                       </div>
@@ -751,7 +751,7 @@ export default function App() {
 
                     <button
                       onClick={() => setActiveTab("program")}
-                      className="text-xs sm:text-sm font-bold text-[#DF3B2B] hover:text-[#C62F20] flex items-center gap-1 cursor-pointer transition-colors self-start sm:self-auto group"
+                      className="text-xs sm:text-sm font-bold text-[#ad021a] hover:text-[#8f0115] flex items-center gap-1 cursor-pointer transition-colors self-start sm:self-auto group"
                     >
                       <span>{currentT.fullWeekLink}</span>
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -765,7 +765,7 @@ export default function App() {
                     <div 
                       onClick={() => currentLiveShow && handleOpenShowDescription(currentLiveShow)}
                       className={`warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] relative overflow-hidden cursor-pointer ${
-                        currentLiveShow ? "border-l-4 border-l-[#DF3B2B]" : "border-t-2 border-t-[#DF3B2B]/40"
+                        currentLiveShow ? "border-l-4 border-l-[#ad021a]" : "border-t-2 border-t-[#ad021a]/40"
                       }`}
                     >
                       <div className="flex flex-col">
@@ -773,7 +773,7 @@ export default function App() {
                           <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-2.5 py-1 rounded-lg border border-black/5">
                             {currentLiveShow ? currentLiveShow.time : "Non-Stop Stream"}
                           </span>
-                          <span className="bg-[#FEECEB] text-[#DF3B2B] text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+                          <span className="bg-[#FCECEE] text-[#ad021a] text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                             {currentLiveShow ? (isGreek ? "ΖΩΝΤΑΝΑ ΤΩΡΑ" : "LIVE NOW") : (isGreek ? "ΤΩΡΑ • ΑΥΤΟΜΑΤΗ ΡΟΗ" : "NOW • AUTO STREAM")}
                           </span>
                         </div>
@@ -789,7 +789,7 @@ export default function App() {
 
                       <div className="mt-5 pt-3.5 border-t border-black/[0.05] flex items-center justify-between text-xs text-[#6B6560] font-semibold">
                         <span>{isGreek ? "Ζωντανή Ροή" : "Live Stream"}</span>
-                        <span className="w-2 h-2 rounded-full bg-[#DF3B2B]/70 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-[#ad021a]/70 animate-pulse" />
                       </div>
                     </div>
 
@@ -812,7 +812,7 @@ export default function App() {
                           {nextShow ? nextShow.title : "Indie Hour"}
                         </h3>
 
-                        <span className="text-xs font-bold text-[#DF3B2B] mt-1 flex items-center gap-1">
+                        <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
                           <Mic className="w-3.5 h-3.5" />
                           <span>{nextShow ? nextShow.host : "Sarah V."}</span>
                         </span>
@@ -849,7 +849,7 @@ export default function App() {
                           {laterShow ? laterShow.title : "Rock Anthems"}
                         </h3>
 
-                        <span className="text-xs font-bold text-[#DF3B2B] mt-1 flex items-center gap-1">
+                        <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
                           <Mic className="w-3.5 h-3.5" />
                           <span>{laterShow ? laterShow.host : "DJ George"}</span>
                         </span>
@@ -877,7 +877,7 @@ export default function App() {
                 {/* Left Column: Station Events */}
                 <div className="lg:col-span-6 flex flex-col justify-between">
                   <div>
-                    <div className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase mb-1">
+                    <div className="text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase mb-1">
                       {currentT.eventsTag}
                     </div>
                     <h2 className="font-display text-3xl sm:text-4xl font-black text-[#1C1917] tracking-tight">
@@ -890,15 +890,15 @@ export default function App() {
                     {/* Event 1 */}
                     <div 
                       onClick={() => setActiveTab("events")}
-                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#DF3B2B]/40 transition-all"
+                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#ad021a]/40 transition-all"
                     >
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60 group-hover:scale-105 transition-transform">
+                        <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9]/60 group-hover:scale-105 transition-transform">
                           <span className="font-display font-black text-xl leading-none">18</span>
                           <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate tracking-tight">
+                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
                             Campus Spring Festival 2026
                           </h4>
                           <p className="text-xs text-[#6B6560] truncate mt-0.5">
@@ -906,21 +906,21 @@ export default function App() {
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#DF3B2B] group-hover:translate-x-1 transition-all shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#ad021a] group-hover:translate-x-1 transition-all shrink-0" />
                     </div>
 
                     {/* Event 2 */}
                     <div 
                       onClick={() => setActiveTab("events")}
-                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#DF3B2B]/40 transition-all"
+                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#ad021a]/40 transition-all"
                     >
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-14 h-14 rounded-2xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4]/60 group-hover:scale-105 transition-transform">
+                        <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9]/60 group-hover:scale-105 transition-transform">
                           <span className="font-display font-black text-xl leading-none">24</span>
                           <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors truncate tracking-tight">
+                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
                             Workshop: Podcast & Audio Production
                           </h4>
                           <p className="text-xs text-[#6B6560] truncate mt-0.5">
@@ -928,7 +928,7 @@ export default function App() {
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#DF3B2B] group-hover:translate-x-1 transition-all shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#ad021a] group-hover:translate-x-1 transition-all shrink-0" />
                     </div>
                   </div>
                 </div>
@@ -944,7 +944,7 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
 
                     <div className="relative z-10 flex flex-col items-start text-left">
-                      <span className="bg-[#DF3B2B] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider mb-3">
+                      <span className="bg-[#ad021a] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider mb-3">
                         {currentT.openCallBadge}
                       </span>
                       
@@ -985,7 +985,7 @@ export default function App() {
             >
               {/* Program Header */}
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase">
                   {isGreek ? "ΡΟΗ ΕΚΠΟΜΠΩΝ" : "SHOW SCHEDULE"}
                 </span>
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
@@ -1058,12 +1058,12 @@ export default function App() {
                             <motion.div
                               layoutId="activeDayTabIndicator"
                               transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                              className="absolute inset-0 bg-[#DF3B2B] rounded-full shadow-md shadow-[#DF3B2B]/25 -z-10"
+                              className="absolute inset-0 bg-[#ad021a] rounded-full shadow-md shadow-[#ad021a]/25 -z-10"
                             />
                           )}
                           <span>{dayProg.fullName}</span>
                           {isToday && (
-                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#DF3B2B]"}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#ad021a]"}`} />
                           )}
                         </button>
                       );
@@ -1092,7 +1092,7 @@ export default function App() {
                           key={show.id}
                           onClick={() => handleOpenShowDescription(show)}
                           className={`warm-card rounded-3xl p-6 flex flex-col justify-between min-h-[220px] cursor-pointer group relative overflow-hidden ${
-                            isLive ? "border-l-4 border-l-[#DF3B2B] bg-[#FEECEB]/20" : ""
+                            isLive ? "border-l-4 border-l-[#ad021a] bg-[#FCECEE]/20" : ""
                           }`}
                         >
                           <div className="flex flex-col">
@@ -1101,18 +1101,18 @@ export default function App() {
                                 {show.time}
                               </span>
                               {isLive && (
-                                <span className="bg-[#FEECEB] text-[#DF3B2B] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#DF3B2B] animate-pulse" />
+                                <span className="bg-[#FCECEE] text-[#ad021a] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#ad021a] animate-pulse" />
                                   <span>LIVE</span>
                                 </span>
                               )}
                             </div>
 
-                            <h4 className="font-bold text-xl text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors leading-snug">
+                            <h4 className="font-bold text-xl text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
                               {show.title}
                             </h4>
 
-                            <span className="text-xs font-bold text-[#DF3B2B] mt-1.5 flex items-center gap-1">
+                            <span className="text-xs font-bold text-[#ad021a] mt-1.5 flex items-center gap-1">
                               <Mic className="w-3.5 h-3.5" />
                               <span>{show.host}</span>
                             </span>
@@ -1132,7 +1132,7 @@ export default function App() {
                                 e.stopPropagation();
                                 handleTuneChannel(show.id);
                               }}
-                              className="text-xs font-bold text-[#DF3B2B] hover:text-[#C62F20] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                              className="text-xs font-bold text-[#ad021a] hover:text-[#8f0115] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
                             >
                               <span>{isGreek ? "Ακρόαση" : "Listen"}</span>
                               <Play className="w-3 h-3 fill-current" />
@@ -1167,7 +1167,7 @@ export default function App() {
                               key={show.id}
                               onClick={() => handleOpenShowDescription(show)}
                               className={`warm-card rounded-2xl p-4 flex flex-col gap-2 cursor-pointer group ${
-                                isLive ? "border-l-4 border-l-[#DF3B2B] bg-[#FEECEB]/25" : ""
+                                isLive ? "border-l-4 border-l-[#ad021a] bg-[#FCECEE]/25" : ""
                               }`}
                             >
                               <div className="flex items-center justify-between">
@@ -1175,15 +1175,15 @@ export default function App() {
                                   {show.time}
                                 </span>
                                 {isLive && (
-                                  <span className="w-2 h-2 rounded-full bg-[#DF3B2B] animate-pulse" />
+                                  <span className="w-2 h-2 rounded-full bg-[#ad021a] animate-pulse" />
                                 )}
                               </div>
 
-                              <h5 className="font-bold text-sm text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors leading-snug">
+                              <h5 className="font-bold text-sm text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
                                 {show.title}
                               </h5>
 
-                              <span className="text-[11px] font-semibold text-[#DF3B2B]">
+                              <span className="text-[11px] font-semibold text-[#ad021a]">
                                 {show.host}
                               </span>
                             </div>
@@ -1211,7 +1211,7 @@ export default function App() {
               className="flex flex-col gap-10 max-w-5xl mx-auto w-full"
             >
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase">
                   {currentT.eventsTag}
                 </span>
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
@@ -1222,7 +1222,7 @@ export default function App() {
               <div className="grid grid-cols-1 gap-6 w-full">
                 {/* Event 1 */}
                 <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4] shadow-sm">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
                     <span className="font-black text-2xl sm:text-3xl leading-none">18</span>
                     <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΜΑΙ</span>
                   </div>
@@ -1230,7 +1230,7 @@ export default function App() {
                   <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold text-[#DF3B2B] bg-[#FEECEB] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                           Festival & Outdoor Stage
                         </span>
                         <span className="text-xs font-mono text-[#6B6560]">
@@ -1258,7 +1258,7 @@ export default function App() {
 
                 {/* Event 2 */}
                 <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4] shadow-sm">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
                     <span className="font-black text-2xl sm:text-3xl leading-none">24</span>
                     <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΜΑΙ</span>
                   </div>
@@ -1266,7 +1266,7 @@ export default function App() {
                   <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold text-[#DF3B2B] bg-[#FEECEB] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                           Workshop & Studio Training
                         </span>
                         <span className="text-xs font-mono text-[#6B6560]">
@@ -1294,7 +1294,7 @@ export default function App() {
 
                 {/* Event 3 */}
                 <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FEECEB] text-[#DF3B2B] flex flex-col items-center justify-center shrink-0 border border-[#F7C8C4] shadow-sm">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
                     <span className="font-black text-2xl sm:text-3xl leading-none">06</span>
                     <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΙΟΥΝ</span>
                   </div>
@@ -1302,7 +1302,7 @@ export default function App() {
                   <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold text-[#DF3B2B] bg-[#FEECEB] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                           Vinyl Session & DJ Set
                         </span>
                         <span className="text-xs font-mono text-[#6B6560]">
@@ -1344,7 +1344,7 @@ export default function App() {
               className="flex flex-col gap-8 max-w-5xl mx-auto w-full"
             >
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase">
                   {isGreek ? "ΑΡΧΕΙΟ ΕΚΠΟΜΠΩΝ" : "AUDIO VAULT"}
                 </span>
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
@@ -1386,7 +1386,7 @@ export default function App() {
 
                     <div className="p-5 flex-1 flex flex-col justify-between">
                       <div>
-                        <h4 className="font-bold text-base text-[#1C1917] group-hover:text-[#DF3B2B] transition-colors leading-snug">
+                        <h4 className="font-bold text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
                           {item.title}
                         </h4>
                         <p className="text-xs text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
@@ -1407,7 +1407,7 @@ export default function App() {
                           href={item.mixcloudUrl || "https://www.mixcloud.com/frs-volou/"}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs font-bold text-[#DF3B2B] hover:text-[#C62F20] flex items-center gap-1"
+                          className="text-xs font-bold text-[#ad021a] hover:text-[#8f0115] flex items-center gap-1"
                         >
                           <span>Mixcloud</span>
                           <ExternalLink className="w-3 h-3" />
@@ -1446,7 +1446,7 @@ export default function App() {
               className="flex flex-col gap-10 max-w-4xl mx-auto w-full"
             >
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-grotesk font-bold text-[#DF3B2B] tracking-wider uppercase">
+                <span className="text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase">
                   {isGreek ? "ΕΠΙΚΟΙΝΩΝΙΑ" : "GET IN TOUCH"}
                 </span>
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
@@ -1463,7 +1463,7 @@ export default function App() {
                 {/* Contact Info Cards */}
                 <div className="md:col-span-5 flex flex-col gap-4">
                   <div className="warm-card rounded-2xl p-5 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#FCECEE] text-[#ad021a] flex items-center justify-center shrink-0">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
@@ -1475,13 +1475,13 @@ export default function App() {
                   </div>
 
                   <div className="warm-card rounded-2xl p-5 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#FEECEB] text-[#DF3B2B] flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#FCECEE] text-[#ad021a] flex items-center justify-center shrink-0">
                       <Mail className="w-5 h-5" />
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-[#1C1917]">Email</h4>
                       <p className="text-xs text-[#6B6560] mt-1">
-                        <a href="mailto:info@frsvolou.gr" className="hover:text-[#DF3B2B] transition-colors">info@frsvolou.gr</a>
+                        <a href="mailto:info@frsvolou.gr" className="hover:text-[#ad021a] transition-colors">info@frsvolou.gr</a>
                       </p>
                     </div>
                   </div>
@@ -1491,7 +1491,7 @@ export default function App() {
                 <div className="md:col-span-7 warm-card rounded-3xl p-6 sm:p-8">
                   {contactSubmitted ? (
                     <div className="flex flex-col items-center justify-center text-center py-8 gap-3">
-                      <CheckCircle2 className="w-12 h-12 text-[#DF3B2B]" />
+                      <CheckCircle2 className="w-12 h-12 text-[#ad021a]" />
                       <h3 className="font-bold text-xl text-[#1C1917]">
                         {isGreek ? "Το μήνυμα στάλθηκε!" : "Message Sent!"}
                       </h3>
@@ -1505,7 +1505,7 @@ export default function App() {
                           setContactSubmitted(false);
                           setContactForm({ name: "", email: "", category: "join", message: "" });
                         }}
-                        className="mt-4 px-6 py-2.5 rounded-full bg-[#DF3B2B] text-white font-bold text-xs hover:bg-[#C62F20] transition-colors cursor-pointer"
+                        className="mt-4 px-6 py-2.5 rounded-full bg-[#ad021a] text-white font-bold text-xs hover:bg-[#8f0115] transition-colors cursor-pointer"
                       >
                         {isGreek ? "Νέο Μήνυμα" : "New Message"}
                       </button>
@@ -1599,7 +1599,7 @@ export default function App() {
                       <button
                         type="submit"
                         disabled={contactLoading}
-                        className="w-full bg-[#DF3B2B] hover:bg-[#C62F20] text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#DF3B2B]/20"
+                        className="w-full bg-[#ad021a] hover:bg-[#8f0115] text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#ad021a]/20"
                       >
                         {contactLoading ? (
                           <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
@@ -1681,7 +1681,7 @@ export default function App() {
                 rel="noopener noreferrer"
                 className="mt-2 inline-flex items-center gap-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-700 text-white px-4 py-2.5 rounded-full font-bold text-xs transition-all w-fit shadow-md group"
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-[#DF3B2B] group-hover:scale-110 transition-transform" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#ad021a] group-hover:scale-110 transition-transform" />
                 <span>{currentT.mixcloudBtn}</span>
               </a>
             </div>
@@ -1719,10 +1719,10 @@ export default function App() {
             className="fixed bottom-6 right-6 z-30 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-black/10 flex items-center gap-2.5 cursor-pointer group"
           >
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DF3B2B] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#DF3B2B]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ad021a] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ad021a]"></span>
             </span>
-            <MessageSquare className="w-4 h-4 text-[#DF3B2B] group-hover:scale-110 transition-transform" />
+            <MessageSquare className="w-4 h-4 text-[#ad021a] group-hover:scale-110 transition-transform" />
             <span>Live Chat</span>
           </motion.button>
         )}
@@ -1765,7 +1765,7 @@ export default function App() {
                   <div>
                     <div className="flex flex-wrap gap-1.5 mb-2">
                       {selectedShow.tags.map(tag => (
-                        <span key={tag} className="text-[10px] bg-[#FEECEB] text-[#DF3B2B] px-2.5 py-0.5 rounded-full font-bold">
+                        <span key={tag} className="text-[10px] bg-[#FCECEE] text-[#ad021a] px-2.5 py-0.5 rounded-full font-bold">
                           {tag}
                         </span>
                       ))}
@@ -1773,7 +1773,7 @@ export default function App() {
                     <h2 className="font-display text-2xl sm:text-3xl font-black text-[#1C1917] tracking-tight">
                       {selectedShow.title}
                     </h2>
-                    <p className="text-xs font-bold text-[#DF3B2B] mt-0.5">
+                    <p className="text-xs font-bold text-[#ad021a] mt-0.5">
                       {isGreek ? "Παραγωγός" : "Hosted by"}: {selectedShow.host}
                     </p>
                   </div>
@@ -1788,7 +1788,7 @@ export default function App() {
                         handleTuneChannel(selectedShow.id);
                         setSelectedShowId(null);
                       }}
-                      className="flex-1 bg-[#DF3B2B] hover:bg-[#C62F20] text-white py-3 px-5 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#DF3B2B]/20"
+                      className="flex-1 bg-[#ad021a] hover:bg-[#8f0115] text-white py-3 px-5 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#ad021a]/20"
                     >
                       <Play className="w-4 h-4 fill-white" />
                       <span>{isGreek ? "Συντονισμός & Ακρόαση" : "Tune & Listen"}</span>
@@ -1825,7 +1825,7 @@ export default function App() {
 
               {openCallSubmitted ? (
                 <div className="flex flex-col items-center text-center py-6 gap-3">
-                  <CheckCircle2 className="w-14 h-14 text-[#DF3B2B]" />
+                  <CheckCircle2 className="w-14 h-14 text-[#ad021a]" />
                   <h3 className="font-display text-2xl font-black text-[#1C1917] tracking-tight">
                     {isGreek ? "Η αίτηση καταχωρήθηκε!" : "Application Submitted!"}
                   </h3>
@@ -1839,7 +1839,7 @@ export default function App() {
                       setOpenCallSubmitted(false);
                       setIsOpenCallModalOpen(false);
                     }}
-                    className="mt-4 px-6 py-2.5 rounded-full bg-[#DF3B2B] text-white font-bold text-xs cursor-pointer"
+                    className="mt-4 px-6 py-2.5 rounded-full bg-[#ad021a] text-white font-bold text-xs cursor-pointer"
                   >
                     OK
                   </button>
@@ -1871,7 +1871,7 @@ export default function App() {
                   }}
                   className="flex flex-col gap-3.5"
                 >
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#DF3B2B] uppercase">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#ad021a] uppercase">
                     <Sparkles className="w-4 h-4" />
                     <span>Open Call 2026</span>
                   </div>
@@ -1960,7 +1960,7 @@ export default function App() {
                   <button
                     type="submit"
                     disabled={openCallLoading}
-                    className="w-full bg-[#DF3B2B] hover:bg-[#C62F20] text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#DF3B2B]/20 mt-2"
+                    className="w-full bg-[#ad021a] hover:bg-[#8f0115] text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#ad021a]/20 mt-2"
                   >
                     {openCallLoading ? (
                       <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />

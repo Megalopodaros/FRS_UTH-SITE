@@ -14,10 +14,10 @@
   --color-surface-hover: #FAF8F3;
   --color-surface-dark: #111215;
   
-  --color-brand: #DF3B2B;
-  --color-brand-hover: #C62F20;
-  --color-brand-tint: #FEECEB;
-  --color-brand-border: #F7C8C4;
+  --color-brand: #ad021a;
+  --color-brand-hover: #8f0115;
+  --color-brand-tint: #FCECEE;
+  --color-brand-border: #F2C4C9;
   
   --color-ink: #1C1917;
   --color-ink-muted: #6B6560;
@@ -104,7 +104,7 @@ body {
   background: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
-  border-color: rgba(223, 59, 43, 0.25);
+  border-color: rgba(173, 2, 26, 0.25);
 }
 
 @media (min-width: 768px) {
@@ -152,8 +152,8 @@ body {
 }
 .field:focus {
   background-color: #FFFFFF;
-  border-color: #DF3B2B;
-  box-shadow: 0 0 0 3px rgba(223, 59, 43, 0.15);
+  border-color: #ad021a;
+  box-shadow: 0 0 0 3px rgba(173, 2, 26, 0.15);
 }
 .field::placeholder {
   color: #9C948D;
@@ -161,7 +161,7 @@ body {
 
 /* Custom Animated Volume Slider */
 input[type="range"] {
-  accent-color: #DF3B2B;
+  accent-color: #ad021a;
 }
 
 .volume-slider {
@@ -180,7 +180,7 @@ input[type="range"] {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #DF3B2B;
+  background: #ad021a;
   border: 2px solid #FFFFFF;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   cursor: pointer;
@@ -190,8 +190,8 @@ input[type="range"] {
 .volume-slider:hover::-webkit-slider-thumb,
 .volume-slider:active::-webkit-slider-thumb {
   transform: scale(1.4);
-  background: #C62F20;
-  box-shadow: 0 0 0 5px rgba(223, 59, 43, 0.25), 0 2px 8px rgba(0, 0, 0, 0.35);
+  background: #8f0115;
+  box-shadow: 0 0 0 5px rgba(173, 2, 26, 0.25), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* Firefox Thumb Animation & Styling */
@@ -199,7 +199,7 @@ input[type="range"] {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #DF3B2B;
+  background: #ad021a;
   border: 2px solid #FFFFFF;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   cursor: pointer;
@@ -210,17 +210,17 @@ input[type="range"] {
 .volume-slider:hover::-moz-range-thumb,
 .volume-slider:active::-moz-range-thumb {
   transform: scale(1.4);
-  background: #C62F20;
-  box-shadow: 0 0 0 5px rgba(223, 59, 43, 0.25), 0 2px 8px rgba(0, 0, 0, 0.35);
+  background: #8f0115;
+  box-shadow: 0 0 0 5px rgba(173, 2, 26, 0.25), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* Subtle breathing glow when audio is playing */
 @keyframes volume-glow-pulse {
   0%, 100% {
-    filter: drop-shadow(0 0 0px rgba(223, 59, 43, 0));
+    filter: drop-shadow(0 0 0px rgba(173, 2, 26, 0));
   }
   50% {
-    filter: drop-shadow(0 0 3.5px rgba(223, 59, 43, 0.5));
+    filter: drop-shadow(0 0 3.5px rgba(173, 2, 26, 0.5));
   }
 }
 
