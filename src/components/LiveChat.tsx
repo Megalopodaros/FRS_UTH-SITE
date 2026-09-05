@@ -17,7 +17,8 @@ import {
   Pause, 
   Radio,
   Loader2,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChatMessage, LivePollData } from "../types";
@@ -25,7 +26,7 @@ import { collection, addDoc, query, limit, onSnapshot, serverTimestamp, getDocs,
 import { db, rtdb } from "../lib/firebase";
 import { ref, onValue, onDisconnect, set } from "firebase/database";
 import LivePoll from "./LivePoll";
-import { markPollResultAnnounced } from "../lib/pollService";
+import { markPollResultAnnounced, isProducerAuthenticated, logoutProducer } from "../lib/pollService";
 
 interface LiveChatProps {
   isGreek: boolean;
@@ -110,8 +111,21 @@ export default function LiveChat({
   const [tempName, setTempName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [onlineCount, setOnlineCount] = useState(1);
+  const [isProducer, setIsProducer] = useState<boolean>(() => isProducerAuthenticated());
+  const [showProducerAuthModal, setShowProducerAuthModal] = useState(false);
+  const [showProducerCreateModal, setShowProducerCreateModal] = useState(false);
   const lastSendTimeRef = useRef<number>(0);
   const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
+
+  // Sync producer authentication state when chat opens
+  useEffect(() => {
+    setIsProducer(isProducerAuthenticated());
+  }, [isOpen]);
+
+  const handleProducerLogout = () => {
+    logoutProducer();
+    setIsProducer(false);
+  };
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -409,6 +423,40 @@ export default function LiveChat({
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       {onlineCount} {isGreek ? "online" : "online"}
                     </span>
+
+                    {/* PRODUCER SHIELD BUTTON NEXT TO ONLINE BADGE */}
+                    {!isProducer ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowProducerAuthModal(true)}
+                        className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-1 rounded-md"
+                        title={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
+                        aria-label={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
+                      >
+                        <ShieldCheck className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1.5 bg-[#FCECEE] border border-[#ad021a]/25 px-2 py-0.5 rounded-full shadow-2xs">
+                        <button
+                          type="button"
+                          onClick={() => setShowProducerCreateModal(true)}
+                          className="text-[#ad021a] hover:text-[#8f0115] font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                          title={isGreek ? "Δημιουργία νέου Poll" : "Create new Poll"}
+                        >
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>{isGreek ? "+ Poll" : "+ Poll"}</span>
+                        </button>
+                        <span className="text-[#ad021a]/30 text-[10px]">•</span>
+                        <button
+                          type="button"
+                          onClick={handleProducerLogout}
+                          className="text-[10px] text-[#78716C] hover:text-[#ad021a] transition-colors cursor-pointer"
+                          title={isGreek ? "Αποσύνδεση Παραγωγού" : "Logout Producer"}
+                        >
+                          {isGreek ? "Έξοδος" : "Exit"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <p className="text-xs text-[#78716C] mt-0.5">
                     {displayShowTitle} • {displayShowHost}
@@ -482,13 +530,34 @@ export default function LiveChat({
             </div>
 
             {/* PINNED LIVE POLL / PRODUCER POLL SECTION */}
-            <div className="px-4 sm:px-6 pt-2.5 pb-1 border-b border-black/[0.06] bg-[#FAF8F4]/80 shrink-0">
+            {(activePoll || isProducer) && (
+              <div className="px-4 sm:px-6 pt-2.5 pb-2 border-b border-black/[0.06] bg-[#FAF8F4]/80 shrink-0">
+                <LivePoll
+                  isGreek={isGreek}
+                  poll={activePoll || null}
+                  sessionId={currentSessionId || ""}
+                  isProducer={isProducer}
+                  onProducerStatusChange={setIsProducer}
+                  showAuthModal={showProducerAuthModal}
+                  setShowAuthModal={setShowProducerAuthModal}
+                  showCreateModal={showProducerCreateModal}
+                  setShowCreateModal={setShowProducerCreateModal}
+                />
+              </div>
+            )}
+            {!activePoll && !isProducer && (
               <LivePoll
                 isGreek={isGreek}
-                poll={activePoll || null}
+                poll={null}
                 sessionId={currentSessionId || ""}
+                isProducer={false}
+                onProducerStatusChange={setIsProducer}
+                showAuthModal={showProducerAuthModal}
+                setShowAuthModal={setShowProducerAuthModal}
+                showCreateModal={showProducerCreateModal}
+                setShowCreateModal={setShowProducerCreateModal}
               />
-            </div>
+            )}
 
             {/* Main Chat Message Stream (Comfortable Readable Scale) */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">

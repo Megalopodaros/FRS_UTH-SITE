@@ -41,6 +41,10 @@ interface LivePollProps {
   onProducerStatusChange?: (isProducer: boolean) => void;
   className?: string;
   onOpenChat?: () => void;
+  showAuthModal?: boolean;
+  setShowAuthModal?: (show: boolean) => void;
+  showCreateModal?: boolean;
+  setShowCreateModal?: (show: boolean) => void;
 }
 
 export default function LivePoll({
@@ -50,11 +54,27 @@ export default function LivePoll({
   isProducer: propIsProducer,
   onProducerStatusChange,
   className = "",
-  onOpenChat
+  onOpenChat,
+  showAuthModal: propShowAuthModal,
+  setShowAuthModal: propSetShowAuthModal,
+  showCreateModal: propShowCreateModal,
+  setShowCreateModal: propSetShowCreateModal
 }: LivePollProps) {
-  const [isProducer, setIsProducer] = useState<boolean>(() => isProducerAuthenticated());
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [internalIsProducer, setInternalIsProducer] = useState<boolean>(() => isProducerAuthenticated());
+  const isProducer = propIsProducer !== undefined ? propIsProducer : internalIsProducer;
+  const setIsProducer = (val: boolean) => {
+    setInternalIsProducer(val);
+    onProducerStatusChange?.(val);
+  };
+
+  const [internalShowAuthModal, setInternalShowAuthModal] = useState(false);
+  const showAuthModal = propShowAuthModal !== undefined ? propShowAuthModal : internalShowAuthModal;
+  const setShowAuthModal = propSetShowAuthModal || setInternalShowAuthModal;
+
+  const [internalShowCreateModal, setInternalShowCreateModal] = useState(false);
+  const showCreateModal = propShowCreateModal !== undefined ? propShowCreateModal : internalShowCreateModal;
+  const setShowCreateModal = propSetShowCreateModal || setInternalShowCreateModal;
+
   const [pinInput, setPinInput] = useState("");
   const [producerNameInput, setProducerNameInput] = useState("");
   const [authError, setAuthError] = useState("");
@@ -86,7 +106,7 @@ export default function LivePoll({
   // Sync external producer state
   useEffect(() => {
     const current = isProducerAuthenticated();
-    setIsProducer(current);
+    setInternalIsProducer(current);
     onProducerStatusChange?.(current);
   }, [onProducerStatusChange]);
 
@@ -124,10 +144,11 @@ export default function LivePoll({
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
-    const ok = verifyProducerPin(pinInput, producerNameInput || (isGreek ? "Παραγωγός FRS" : "FRS Producer"));
+    const defaultProducer = isGreek ? "The Hangover" : "The Hangover";
+    const chosenName = producerNameInput.trim() || defaultProducer;
+    const ok = verifyProducerPin(pinInput, chosenName);
     if (ok) {
       setIsProducer(true);
-      onProducerStatusChange?.(true);
       setShowAuthModal(false);
       setPinInput("");
       setProducerNameInput("");
@@ -139,7 +160,6 @@ export default function LivePoll({
   const handleLogout = () => {
     logoutProducer();
     setIsProducer(false);
-    onProducerStatusChange?.(false);
   };
 
   // Handle Cast Vote
@@ -420,39 +440,6 @@ export default function LivePoll({
       )}
 
       {/* -------------------------------------------------------------
-          3. PRODUCER ACCESS FOOTER LINK / BUTTON (Discreet lock button)
-         ------------------------------------------------------------- */}
-      <div className="flex justify-end pt-1">
-        {!isProducer ? (
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-90 transition-all cursor-pointer p-1 rounded-md"
-            title={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
-            aria-label={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-          </button>
-        ) : (
-          <div className="flex items-center gap-2 text-[10px]">
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="text-[#ad021a] hover:underline font-bold flex items-center gap-1 cursor-pointer"
-            >
-              <Plus className="w-3 h-3" />
-              <span>{isGreek ? "Δημιουργία Poll" : "Create Poll"}</span>
-            </button>
-            <span className="text-[#9C948D]">•</span>
-            <button
-              onClick={handleLogout}
-              className="text-[#9C948D] hover:text-[#1C1917] transition-colors cursor-pointer"
-            >
-              {isGreek ? "Αποσύνδεση" : "Logout"}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* -------------------------------------------------------------
           MODAL A: PRODUCER PIN AUTHENTICATION
          ------------------------------------------------------------- */}
       <AnimatePresence>
@@ -477,10 +464,10 @@ export default function LivePoll({
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-[#1C1917]">
-                    {isGreek ? "Σύνδεση Παραγωγού" : "Producer Access"}
+                    {isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
                   </h3>
                   <p className="text-xs text-[#78716C]">
-                    {isGreek ? "Εισάγετε το PIN για διαχείριση poll" : "Enter PIN to unlock poll controls"}
+                    {isGreek ? "Εισάγετε το PIN" : "Enter PIN"}
                   </p>
                 </div>
               </div>
@@ -488,20 +475,20 @@ export default function LivePoll({
               <form onSubmit={handleAuthSubmit} className="flex flex-col gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#1C1917] mb-1">
-                    {isGreek ? "Όνομα Παραγωγού / Εκπομπής (προαιρετικό)" : "Producer Name (optional)"}
+                    {isGreek ? "Όνομα Παραγωγού / Εκπομπής:" : "Producer / Show Name:"}
                   </label>
                   <input
                     type="text"
                     value={producerNameInput}
                     onChange={(e) => setProducerNameInput(e.target.value)}
-                    placeholder={isGreek ? "π.χ. Rock Wave" : "e.g. Rock Wave"}
+                    placeholder={isGreek ? "π.χ. The Hangover" : "e.g. The Hangover"}
                     className="field py-2 px-3 text-xs w-full"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-[#1C1917] mb-1">
-                    {isGreek ? "Κωδικός PIN" : "Secret PIN"}
+                    {isGreek ? "Κωδικός PIN:" : "PIN Code:"}
                   </label>
                   <input
                     type="password"
