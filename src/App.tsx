@@ -59,6 +59,7 @@ export default function App() {
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [hasUnreadChat, setHasUnreadChat] = useState(false);
   const [activeTrackId, setActiveTrackId] = useState<string>("");
   const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
   const [isOpenCallModalOpen, setIsOpenCallModalOpen] = useState(false);
@@ -618,6 +619,7 @@ export default function App() {
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   setChatOpen(true);
+                  setHasUnreadChat(false);
                 }}
                 className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-black/10 shadow-xs cursor-pointer hover:bg-[#FAF8F4] transition-colors"
               >
@@ -632,10 +634,12 @@ export default function App() {
                     </span>
                   </div>
                 </div>
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ad021a] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ad021a]"></span>
-                </span>
+                {hasUnreadChat && (
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ad021a] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ad021a]"></span>
+                  </span>
+                )}
               </button>
 
               {/* Open Call Button */}
@@ -1748,13 +1752,18 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setChatOpen(true)}
+            onClick={() => {
+              setChatOpen(true);
+              setHasUnreadChat(false);
+            }}
             className="fixed bottom-6 right-6 z-30 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-black/10 flex items-center gap-2.5 cursor-pointer group"
           >
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ad021a] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ad021a]"></span>
-            </span>
+            {hasUnreadChat && (
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ad021a] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ad021a]"></span>
+              </span>
+            )}
             <MessageSquare className="w-4 h-4 text-[#ad021a] group-hover:scale-110 transition-transform" />
             <span>Live Chat</span>
           </motion.button>
@@ -2027,6 +2036,7 @@ export default function App() {
         isMuted={isMuted}
         setIsMuted={setIsMuted}
         activePoll={activePoll}
+        onUnreadChange={setHasUnreadChat}
       />
 
     </div>

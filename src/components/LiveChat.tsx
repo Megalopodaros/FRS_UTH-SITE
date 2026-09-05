@@ -43,6 +43,7 @@ interface LiveChatProps {
   isMuted?: boolean;
   setIsMuted?: (m: boolean) => void;
   activePoll?: LivePollData | null;
+  onUnreadChange?: (hasUnread: boolean) => void;
 }
 
 const TAB_NAME_KEY = "frs_tab_user_name";
@@ -101,7 +102,8 @@ export default function LiveChat({
   setVolume,
   isMuted = false,
   setIsMuted,
-  activePoll = null
+  activePoll = null,
+  onUnreadChange
 }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -115,6 +117,36 @@ export default function LiveChat({
   const [showProducerCreateModal, setShowProducerCreateModal] = useState(false);
   const lastSendTimeRef = useRef<number>(0);
   const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
+
+  // Unread messages tracking
+  const isInitialSnapshotRef = useRef(true);
+  const lastSeenTimeRef = useRef<number>(
+    typeof window !== "undefined" && sessionStorage.getItem("frs_last_seen_chat_time")
+      ? Number(sessionStorage.getItem("frs_last_seen_chat_time"))
+      : Date.now()
+  );
+
+  const isOpenRef = useRef(isOpen);
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  const onUnreadChangeRef = useRef(onUnreadChange);
+  useEffect(() => {
+    onUnreadChangeRef.current = onUnreadChange;
+  }, [onUnreadChange]);
+
+  // Mark messages as seen whenever the chat modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      const now = Date.now();
+      lastSeenTimeRef.current = now;
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("frs_last_seen_chat_time", now.toString());
+      }
+      onUnreadChangeRef.current?.(false);
+    }
+  }, [isOpen]);
 
   // Sync producer authentication state when chat opens
   useEffect(() => {
@@ -233,8 +265,20 @@ export default function LiveChat({
       q,
       (snapshot) => {
         const list: ChatMessage[] = [];
+        let hasNewExternalMsg = false;
+        const currentSession = typeof window !== "undefined" ? sessionStorage.getItem(TAB_SESSION_KEY) : null;
+        const lastSeen = lastSeenTimeRef.current;
+        const chatIsOpen = isOpenRef.current;
+
         snapshot.forEach((doc) => {
           const data = doc.data();
+          const msgMillis = data.createdAt?.toMillis ? data.createdAt.toMillis() : (data.createdAt instanceof Date ? data.createdAt.getTime() : null);
+
+          // If chat is not open, check if this is an unseen message sent by someone else
+          if (!chatIsOpen && msgMillis && msgMillis > lastSeen && data.sessionId !== currentSession) {
+            hasNewExternalMsg = true;
+          }
+
           list.push({
             id: doc.id,
             user: data.user || "Ανώνυμος",
@@ -245,6 +289,15 @@ export default function LiveChat({
             isSystem: Boolean(data.isSystem)
           });
         });
+
+        if (isInitialSnapshotRef.current) {
+          isInitialSnapshotRef.current = false;
+        }
+
+        if (hasNewExternalMsg && !chatIsOpen) {
+          onUnreadChangeRef.current?.(true);
+        }
+
         setMessages(list);
       },
       (err) => {
@@ -318,28 +371,6 @@ export default function LiveChat({
         sessionId: sessionId,
         createdAt: serverTimestamp()
       });
-
-      // Play soft pop sound
-      try {
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioCtx) {
-          const audioCtx = new AudioCtx();
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.1);
-          setTimeout(() => {
-            try { audioCtx.close(); } catch {}
-          }, 200);
-        }
-      } catch {}
     } catch (err) {
       console.error("Error sending message to Firestore:", err);
     }
