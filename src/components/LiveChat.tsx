@@ -17,7 +17,6 @@ import {
   Pause, 
   Radio,
   Loader2,
-  Sparkles,
   ShieldCheck
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -271,8 +270,8 @@ export default function LiveChat({
           addDoc(collection(db, "messages"), {
             user: "FRS UTH System",
             text: isGreek
-              ? `📊 Ολοκληρώθηκε το Live Poll: «${activePoll.question}». Νικητής: «${winner.text}» με ${percent}% (${winner.votes} ${winner.votes === 1 ? "ψήφο" : "ψήφους"})!`
-              : `📊 Live Poll Ended: "${activePoll.question}". Winner: "${winner.text}" with ${percent}% (${winner.votes} ${winner.votes === 1 ? "vote" : "votes"})!`,
+              ? `Poll: «${activePoll.question}» • Νικητής: «${winner.text}» (${percent}%)`
+              : `Poll: "${activePoll.question}" • Winner: "${winner.text}" (${percent}%)`,
             timestamp: timeStr,
             isSystem: true,
             avatarColor: "#ad021a",
@@ -576,12 +575,21 @@ export default function LiveChat({
               ) : (
                 messages.map((msg) => {
                   if (msg.isSystem) {
+                    const cleanText = msg.text
+                      .replace(/^[📊✨\s]+/, "")
+                      .replace(/📊|✨/g, "")
+                      .replace(/^Ολοκληρώθηκε το Live Poll:\s*/i, "Poll: ")
+                      .replace(/^Live Poll Ended:\s*/i, "Poll: ")
+                      .trim();
+
                     return (
-                      <div key={msg.id} className="w-full flex justify-center my-1.5 px-2">
-                        <div className="bg-[#FCECEE] border border-[#ad021a]/25 text-[#ad021a] text-xs font-semibold px-4 py-2 rounded-2xl shadow-xs text-center max-w-[95%] leading-relaxed flex items-center justify-center gap-2">
-                          <Sparkles className="w-4 h-4 shrink-0 text-[#ad021a]" />
-                          <span>{msg.text}</span>
+                      <div key={msg.id} className="w-full flex items-center gap-3 my-2.5 px-3">
+                        <div className="flex-1 h-px bg-black/[0.06]" />
+                        <div className="bg-white/90 border border-black/10 text-[#1C1917] text-[11px] font-medium px-3.5 py-1.5 rounded-full shadow-2xs text-center max-w-[90%] leading-relaxed flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#ad021a] shrink-0" />
+                          <span>{cleanText}</span>
                         </div>
+                        <div className="flex-1 h-px bg-black/[0.06]" />
                       </div>
                     );
                   }
