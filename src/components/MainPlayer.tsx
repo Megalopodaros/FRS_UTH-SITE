@@ -163,7 +163,7 @@ export default function MainPlayer({
   className = ""
 }: MainPlayerProps) {
   const [copiedShare, setCopiedShare] = React.useState(false);
-  const [, setTick] = React.useState(Date.now());
+  const [tick, setTick] = React.useState(Date.now());
   const [isVolumeHovered, setIsVolumeHovered] = React.useState(false);
   const [isVolumeDragging, setIsVolumeDragging] = React.useState(false);
 
