@@ -350,28 +350,28 @@ export default function MainPlayer({
       <div className="glass-panel rounded-3xl overflow-hidden shadow-2xl border border-white/90 flex flex-col transition-all">
         
         {/* Top Portion: Studio Photo with Live Now Overlay */}
-        <div className="relative aspect-[16/10] sm:aspect-[16/9] md:aspect-[4/3] bg-stone-900 overflow-hidden group">
+        <div className="relative aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/9] lg:aspect-[16/8.5] bg-stone-900 overflow-hidden group">
           <img
             src="/hero-studio.jpg"
             alt="FRS UTH Radio Broadcast Studio"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="w-full h-full object-cover object-[center_55%] group-hover:scale-105 transition-transform duration-700"
           />
           {/* Smooth bottom gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
           {/* Bottom Overlay on Image: Show Title & Producer */}
-          <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 text-white">
-            <h4 className="font-display text-xl sm:text-2xl lg:text-3xl font-black leading-tight drop-shadow-sm truncate tracking-tight">
+          <div className="absolute bottom-3 left-3.5 right-3.5 sm:bottom-3.5 sm:left-4 sm:right-4 text-white">
+            <h4 className="font-display text-lg sm:text-xl lg:text-2xl font-black leading-tight drop-shadow-sm truncate tracking-tight">
               {displayTitle}
             </h4>
-            <p className="font-sans text-xs sm:text-sm text-stone-300 mt-1 truncate font-semibold">
+            <p className="font-sans text-xs sm:text-sm text-stone-300 mt-0.5 truncate font-semibold">
               {displaySubtitle}
             </p>
           </div>
         </div>
 
         {/* Bottom Portion: Live Player Controls inside the SAME box */}
-        <div className="p-4 sm:p-5 bg-white md:bg-white/75 md:backdrop-blur-md flex flex-col gap-3.5 border-t border-black/[0.05]">
+        <div className="p-3.5 sm:p-4 bg-white md:bg-white/75 md:backdrop-blur-md flex flex-col gap-2.5 sm:gap-3 border-t border-black/[0.05]">
           
           {/* Row 1: Play/Pause Button + Live Progress Bar & Elapsed Time */}
           <div className="flex items-center gap-3 sm:gap-4 w-full">
@@ -387,14 +387,14 @@ export default function MainPlayer({
                 }
               }}
               aria-label={stationPlaying ? "Pause stream" : "Play live radio"}
-              className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1C1917] text-white flex items-center justify-center shrink-0 hover:bg-black transition-transform active:scale-95 cursor-pointer shadow-md group"
+              className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#1C1917] text-white flex items-center justify-center shrink-0 hover:bg-black transition-transform active:scale-95 cursor-pointer shadow-md group"
             >
               {isLoadingAudio ? (
-                <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-spin" />
+                <Loader2 className="w-5 h-5 text-white animate-spin" />
               ) : stationPlaying ? (
-                <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white" />
+                <Pause className="w-5 h-5 fill-white text-white" />
               ) : (
-                <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-white ml-0.5" />
+                <Play className="w-5 h-5 fill-white text-white ml-0.5" />
               )}
               {/* Red dot indicator on player button */}
               {stationPlaying && !isLoadingAudio && (
@@ -406,7 +406,7 @@ export default function MainPlayer({
             </button>
 
             {/* Live Progress Bar & Timers */}
-            <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+            <div className="flex-1 flex flex-col gap-1 min-w-0">
               <div className="flex items-center justify-between text-xs font-grotesk text-[#78716C]">
                 <span className="font-bold tracking-wide">{showProgress.elapsedStr}</span>
                 <div className="flex items-center gap-1.5">
@@ -416,7 +416,7 @@ export default function MainPlayer({
               </div>
 
               {/* Dynamic Progress Bar */}
-              <div className="relative w-full h-2.5 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
+              <div className="relative w-full h-2 bg-[#EFECE3] rounded-full overflow-hidden flex items-center">
                 <div 
                   className="h-full bg-[#DF3B2B] rounded-full transition-all duration-500 ease-linear"
                   style={{ width: `${Math.max(4, showProgress.percent)}%` }}
@@ -429,7 +429,7 @@ export default function MainPlayer({
           </div>
 
           {/* Row 2: Red Volume Slider & Share / Live Chat Buttons */}
-          <div className="flex items-center justify-between gap-2 sm:gap-3 pt-2.5 border-t border-black/[0.06]">
+          <div className="flex items-center justify-between gap-2 sm:gap-3 pt-2 border-t border-black/[0.06]">
             
             {/* Volume Control */}
             <div className="flex items-center gap-2">
@@ -476,7 +476,7 @@ export default function MainPlayer({
               {onOpenChat && (
                 <button
                   onClick={onOpenChat}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-2.5 sm:px-3 py-1.5 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer whitespace-nowrap group active:scale-95"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-2.5 sm:px-3 py-1 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer whitespace-nowrap group active:scale-95"
                   title={isGreek ? "Άνοιγμα Live Chat" : "Open Live Chat"}
                 >
                   <MessageSquare className="w-3.5 h-3.5 text-[#78716C] group-hover:text-[#1C1917] group-hover:scale-110 transition-all" />
@@ -488,7 +488,7 @@ export default function MainPlayer({
               <div className="relative flex items-center">
                 <button
                   onClick={handleShare}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-2.5 sm:px-3 py-1.5 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer whitespace-nowrap"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] px-2.5 sm:px-3 py-1 rounded-full hover:bg-[#FAF8F4] border border-black/5 transition-colors cursor-pointer whitespace-nowrap"
                   title={isGreek ? "Αντιγραφή συνδέσμου ιστοσελίδας" : "Copy site link"}
                 >
                   {copiedShare ? (

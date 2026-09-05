@@ -671,23 +671,22 @@ export default function App() {
               <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
                 
                 {/* Left Column: Hero Copy & CTAs */}
-                <div className="lg:col-span-7 flex flex-col items-start text-left">
-                  
+                <div className="lg:col-span-7 flex flex-col items-start text-left justify-center">
 
                   {/* Creative Bold Display Headline (Unbounded Ultra-Bold) */}
-                  <h1 className="font-display text-4xl sm:text-6xl lg:text-[66px] leading-[1.02] font-black tracking-tight text-[#1C1917]">
+                  <h1 className="font-display text-4xl sm:text-6xl lg:text-[64px] leading-[1.04] font-black tracking-tight text-[#1C1917]">
                     {currentT.heroTitle1} <br />
                     <span className="text-[#1C1917]">{currentT.heroPrefix}</span>
-                    <span className="text-[#DF3B2B] inline-block mt-1">{currentT.heroTitle2}</span>
+                    <span className="text-[#DF3B2B]">{currentT.heroTitle2}</span>
                   </h1>
 
                   {/* Subtitle - Crisp, Legible & Strong */}
-                  <p className="mt-6 text-base sm:text-lg text-[#3A3532] leading-relaxed max-w-xl font-medium">
+                  <p className="mt-5 sm:mt-6 text-base sm:text-lg text-[#3A3532] leading-relaxed max-w-xl font-medium">
                     {currentT.heroSub}
                   </p>
 
                   {/* Hero Action Buttons */}
-                  <div className="mt-8 flex flex-row items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
+                  <div className="mt-7 sm:mt-8 flex flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
                     {/* Primary Button */}
                     <button
                       onClick={() => {
