@@ -711,7 +711,7 @@ export default function LiveChat({
                 disabled={!inputText.trim()}
                 className="w-11 h-11 rounded-2xl bg-[#ad021a] hover:bg-[#8f0115] text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#ad021a]/20 cursor-pointer"
               >
-                <Send className="w-4 h-4 ml-0.5" />
+                <Send className="w-4 h-4 -translate-x-0.5 translate-y-0.5" />
               </button>
             </form>
 

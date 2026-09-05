@@ -430,7 +430,7 @@ export default function App() {
           </button>
 
           {/* Desktop Navigation Links (Frosted Glass Dock with Smooth Horizontal Sliding Indicator) */}
-          <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-full bg-white/50 backdrop-blur-md border border-white/80 shadow-xs text-xs sm:text-sm font-semibold relative">
+          <nav className="hidden md:flex items-center h-10 gap-1 p-1 rounded-full bg-white/50 backdrop-blur-md border border-white/80 shadow-xs text-xs sm:text-sm font-semibold relative">
             {[
               { id: "home", label: currentT.navHome },
               { id: "program", label: currentT.navProgram },
@@ -442,7 +442,7 @@ export default function App() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabId)}
-                  className={`relative cursor-pointer transition-colors px-4 py-1.5 rounded-full z-10 ${
+                  className={`h-full flex items-center justify-center relative cursor-pointer transition-colors px-4 rounded-full z-10 ${
                     isActive ? "text-white font-bold" : "text-[#6B6560] hover:text-[#1C1917]"
                   }`}
                 >
@@ -462,10 +462,10 @@ export default function App() {
           {/* Right Actions (Language Pill, Listen Button, Mobile Hamburger) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Language Switch Pill (with Smooth Sliding Spring Indicator) */}
-            <div className="flex items-center bg-[#EFECE3] p-0.5 sm:p-1 rounded-full text-[11px] font-bold text-[#6B6560] relative">
+            <div className="flex items-center h-10 bg-[#EFECE3] p-1 rounded-full text-xs font-bold text-[#6B6560] relative">
               <button
                 onClick={() => setIsGreek(true)}
-                className={`relative px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-colors cursor-pointer z-10 ${
+                className={`h-full flex items-center justify-center relative px-3 rounded-full transition-colors cursor-pointer z-10 ${
                   isGreek ? "text-[#1C1917] font-bold" : "hover:text-[#1C1917]"
                 }`}
               >
@@ -480,7 +480,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setIsGreek(false)}
-                className={`relative px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full transition-colors cursor-pointer z-10 ${
+                className={`h-full flex items-center justify-center relative px-3 rounded-full transition-colors cursor-pointer z-10 ${
                   !isGreek ? "text-[#1C1917] font-bold" : "hover:text-[#1C1917]"
                 }`}
               >
@@ -507,7 +507,7 @@ export default function App() {
                 }
                 scrollToLiveStation();
               }}
-              className="flex items-center gap-1.5 sm:gap-2 bg-[#ad021a] hover:bg-[#8f0115] text-white px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-xs shadow-md shadow-[#ad021a]/20 hover:shadow-lg hover:shadow-[#ad021a]/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+              className="h-10 flex items-center gap-2 bg-[#ad021a] hover:bg-[#8f0115] text-white px-4 rounded-full font-bold text-xs shadow-md shadow-[#ad021a]/20 hover:shadow-lg hover:shadow-[#ad021a]/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
               {isLoadingAudio ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -524,7 +524,7 @@ export default function App() {
             {/* Mobile Hamburger Menu Toggle Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-black/10 text-[#1C1917] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#FAF8F4] transition-all active:scale-95"
+              className="md:hidden w-10 h-10 rounded-full bg-white border border-black/10 text-[#1C1917] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#FAF8F4] transition-all active:scale-95"
               aria-label={isMobileMenuOpen ? "Close menu" : "Open navigation menu"}
             >
               {isMobileMenuOpen ? (
