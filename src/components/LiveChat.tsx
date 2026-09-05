@@ -442,8 +442,8 @@ export default function LiveChat({
   const currentSessionId = sessionStorage.getItem(TAB_SESSION_KEY);
   const effectiveVolPercent = isMuted ? 0 : volume * 100;
 
-  const displayShowTitle = currentLiveShow?.title || (isGreek ? "Αυτόματη Ροή FRS UTH" : "FRS UTH Auto Stream");
-  const displayShowHost = currentLiveShow ? currentLiveShow.host : "24/7 Campus Radio Rotation";
+  const displayShowTitle = currentLiveShow?.title || (isGreek ? "Μουσική Ροή FRS UTH" : "FRS UTH Music Selection");
+  const displayShowHost = currentLiveShow ? currentLiveShow.host : (isGreek ? "Non-Stop Μουσική 24/7" : "Non-Stop Music 24/7");
 
   return (
     <AnimatePresence>
@@ -501,7 +501,7 @@ export default function LiveChat({
                 <div>
                   <div className="flex items-center gap-2.5">
                     <h3 className="font-bold text-base text-[#1C1917]">
-                      {isGreek ? "Live Chat Κοινότητας" : "Community Live Chat"}
+                      Live Chat
                     </h3>
                     <span className="h-6 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold px-2.5 rounded-full shrink-0">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />

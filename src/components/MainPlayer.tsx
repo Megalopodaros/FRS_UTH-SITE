@@ -27,9 +27,9 @@ interface MainPlayerProps {
 // Single 24/7 universal live MP3 radio stream for FRS UTH
 const UNIVERSAL_CHANNEL: RadioChannel = {
   id: "coderadio",
-  name: "Αυτόματη Ροή FRS UTH",
-  greekName: "Αυτόματη Ροή FRS UTH",
-  dj: "Non-Stop Campus Radio Rotation",
+  name: "Μουσική Ροή FRS UTH",
+  greekName: "Μουσική Ροή FRS UTH",
+  dj: "Non-Stop Μουσική 24/7",
   genre: "High Quality 320kbps Stream",
   url: "https://peridot.streamguys1.com:7830/WUCF"
 };
@@ -246,7 +246,7 @@ export default function MainPlayer({
   const displayTitle = currentLiveShow?.title || (isGreek ? UNIVERSAL_CHANNEL.greekName : UNIVERSAL_CHANNEL.name);
   const displaySubtitle = currentLiveShow 
     ? `${currentLiveShow.host} • ${currentLiveShow.time}` 
-    : (isGreek ? "Non-Stop Campus Radio Rotation" : "Non-Stop Campus Radio Rotation");
+    : (isGreek ? "Non-Stop Μουσική 24/7" : "Non-Stop Music 24/7");
 
   // Audio lifecycle
   useEffect(() => {
