@@ -29,15 +29,26 @@ import {
   Mic,
   Menu,
   Loader2,
-  BarChart2
+  BarChart2,
+  ShieldCheck,
+  AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 import UthLogo from "./components/UthLogo";
 import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
-import { subscribeToActivePoll } from "./lib/pollService";
-import { LivePollData } from "./types";
+import ComingSoonOverlay from "./components/ComingSoonOverlay";
+import AdminModal from "./components/AdminModal";
+import { subscribeToActivePoll, verifyProducerPin } from "./lib/pollService";
+import { 
+  subscribeToSiteConfig, 
+  setComingSoonMode, 
+  isAdminAuthenticated, 
+  verifyAdminPin, 
+  logoutAdmin 
+} from "./lib/adminService";
+import { LivePollData, SiteConfig } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
   WEEKLY_SCHEDULE_EN, 
@@ -73,6 +84,53 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Admin & Site-Wide Config (Coming Soon) state
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>({ isComingSoon: false });
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [showAdminAuthModal, setShowAdminAuthModal] = useState(false);
+  const [adminPinInput, setAdminPinInput] = useState("");
+  const [adminAuthError, setAdminAuthError] = useState("");
+
+  // Real-time subscription to siteConfig in RTDB
+  useEffect(() => {
+    const unsubscribe = subscribeToSiteConfig((config) => {
+      if (config) {
+        setSiteConfig(config);
+        if (config.isComingSoon) {
+          // Pause radio playback and close chat if Coming Soon is turned on
+          setStationPlaying(false);
+          setIsLoadingAudio(false);
+          setChatOpen(false);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleAdminAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminAuthError("");
+    if (verifyAdminPin(adminPinInput)) {
+      setIsAdmin(true);
+      setShowAdminAuthModal(false);
+      setShowAdminModal(true);
+      setAdminPinInput("");
+    } else if (verifyProducerPin(adminPinInput)) {
+      setShowAdminAuthModal(false);
+      setAdminPinInput("");
+      setChatOpen(true);
+    } else {
+      setAdminAuthError(isGreek ? "Λανθασμένος κωδικός PIN." : "Incorrect PIN code.");
+    }
+  };
+
+  const handleAdminLogout = () => {
+    logoutAdmin();
+    setIsAdmin(false);
+    setShowAdminModal(false);
+  };
 
   // Active day index in weekly program (defaults to current day of week)
   const currentDayIndex = useMemo(() => {
@@ -459,8 +517,35 @@ export default function App() {
             })}
           </nav>
 
-          {/* Right Actions (Language Pill, Listen Button, Mobile Hamburger) */}
+          {/* Right Actions (Admin Shield, Language Pill, Listen Button, Mobile Hamburger) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Admin Shield Button / Badge */}
+            {isAdmin ? (
+              <button
+                type="button"
+                onClick={() => setShowAdminModal(true)}
+                className="h-10 px-3 rounded-full bg-[#1C1917] text-[#ff4b62] border border-stone-800 flex items-center gap-1.5 text-xs font-bold shadow-xs hover:bg-[#2C2724] transition-all cursor-pointer shrink-0"
+                title={isGreek ? "Πίνακας Διαχειριστή" : "Admin Dashboard"}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span className="hidden sm:inline">Admin</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdminAuthModal(true);
+                  setAdminAuthError("");
+                  setAdminPinInput("");
+                }}
+                className="h-10 w-10 rounded-full bg-[#EFECE3] hover:bg-white border border-black/5 text-[#78716C] hover:text-[#ad021a] flex items-center justify-center shadow-xs transition-all cursor-pointer hover:scale-105 active:scale-95 shrink-0"
+                title={isGreek ? "Σύνδεση Διαχειριστή" : "Admin Login"}
+                aria-label={isGreek ? "Σύνδεση Διαχειριστή" : "Admin Login"}
+              >
+                <ShieldCheck className="w-4 h-4" />
+              </button>
+            )}
+
             {/* Language Switch Pill (with Smooth Sliding Spring Indicator) */}
             <div className="flex items-center h-10 bg-[#EFECE3] p-1 rounded-full text-xs font-bold text-[#6B6560] relative">
               <button
@@ -2017,7 +2102,105 @@ export default function App() {
         setIsMuted={setIsMuted}
         activePoll={activePoll}
         onUnreadChange={setHasUnreadChat}
+        isComingSoon={siteConfig.isComingSoon}
+        onToggleComingSoon={setComingSoonMode}
       />
+
+      {/* COMING SOON FULL-SCREEN OVERLAY (Global across all clients) */}
+      {siteConfig.isComingSoon && (
+        <ComingSoonOverlay
+          isGreek={isGreek}
+          onDeactivate={async () => {
+            await setComingSoonMode(false);
+          }}
+        />
+      )}
+
+      {/* ADMIN CONTROL DASHBOARD (Direct access from header) */}
+      <AdminModal
+        isGreek={isGreek}
+        isOpen={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+        isComingSoon={siteConfig.isComingSoon}
+        onToggleComingSoon={setComingSoonMode}
+        onLogout={handleAdminLogout}
+      />
+
+      {/* ADMIN AUTH PIN MODAL (Triggered by Header Shield Button) */}
+      <AnimatePresence>
+        {showAdminAuthModal && (
+          <div className="fixed inset-0 z-[10020] flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white text-[#1C1917] rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-black/10 relative"
+            >
+              <button
+                type="button"
+                onClick={() => setShowAdminAuthModal(false)}
+                className="absolute top-4 right-4 text-stone-400 hover:text-stone-700 p-1.5 rounded-full cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-11 h-11 rounded-2xl bg-[#ad021a] text-white flex items-center justify-center shadow-md shadow-[#ad021a]/30">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-[#1C1917]">
+                    {isGreek ? "Σύνδεση Διαχειριστή" : "Admin Authentication"}
+                  </h3>
+                  <p className="text-xs text-[#78716C]">
+                    {isGreek ? "Εισάγετε τον κωδικό PIN" : "Enter PIN code"}
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleAdminAuthSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#1C1917] mb-1.5">
+                    {isGreek ? "Κωδικός PIN (Admin ή Παραγωγός):" : "PIN Code (Admin or Producer):"}
+                  </label>
+                  <input
+                    type="password"
+                    value={adminPinInput}
+                    onChange={(e) => setAdminPinInput(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-[#ad021a] focus:ring-2 focus:ring-[#ad021a]/20 transition-all font-mono"
+                    autoFocus
+                    required
+                  />
+                </div>
+
+                {adminAuthError && (
+                  <div className="flex items-center gap-2 text-xs text-[#ad021a] bg-[#FCECEE] p-2.5 rounded-xl">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{adminAuthError}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminAuthModal(false)}
+                    className="px-4 py-2 text-xs font-bold text-stone-600 hover:bg-stone-100 rounded-full transition-colors cursor-pointer"
+                  >
+                    {isGreek ? "Ακύρωση" : "Cancel"}
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 text-xs font-bold bg-[#ad021a] hover:bg-[#8f0115] text-white rounded-full shadow-md transition-all cursor-pointer"
+                  >
+                    {isGreek ? "Είσοδος" : "Unlock"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

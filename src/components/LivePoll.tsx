@@ -32,6 +32,11 @@ import {
   logoutProducer,
   PRODUCER_NAME_KEY
 } from "../lib/pollService";
+import { 
+  verifyAdminPin, 
+  isAdminAuthenticated, 
+  logoutAdmin 
+} from "../lib/adminService";
 
 interface LivePollProps {
   isGreek: boolean;
@@ -39,6 +44,9 @@ interface LivePollProps {
   sessionId: string;
   isProducer?: boolean;
   onProducerStatusChange?: (isProducer: boolean) => void;
+  isAdmin?: boolean;
+  onAdminStatusChange?: (isAdmin: boolean) => void;
+  onOpenAdminModal?: () => void;
   className?: string;
   onOpenChat?: () => void;
   showAuthModal?: boolean;
@@ -53,6 +61,9 @@ export default function LivePoll({
   sessionId,
   isProducer: propIsProducer,
   onProducerStatusChange,
+  isAdmin: propIsAdmin,
+  onAdminStatusChange,
+  onOpenAdminModal,
   className = "",
   onOpenChat,
   showAuthModal: propShowAuthModal,
@@ -65,6 +76,13 @@ export default function LivePoll({
   const setIsProducer = (val: boolean) => {
     setInternalIsProducer(val);
     onProducerStatusChange?.(val);
+  };
+
+  const [internalIsAdmin, setInternalIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
+  const isAdmin = propIsAdmin !== undefined ? propIsAdmin : internalIsAdmin;
+  const setIsAdmin = (val: boolean) => {
+    setInternalIsAdmin(val);
+    onAdminStatusChange?.(val);
   };
 
   const [internalShowAuthModal, setInternalShowAuthModal] = useState(false);
@@ -150,26 +168,46 @@ export default function LivePoll({
     };
   }, [poll]);
 
-  // Handle Producer PIN Verification
+  // Handle PIN Verification (Admin or Producer)
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
     const defaultProducer = isGreek ? "The Hangover" : "The Hangover";
     const chosenName = producerNameInput.trim() || defaultProducer;
-    const ok = verifyProducerPin(pinInput, chosenName);
-    if (ok) {
+
+    // 1. Check Admin PIN
+    if (verifyAdminPin(pinInput)) {
+      setIsAdmin(true);
       setIsProducer(true);
       setShowAuthModal(false);
       setPinInput("");
       setProducerNameInput("");
-    } else {
-      setAuthError(isGreek ? "Λανθασμένο PIN παραγωγού." : "Incorrect producer PIN.");
+      return;
     }
+
+    // 2. Check Producer PIN
+    const ok = verifyProducerPin(pinInput, chosenName);
+    if (ok) {
+      setIsProducer(true);
+      setIsAdmin(false);
+      setShowAuthModal(false);
+      setPinInput("");
+      setProducerNameInput("");
+      return;
+    }
+
+    setAuthError(
+      isGreek 
+        ? "Λανθασμένο PIN (Παραγωγού ή Διαχειριστή)." 
+        : "Incorrect PIN (Producer or Admin)."
+    );
   };
 
   const handleLogout = () => {
     logoutProducer();
+    logoutAdmin();
     setIsProducer(false);
+    setIsAdmin(false);
   };
 
   // Handle Cast Vote
@@ -501,10 +539,10 @@ export default function LivePoll({
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-[#1C1917]">
-                    {isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
+                    {isGreek ? "Σύνδεση Παραγωγού / Admin" : "Producer / Admin Login"}
                   </h3>
                   <p className="text-xs text-[#78716C]">
-                    {isGreek ? "Εισάγετε το PIN" : "Enter PIN"}
+                    {isGreek ? "Εισάγετε τον κωδικό πρόσβασης" : "Enter access PIN"}
                   </p>
                 </div>
               </div>
@@ -525,13 +563,13 @@ export default function LivePoll({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#1C1917] mb-1">
-                    {isGreek ? "Κωδικός PIN:" : "PIN Code:"}
+                    {isGreek ? "Κωδικός PIN (Παραγωγού ή Admin):" : "PIN Code (Producer or Admin):"}
                   </label>
                   <input
                     type="password"
                     value={pinInput}
                     onChange={(e) => setPinInput(e.target.value)}
-                    placeholder="••••••"
+                    placeholder="••••••••"
                     className="field py-2 px-3 text-xs w-full"
                     autoFocus
                     required

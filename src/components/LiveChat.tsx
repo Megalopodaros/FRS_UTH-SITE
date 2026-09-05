@@ -26,6 +26,8 @@ import { db, rtdb } from "../lib/firebase";
 import { ref, onValue, onDisconnect, set } from "firebase/database";
 import LivePoll from "./LivePoll";
 import { markPollResultAnnounced, isProducerAuthenticated, logoutProducer } from "../lib/pollService";
+import { isAdminAuthenticated, logoutAdmin, setComingSoonMode } from "../lib/adminService";
+import AdminModal from "./AdminModal";
 
 interface LiveChatProps {
   isGreek: boolean;
@@ -44,6 +46,8 @@ interface LiveChatProps {
   setIsMuted?: (m: boolean) => void;
   activePoll?: LivePollData | null;
   onUnreadChange?: (hasUnread: boolean) => void;
+  isComingSoon?: boolean;
+  onToggleComingSoon?: (enabled: boolean) => Promise<void>;
 }
 
 const TAB_NAME_KEY = "frs_tab_user_name";
@@ -103,7 +107,9 @@ export default function LiveChat({
   isMuted = false,
   setIsMuted,
   activePoll = null,
-  onUnreadChange
+  onUnreadChange,
+  isComingSoon = false,
+  onToggleComingSoon
 }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -113,6 +119,8 @@ export default function LiveChat({
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [onlineCount, setOnlineCount] = useState(1);
   const [isProducer, setIsProducer] = useState<boolean>(() => isProducerAuthenticated());
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
+  const [showAdminModal, setShowAdminModal] = useState(false);
   const [showProducerAuthModal, setShowProducerAuthModal] = useState(false);
   const [showProducerCreateModal, setShowProducerCreateModal] = useState(false);
   const lastSendTimeRef = useRef<number>(0);
@@ -136,26 +144,45 @@ export default function LiveChat({
     onUnreadChangeRef.current = onUnreadChange;
   }, [onUnreadChange]);
 
-  // Mark messages as seen whenever the chat modal is opened
+  // Mark all unread messages as read when opening drawer
   useEffect(() => {
     if (isOpen) {
       const now = Date.now();
       lastSeenTimeRef.current = now;
       if (typeof window !== "undefined") {
-        sessionStorage.setItem("frs_last_seen_chat_time", now.toString());
+        sessionStorage.setItem("frs_last_seen_chat_time", String(now));
       }
       onUnreadChangeRef.current?.(false);
     }
   }, [isOpen]);
 
-  // Sync producer authentication state when chat opens
+  // Sync producer and admin authentication state when chat opens
   useEffect(() => {
     setIsProducer(isProducerAuthenticated());
+    setIsAdmin(isAdminAuthenticated());
   }, [isOpen]);
 
   const handleProducerLogout = () => {
     logoutProducer();
+    logoutAdmin();
     setIsProducer(false);
+    setIsAdmin(false);
+  };
+
+  const handleAdminLogout = () => {
+    logoutAdmin();
+    logoutProducer();
+    setIsAdmin(false);
+    setIsProducer(false);
+    setShowAdminModal(false);
+  };
+
+  const handleToggleComingSoon = async (enabled: boolean) => {
+    if (onToggleComingSoon) {
+      await onToggleComingSoon(enabled);
+    } else {
+      await setComingSoonMode(enabled);
+    }
   };
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -480,18 +507,36 @@ export default function LiveChat({
                       <span>{onlineCount} {isGreek ? "online" : "online"}</span>
                     </span>
 
-                    {/* PRODUCER SHIELD BUTTON NEXT TO ONLINE BADGE */}
-                    {!isProducer ? (
-                      <button
-                        type="button"
-                        onClick={() => setShowProducerAuthModal(true)}
-                        className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-1 rounded-md shrink-0"
-                        title={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
-                        aria-label={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
-                      >
-                        <ShieldCheck className="w-4 h-4" />
-                      </button>
-                    ) : (
+                    {/* ADMIN & PRODUCER CONTROLS NEXT TO ONLINE BADGE */}
+                    {isAdmin ? (
+                      <div className="h-6 inline-flex items-center gap-1.5 bg-[#1C1917] text-white px-2.5 rounded-full shadow-2xs shrink-0 text-[11px] font-bold">
+                        <button
+                          type="button"
+                          onClick={() => setShowAdminModal(true)}
+                          className="text-[#ff4b62] hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                          title={isGreek ? "Πίνακας Διαχειριστή" : "Admin Dashboard"}
+                          aria-label={isGreek ? "Πίνακας Διαχειριστή" : "Admin Dashboard"}
+                        >
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowAdminModal(true)}
+                          className="text-[11px] font-bold text-stone-200 hover:text-white transition-colors cursor-pointer leading-none"
+                        >
+                          Admin
+                        </button>
+                        <span className="text-white/30 text-[10px] leading-none">•</span>
+                        <button
+                          type="button"
+                          onClick={handleAdminLogout}
+                          className="text-[11px] font-bold text-red-400 hover:text-red-300 transition-colors cursor-pointer leading-none"
+                          title={isGreek ? "Αποσύνδεση Admin" : "Logout Admin"}
+                        >
+                          {isGreek ? "Έξοδος" : "Exit"}
+                        </button>
+                      </div>
+                    ) : isProducer ? (
                       <div className="h-6 inline-flex items-center gap-1.5 bg-[#FCECEE] border border-[#ad021a]/25 px-2.5 rounded-full shadow-2xs shrink-0 text-[11px] font-bold">
                         <button
                           type="button"
@@ -512,6 +557,16 @@ export default function LiveChat({
                           {isGreek ? "Έξοδος" : "Exit"}
                         </button>
                       </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowProducerAuthModal(true)}
+                        className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-1 rounded-md shrink-0"
+                        title={isGreek ? "Σύνδεση Παραγωγού / Admin" : "Producer / Admin Login"}
+                        aria-label={isGreek ? "Σύνδεση Παραγωγού / Admin" : "Producer / Admin Login"}
+                      >
+                        <ShieldCheck className="w-4 h-4" />
+                      </button>
                     )}
                   </div>
                   <p className="text-xs text-[#78716C] mt-0.5">
@@ -586,14 +641,20 @@ export default function LiveChat({
             </div>
 
             {/* PINNED LIVE POLL / PRODUCER POLL SECTION */}
-            {(activePoll || isProducer) && (
+            {(activePoll || isProducer || isAdmin) && (
               <div className="px-4 sm:px-6 pt-2.5 pb-2 border-b border-black/[0.06] bg-[#FAF8F4]/80 shrink-0">
                 <LivePoll
                   isGreek={isGreek}
                   poll={activePoll || null}
                   sessionId={currentSessionId || ""}
-                  isProducer={isProducer}
+                  isProducer={isProducer || isAdmin}
                   onProducerStatusChange={setIsProducer}
+                  isAdmin={isAdmin}
+                  onAdminStatusChange={(val) => {
+                    setIsAdmin(val);
+                    if (val) setIsProducer(true);
+                  }}
+                  onOpenAdminModal={() => setShowAdminModal(true)}
                   showAuthModal={showProducerAuthModal}
                   setShowAuthModal={setShowProducerAuthModal}
                   showCreateModal={showProducerCreateModal}
@@ -601,13 +662,19 @@ export default function LiveChat({
                 />
               </div>
             )}
-            {!activePoll && !isProducer && (
+            {!activePoll && !isProducer && !isAdmin && (
               <LivePoll
                 isGreek={isGreek}
                 poll={null}
                 sessionId={currentSessionId || ""}
                 isProducer={false}
                 onProducerStatusChange={setIsProducer}
+                isAdmin={false}
+                onAdminStatusChange={(val) => {
+                  setIsAdmin(val);
+                  if (val) setIsProducer(true);
+                }}
+                onOpenAdminModal={() => setShowAdminModal(true)}
                 showAuthModal={showProducerAuthModal}
                 setShowAuthModal={setShowProducerAuthModal}
                 showCreateModal={showProducerCreateModal}
@@ -818,6 +885,16 @@ export default function LiveChat({
           </motion.div>
         </motion.div>
       )}
+
+      {/* ADMIN CONTROLS MODAL */}
+      <AdminModal
+        isGreek={isGreek}
+        isOpen={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+        isComingSoon={!!isComingSoon}
+        onToggleComingSoon={handleToggleComingSoon}
+        onLogout={handleAdminLogout}
+      />
     </AnimatePresence>
   );
 }

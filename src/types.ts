@@ -77,3 +77,9 @@ export interface LivePollData {
   announcedResult?: boolean;
 }
 
+export interface SiteConfig {
+  isComingSoon: boolean;
+  updatedAt?: number;
+  updatedBy?: string;
+}
+
