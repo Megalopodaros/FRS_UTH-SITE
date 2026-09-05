@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { doc, setDoc, deleteDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./lib/firebase";
 import { 
   Radio, 
@@ -113,50 +113,26 @@ export default function App() {
     };
   }, [selectedShowId, isOpenCallModalOpen, isMobileMenuOpen]);
 
-  // Global site presence: registers exactly once per browser tab instance
-  const siteTabId = useMemo(() => {
-    const navEntries = window.performance?.getEntriesByType?.("navigation") as PerformanceNavigationTiming[];
-    const isReload = navEntries && navEntries.length > 0 && navEntries[0].type === "reload";
-    
-    let id = sessionStorage.getItem("frs_global_site_tab_id");
-    if (!id || !isReload) {
-      id = "site_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
-      sessionStorage.setItem("frs_global_site_tab_id", id);
-    }
-    return id;
-  }, []);
-
-  useEffect(() => {
-    const presenceRef = doc(db, "site_presence", siteTabId);
-    
-    const registerPresence = () => {
-      setDoc(presenceRef, {
-        sessionId: siteTabId,
-        timestamp: Date.now(),
-        lastActive: serverTimestamp()
-      }, { merge: true }).catch(() => {});
-    };
-    
-    registerPresence();
-    const interval = setInterval(registerPresence, 15000);
-
-    const handleUnload = () => {
-      deleteDoc(presenceRef).catch(() => {});
-    };
-    window.addEventListener("beforeunload", handleUnload);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("beforeunload", handleUnload);
-      deleteDoc(presenceRef).catch(() => {});
-    };
-  }, [siteTabId]);
-
-  // Ticker to re-evaluate live show status every 10 seconds
+  // Ticker to re-evaluate live show status every 15 seconds (paused when tab or screen is hidden)
   const [nowTick, setNowTick] = useState(Date.now());
   useEffect(() => {
-    const timer = setInterval(() => setNowTick(Date.now()), 10000);
-    return () => clearInterval(timer);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setNowTick(Date.now());
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    const timer = setInterval(() => {
+      if (document.visibilityState !== "hidden") {
+        setNowTick(Date.now());
+      }
+    }, 15000);
+
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   // Dynamically compute live, next, and later shows according to current day and exact time
@@ -440,7 +416,7 @@ export default function App() {
       </div>
 
       {/* 1. TOP NAVIGATION HEADER (Slim, Sleek & Glassmorphic) */}
-      <header className="w-full sticky top-0 z-40 bg-[#F7F4EC]/75 backdrop-blur-xl border-b border-black/[0.06] transition-all">
+      <header className="w-full sticky top-0 z-40 bg-[#F7F4EC]/95 md:bg-[#F7F4EC]/75 md:backdrop-blur-xl border-b border-black/[0.06] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 md:h-18 flex items-center justify-between">
           
           {/* Logo Brand */}
@@ -955,6 +931,8 @@ export default function App() {
                     <img
                       src="/concert-party.jpg"
                       alt="Student DJ concert party"
+                      loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
@@ -1393,6 +1371,8 @@ export default function App() {
                       <img
                         src={item.image}
                         alt={item.title}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <span className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-0.5 rounded">
@@ -1800,6 +1780,8 @@ export default function App() {
                     <img
                       src={selectedShow.image || "/hero-studio.jpg"}
                       alt={selectedShow.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   </div>

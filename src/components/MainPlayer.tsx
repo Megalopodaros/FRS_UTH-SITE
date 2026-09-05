@@ -169,13 +169,29 @@ export default function MainPlayer({
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Timer ticker every second for live show progress
+  // Timer ticker for live show progress (throttled when paused or tab is hidden)
   useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setTick(Date.now());
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // If station is playing, tick every 1 second; if paused, update every 10 seconds.
+    // Pauses execution when the phone screen is locked or tab is hidden to save mobile CPU/battery.
+    const intervalDuration = stationPlaying ? 1000 : 10000;
     const interval = setInterval(() => {
-      setTick(Date.now());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+      if (document.visibilityState !== "hidden") {
+        setTick(Date.now());
+      }
+    }, intervalDuration);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [stationPlaying]);
 
   // Format seconds to MM:SS or HH:MM:SS
   const formatTime = (secs: number) => {
@@ -356,6 +372,8 @@ export default function MainPlayer({
           <img
             src="/hero-studio.jpg"
             alt="FRS UTH Radio Broadcast Studio"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover object-[center_55%] group-hover:scale-105 transition-transform duration-700"
           />
           {/* Smooth bottom gradient overlay */}

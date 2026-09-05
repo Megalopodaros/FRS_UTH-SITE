@@ -414,7 +414,7 @@ export default function LiveChat({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
+            className="fixed inset-0 bg-black/60 md:backdrop-blur-xs cursor-pointer"
           />
 
           {/* Chat Window Container */}

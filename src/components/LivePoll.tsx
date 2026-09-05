@@ -83,6 +83,8 @@ export default function LivePoll({
   const [newQuestion, setNewQuestion] = useState("");
   const [newOptions, setNewOptions] = useState<string[]>(["", ""]);
   const [newDuration, setNewDuration] = useState<number>(5);
+  const [customDurationInput, setCustomDurationInput] = useState("");
+  const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
@@ -194,14 +196,25 @@ export default function LivePoll({
       return;
     }
 
+    const finalDuration = isCustomDuration && parseInt(customDurationInput, 10) > 0
+      ? parseInt(customDurationInput, 10)
+      : newDuration;
+
+    if (!finalDuration || finalDuration <= 0) {
+      setCreateError(isGreek ? "Παρακαλώ εισάγετε έγκυρη διάρκεια σε λεπτά." : "Please enter a valid duration in minutes.");
+      return;
+    }
+
     setIsCreating(true);
     try {
       const producerName = sessionStorage.getItem(PRODUCER_NAME_KEY) || (isGreek ? "Παραγωγός" : "Producer");
-      await createLivePoll(newQuestion, validOptions, newDuration, producerName);
+      await createLivePoll(newQuestion, validOptions, finalDuration, producerName);
       setShowCreateModal(false);
       setNewQuestion("");
       setNewOptions(["", ""]);
       setNewDuration(5);
+      setCustomDurationInput("");
+      setIsCustomDuration(false);
     } catch (err: any) {
       if (err?.message?.includes("PERMISSION_DENIED") || err?.code === "PERMISSION_DENIED") {
         setCreateError(
@@ -241,7 +254,7 @@ export default function LivePoll({
           1. ACTIVE POLL CARD (When Poll Exists)
          ------------------------------------------------------------- */}
       {poll ? (
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-black/10 shadow-md overflow-hidden transition-all">
+        <div className="bg-white md:bg-white/95 md:backdrop-blur-md rounded-2xl border border-black/10 shadow-md overflow-hidden transition-all">
           {/* Header Bar */}
           <div className="bg-gradient-to-r from-[#ad021a]/10 via-[#ad021a]/5 to-transparent px-4 py-3 border-b border-black/[0.06] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
@@ -452,7 +465,7 @@ export default function LivePoll({
          ------------------------------------------------------------- */}
       <AnimatePresence>
         {showAuthModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 md:backdrop-blur-xs">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -542,7 +555,7 @@ export default function LivePoll({
          ------------------------------------------------------------- */}
       <AnimatePresence>
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 md:backdrop-blur-xs">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -638,17 +651,30 @@ export default function LivePoll({
 
                 {/* Duration selector */}
                 <div>
-                  <label className="block text-xs font-bold text-[#1C1917] mb-1.5">
-                    {isGreek ? "Διάρκεια Ψηφοφορίας" : "Poll Duration"}
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold text-[#1C1917]">
+                      {isGreek ? "Διάρκεια Ψηφοφορίας" : "Poll Duration"}
+                    </label>
+                    <span className="text-[11px] font-mono font-bold text-[#ad021a]">
+                      {isCustomDuration && parseInt(customDurationInput, 10) > 0 
+                        ? `${parseInt(customDurationInput, 10)} ${isGreek ? "λεπτά" : "min"}`
+                        : `${newDuration} ${isGreek ? "λεπτά" : "min"}`
+                      }
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2 mb-2">
                     {[2, 5, 10, 15].map((mins) => (
                       <button
                         key={mins}
                         type="button"
-                        onClick={() => setNewDuration(mins)}
+                        onClick={() => {
+                          setNewDuration(mins);
+                          setIsCustomDuration(false);
+                          setCustomDurationInput("");
+                        }}
                         className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                          newDuration === mins
+                          !isCustomDuration && newDuration === mins
                             ? "bg-[#ad021a] text-white border-[#ad021a] shadow-xs"
                             : "bg-stone-50 hover:bg-stone-100 text-[#1C1917] border-black/10"
                         }`}
@@ -656,6 +682,40 @@ export default function LivePoll({
                         {mins} {isGreek ? "λεπτά" : "min"}
                       </button>
                     ))}
+                  </div>
+
+                  {/* Custom minutes numeric input */}
+                  <div className="relative flex items-center">
+                    <input
+                      type="number"
+                      min={1}
+                      max={1440}
+                      value={customDurationInput}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCustomDurationInput(val);
+                        const num = parseInt(val, 10);
+                        if (!isNaN(num) && num > 0) {
+                          setIsCustomDuration(true);
+                        } else if (val === "") {
+                          setIsCustomDuration(false);
+                        }
+                      }}
+                      onFocus={() => {
+                        if (customDurationInput && parseInt(customDurationInput, 10) > 0) {
+                          setIsCustomDuration(true);
+                        }
+                      }}
+                      placeholder={isGreek ? "Ή εισάγετε προσαρμοσμένα λεπτά (π.χ. 3, 7, 30, 60)..." : "Or enter custom minutes (e.g. 3, 7, 30, 60)..."}
+                      className={`field py-2 px-3 text-xs w-full font-medium transition-all ${
+                        isCustomDuration && parseInt(customDurationInput, 10) > 0 ? "border-[#ad021a] ring-2 ring-[#ad021a]/20 bg-white" : ""
+                      }`}
+                    />
+                    {isCustomDuration && parseInt(customDurationInput, 10) > 0 && (
+                      <span className="absolute right-3 text-[11px] font-bold text-[#ad021a] pointer-events-none">
+                        {parseInt(customDurationInput, 10)} {isGreek ? "λεπτά" : "min"}
+                      </span>
+                    )}
                   </div>
                 </div>
 
