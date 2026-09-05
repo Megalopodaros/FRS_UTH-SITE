@@ -235,7 +235,6 @@ export default function App() {
       navArchive: "Αρχείο Mixcloud",
       listenBtn: "ΑΚΡΟΑΣΗ",
       playingBtn: "ΠΑΙΖΕΙ ΤΩΡΑ",
-      heroTag: "LIVE ON AIR • 24/7 ONLINE STREAM",
       heroTitle1: "FRS UTH",
       heroPrefix: "Online ",
       heroTitle2: "24/7.",
@@ -281,7 +280,6 @@ export default function App() {
       navArchive: "Mixcloud Archive",
       listenBtn: "LISTEN LIVE",
       playingBtn: "NOW PLAYING",
-      heroTag: "LIVE ON AIR • 24/7 ONLINE STREAM",
       heroTitle1: "FRS UTH",
       heroPrefix: "Online ",
       heroTitle2: "24/7.",
@@ -675,11 +673,6 @@ export default function App() {
                 {/* Left Column: Hero Copy & CTAs */}
                 <div className="lg:col-span-7 flex flex-col items-start text-left">
                   
-                  {/* Top Pill Tag */}
-                  <div className="inline-flex items-center gap-2 bg-[#FEECEB] md:bg-white/70 md:backdrop-blur-md border border-[#DF3B2B]/30 px-4 py-2 rounded-full text-xs font-grotesk font-extrabold text-[#DF3B2B] mb-6 shadow-xs tracking-wider uppercase">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#DF3B2B] animate-pulse" />
-                    <span>{currentT.heroTag}</span>
-                  </div>
 
                   {/* Creative Bold Display Headline (Unbounded Ultra-Bold) */}
                   <h1 className="font-display text-4xl sm:text-6xl lg:text-[66px] leading-[1.02] font-black tracking-tight text-[#1C1917]">
