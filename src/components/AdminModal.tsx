@@ -78,10 +78,24 @@ export default function AdminModal({
 
   const handleToggleMode = async () => {
     setIsTogglingComingSoon(true);
+    setResetSuccess(null);
+    setResetError(null);
     try {
-      await onToggleComingSoon(!isComingSoon);
-    } catch (err) {
+      const targetState = !isComingSoon;
+      await onToggleComingSoon(targetState);
+      setResetSuccess(
+        targetState
+          ? (isGreek ? "Η οθόνη Coming Soon ενεργοποιήθηκε για όλους τους επισκέπτες!" : "Coming Soon screen activated for all visitors!")
+          : (isGreek ? "Η οθόνη Coming Soon απενεργοποιήθηκε επιτυχώς!" : "Coming Soon screen deactivated successfully!")
+      );
+      setTimeout(() => setResetSuccess(null), 4000);
+    } catch (err: any) {
       console.error("Failed to toggle coming soon mode:", err);
+      setResetError(
+        isGreek 
+          ? `Σφάλμα: ${err?.message || "Αποτυχία ενημέρωσης κατάστασης"}`
+          : `Error: ${err?.message || "Failed to update status"}`
+      );
     } finally {
       setIsTogglingComingSoon(false);
     }

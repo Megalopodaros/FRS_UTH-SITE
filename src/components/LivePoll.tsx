@@ -198,8 +198,8 @@ export default function LivePoll({
 
     setAuthError(
       isGreek 
-        ? "Λανθασμένο PIN (Παραγωγού ή Διαχειριστή)." 
-        : "Incorrect PIN (Producer or Admin)."
+        ? "Λανθασμένο PIN παραγωγού." 
+        : "Incorrect producer PIN."
     );
   };
 
@@ -539,10 +539,10 @@ export default function LivePoll({
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-[#1C1917]">
-                    {isGreek ? "Σύνδεση Παραγωγού / Admin" : "Producer / Admin Login"}
+                    {isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
                   </h3>
                   <p className="text-xs text-[#78716C]">
-                    {isGreek ? "Εισάγετε τον κωδικό πρόσβασης" : "Enter access PIN"}
+                    {isGreek ? "Εισάγετε το PIN" : "Enter PIN"}
                   </p>
                 </div>
               </div>
@@ -563,13 +563,13 @@ export default function LivePoll({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#1C1917] mb-1">
-                    {isGreek ? "Κωδικός PIN (Παραγωγού ή Admin):" : "PIN Code (Producer or Admin):"}
+                    {isGreek ? "Κωδικός PIN:" : "PIN Code:"}
                   </label>
                   <input
                     type="password"
                     value={pinInput}
                     onChange={(e) => setPinInput(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="••••••"
                     className="field py-2 px-3 text-xs w-full"
                     autoFocus
                     required

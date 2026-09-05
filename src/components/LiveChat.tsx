@@ -264,7 +264,8 @@ export default function LiveChat({
     const unsubPresence = onValue(allPresenceRef, (snap) => {
       if (snap.exists()) {
         const val = snap.val();
-        setOnlineCount(Math.max(1, Object.keys(val).length));
+        const activeKeys = Object.keys(val).filter((k) => k !== "site_status");
+        setOnlineCount(Math.max(1, activeKeys.length));
       } else {
         setOnlineCount(1);
       }
@@ -562,8 +563,8 @@ export default function LiveChat({
                         type="button"
                         onClick={() => setShowProducerAuthModal(true)}
                         className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-1 rounded-md shrink-0"
-                        title={isGreek ? "Σύνδεση Παραγωγού / Admin" : "Producer / Admin Login"}
-                        aria-label={isGreek ? "Σύνδεση Παραγωγού / Admin" : "Producer / Admin Login"}
+                        title={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
+                        aria-label={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
                       >
                         <ShieldCheck className="w-4 h-4" />
                       </button>

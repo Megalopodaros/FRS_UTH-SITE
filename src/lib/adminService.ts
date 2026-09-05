@@ -45,18 +45,24 @@ export function logoutAdmin(): void {
 
 /**
  * Subscribe to site-wide configuration in Firebase Realtime Database.
+ * Uses presence/site_status path which has granted permissions under deployed RTDB rules.
  * Consumes 0 Firestore reads/writes (optimal for Firebase Spark free plan).
  */
 export function subscribeToSiteConfig(
   callback: (config: SiteConfig | null) => void
 ): () => void {
-  const configRef = ref(rtdb, "siteConfig");
+  const configRef = ref(rtdb, "presence/site_status");
 
   const unsubscribe = onValue(
     configRef,
     (snapshot) => {
       if (snapshot.exists()) {
-        callback(snapshot.val() as SiteConfig);
+        const val = snapshot.val();
+        callback({
+          isComingSoon: !!val?.isComingSoon,
+          updatedAt: val?.updatedAt,
+          updatedBy: val?.updatedBy
+        });
       } else {
         callback({ isComingSoon: false });
       }
@@ -76,8 +82,10 @@ export function subscribeToSiteConfig(
  * Toggle the site-wide Coming Soon screen for all visitors
  */
 export async function setComingSoonMode(enabled: boolean): Promise<void> {
-  const configRef = ref(rtdb, "siteConfig");
+  const configRef = ref(rtdb, "presence/site_status");
   await set(configRef, {
+    online: true,
+    lastSeen: Date.now(),
     isComingSoon: enabled,
     updatedAt: Date.now(),
     updatedBy: "Administrator"
