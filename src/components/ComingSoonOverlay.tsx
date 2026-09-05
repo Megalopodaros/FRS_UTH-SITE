@@ -14,12 +14,14 @@ interface ComingSoonOverlayProps {
   isGreek: boolean;
   onDeactivate: () => Promise<void>;
   onResetComplete?: () => void;
+  onAdminAuthenticated?: () => void;
 }
 
 export default function ComingSoonOverlay({
   isGreek,
   onDeactivate,
-  onResetComplete
+  onResetComplete,
+  onAdminAuthenticated
 }: ComingSoonOverlayProps) {
   const [showPinModal, setShowPinModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -29,7 +31,7 @@ export default function ComingSoonOverlay({
 
   const handleShieldClick = () => {
     if (isAdmin) {
-      setShowAdminPanel(true);
+      onAdminAuthenticated?.();
     } else {
       setShowPinModal(true);
       setPinError("");
@@ -44,8 +46,8 @@ export default function ComingSoonOverlay({
     if (ok) {
       setIsAdmin(true);
       setShowPinModal(false);
-      setShowAdminPanel(true);
       setAdminPin("");
+      onAdminAuthenticated?.();
     } else {
       setPinError(isGreek ? "Λανθασμένος κωδικός διαχειριστή." : "Incorrect admin PIN.");
     }

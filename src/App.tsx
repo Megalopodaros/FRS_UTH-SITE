@@ -38,7 +38,7 @@ import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
 import ComingSoonOverlay from "./components/ComingSoonOverlay";
 import { subscribeToActivePoll } from "./lib/pollService";
-import { subscribeToSiteConfig, setComingSoonMode } from "./lib/adminService";
+import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin } from "./lib/adminService";
 import { LivePollData, SiteConfig } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
@@ -76,16 +76,17 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Site-Wide Config (Coming Soon) state
+  // Site-Wide Config (Coming Soon) & Admin state
   const [siteConfig, setSiteConfig] = useState<SiteConfig>({ isComingSoon: false });
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
 
   // Real-time subscription to siteConfig in RTDB
   useEffect(() => {
     const unsubscribe = subscribeToSiteConfig((config) => {
       if (config) {
         setSiteConfig(config);
-        if (config.isComingSoon) {
-          // Pause radio playback and close chat if Coming Soon is turned on
+        if (config.isComingSoon && !isAdminAuthenticated()) {
+          // Pause radio playback and close chat if Coming Soon is turned on for non-admin
           setStationPlaying(false);
           setIsLoadingAudio(false);
           setChatOpen(false);
@@ -2042,14 +2043,49 @@ export default function App() {
         onToggleComingSoon={setComingSoonMode}
       />
 
-      {/* COMING SOON FULL-SCREEN OVERLAY (Global across all clients) */}
-      {siteConfig.isComingSoon && (
+      {/* COMING SOON FULL-SCREEN OVERLAY (Global across all clients, bypassed for authenticated admin) */}
+      {siteConfig.isComingSoon && !isAdmin && (
         <ComingSoonOverlay
           isGreek={isGreek}
           onDeactivate={async () => {
             await setComingSoonMode(false);
           }}
+          onAdminAuthenticated={() => {
+            setIsAdmin(true);
+          }}
         />
+      )}
+
+      {/* DISCREET ADMIN PREVIEW BAR (When Coming Soon is active globally but admin is previewing) */}
+      {siteConfig.isComingSoon && isAdmin && (
+        <div className="fixed bottom-4 left-4 z-50 flex items-center gap-3 bg-[#1C1917]/95 backdrop-blur-md text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-stone-800 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#ff4b62] animate-pulse shrink-0" />
+            <span className="font-semibold text-stone-300">
+              {isGreek ? "Προεπισκόπηση Admin (Το Coming Soon φαίνεται στους επισκέπτες)" : "Admin Preview (Coming Soon active for visitors)"}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              await setComingSoonMode(false);
+            }}
+            className="bg-[#ad021a] hover:bg-[#8f0115] text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
+          >
+            {isGreek ? "Άνοιγμα Σάιτ για Όλους" : "Publish Site for Everyone"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              logoutAdmin();
+              setIsAdmin(false);
+            }}
+            className="text-stone-400 hover:text-white px-2 py-1 text-xs cursor-pointer font-medium"
+            title={isGreek ? "Έξοδος" : "Exit"}
+          >
+            {isGreek ? "Έξοδος" : "Exit"}
+          </button>
+        </div>
       )}
 
     </div>
