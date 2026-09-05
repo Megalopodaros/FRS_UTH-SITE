@@ -1,6 +1,16 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true
+    "presence": {
+      ".read": true,
+      "$sessionId": {
+        ".write": true,
+        ".validate": "newData.val() == null || newData.hasChildren(['online', 'lastSeen'])"
+      }
+    },
+    "activePoll": {
+      ".read": true,
+      ".write": true,
+      ".validate": "newData.val() == null || (newData.hasChildren(['question', 'options']) && newData.child('question').isString() && newData.child('question').val().length <= 250)"
+    }
   }
 }
