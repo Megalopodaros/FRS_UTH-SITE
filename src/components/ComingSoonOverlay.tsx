@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, Radio, X, AlertCircle, Sparkles, Volume2 } from "lucide-react";
+import { ShieldCheck, X, AlertCircle } from "lucide-react";
 import { verifyAdminPin, isAdminAuthenticated, logoutAdmin } from "../lib/adminService";
 import AdminModal from "./AdminModal";
 import UthLogo from "./UthLogo";
@@ -65,111 +65,112 @@ export default function ComingSoonOverlay({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#0D0B0B] text-white flex flex-col justify-between overflow-y-auto select-none">
-      {/* Ambient background glows */}
+    <div className="fixed inset-0 z-[9999] bg-[#F7F4EC] text-[#1C1917] flex flex-col justify-between overflow-y-auto select-none">
+      {/* Subtle warm ambient background glows matching normal site */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-15%] left-[20%] w-[550px] h-[550px] rounded-full bg-[#ad021a]/15 blur-[140px]" />
-        <div className="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] rounded-full bg-[#ad021a]/10 blur-[160px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] opacity-60" />
+        <div className="absolute top-[-10%] left-[15%] w-[520px] h-[520px] rounded-full bg-[#ad021a]/[0.05] blur-[140px]" />
+        <div className="absolute bottom-[-10%] right-[15%] w-[580px] h-[580px] rounded-full bg-[#ad021a]/[0.04] blur-[150px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(#00000005_1px,transparent_1px)] [background-size:24px_24px] opacity-70" />
       </div>
 
-      {/* TOP BAR: Logo & Shield Button */}
-      <header className="w-full px-6 py-5 sm:px-10 sm:py-6 flex items-center justify-between relative z-20">
+      {/* TOP HEADER: Brand Logo only (Minimal & clean, no top button) */}
+      <header className="w-full px-6 py-5 sm:px-10 sm:py-7 flex items-center justify-between relative z-20">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-            <UthLogo size="header" hideTextOnMobile={false} />
-          </div>
+          <UthLogo size="header" hideTextOnMobile={false} />
         </div>
-
-        {/* TOP-RIGHT SHIELD ICON BUTTON (Required mechanism to unlock & deactivate) */}
-        <button
-          type="button"
-          onClick={handleShieldClick}
-          className="p-2.5 sm:p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white/80 hover:text-white shadow-lg backdrop-blur-md transition-all cursor-pointer hover:scale-105 active:scale-95"
-          title={isGreek ? "Σύνδεση Διαχειριστή" : "Admin Login"}
-          aria-label={isGreek ? "Σύνδεση Διαχειριστή" : "Admin Login"}
-        >
-          <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#ff4b62]" />
-        </button>
       </header>
 
-      {/* MAIN CONTENT: Centered Hero Display */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-12 max-w-3xl mx-auto z-10">
+      {/* MAIN CONTENT: Minimalist, Typographic & Cool Center Stage */}
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-10 max-w-2xl mx-auto z-10">
         {/* Pulsing Status Pill */}
         <motion.div
-          initial={{ opacity: 0, y: -15 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#ad021a]/20 border border-[#ad021a]/40 text-[#ff4b62] text-xs sm:text-sm font-bold tracking-wider uppercase mb-6 shadow-sm shadow-[#ad021a]/20"
+          transition={{ duration: 0.5 }}
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FCECEE] border border-[#ad021a]/15 text-[#ad021a] text-xs font-bold tracking-wider uppercase mb-6 shadow-2xs"
         >
           <span className="w-2 h-2 rounded-full bg-[#ad021a] animate-ping" />
           <span>{isGreek ? "ΣΥΝΤΟΜΑ ΚΟΝΤΑ ΣΑΣ" : "COMING SOON"}</span>
         </motion.div>
 
-        {/* Title */}
+        {/* Minimal Hero Title */}
         <motion.h1
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white mb-6 leading-[1.1]"
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tight text-[#1C1917] mb-5 font-['Unbounded',sans-serif]"
         >
-          FRS <span className="text-[#ff3b53]">UTH</span>
+          FRS <span className="text-[#ad021a]">UTH</span>
         </motion.h1>
 
-        {/* Subtitle */}
+        {/* Refined Subtitle */}
         <motion.p
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-xl text-stone-300 font-medium max-w-xl leading-relaxed mb-8"
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="text-base sm:text-lg md:text-xl text-[#6B6560] font-normal max-w-lg leading-relaxed mb-8"
         >
           {isGreek
-            ? "Ο Φοιτητικός Ραδιοφωνικός Σταθμός του Πανεπιστημίου Θεσσαλίας ανανεώνεται. Το νέο μας web radio και η ζωντανή πλατφόρμα ετοιμάζονται!"
-            : "The Student Radio Station of the University of Thessaly is preparing a brand new digital experience. Stay tuned!"}
+            ? "Ο Φοιτητικός Ραδιοφωνικός Σταθμός του Πανεπιστημίου Θεσσαλίας ανανεώνεται. Η νέα ζωντανή πλατφόρμα έρχεται σύντομα!"
+            : "The Student Radio Station of the University of Thessaly is being refreshed. The new live broadcast platform is coming soon!"}
         </motion.p>
 
-        {/* Dynamic Soundwave Visualizer Bars */}
+        {/* Minimalist Soundwave Visualizer Bars in Glass Capsule */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex items-center justify-center gap-1.5 sm:gap-2 h-16 sm:h-20 mb-8 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md"
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex items-center justify-center gap-1.5 sm:gap-2 h-14 sm:h-16 px-6 py-2.5 rounded-full bg-white/80 border border-black/[0.06] shadow-xs mb-8"
         >
-          {[40, 75, 55, 90, 60, 100, 70, 85, 45, 95, 65, 80, 50].map((height, i) => (
+          {[35, 70, 50, 85, 55, 95, 65, 80, 45, 90, 60, 75, 40].map((height, i) => (
             <motion.div
               key={i}
-              className="w-1.5 sm:w-2 bg-gradient-to-t from-[#ad021a] to-[#ff4b62] rounded-full"
+              className="w-1 sm:w-1.5 bg-[#ad021a] rounded-full"
               animate={{
-                height: [`${height * 0.3}%`, `${height}%`, `${height * 0.4}%`],
+                height: [`${height * 0.25}%`, `${height}%`, `${height * 0.35}%`],
               }}
               transition={{
-                duration: 1.2 + (i % 5) * 0.2,
+                duration: 1.1 + (i % 5) * 0.2,
                 repeat: Infinity,
                 repeatType: "reverse",
                 ease: "easeInOut",
-                delay: i * 0.08,
+                delay: i * 0.07,
               }}
             />
           ))}
         </motion.div>
 
         {/* City Footprint */}
-        <p className="text-xs sm:text-sm text-stone-400 font-medium tracking-wide">
+        <p className="text-xs font-semibold text-[#8C847C] tracking-widest uppercase">
           {isGreek 
             ? "Βόλος • Λάρισα • Τρίκαλα • Καρδίτσα • Λαμία"
             : "Volos • Larissa • Trikala • Karditsa • Lamia"}
         </p>
       </main>
 
-      {/* FOOTER */}
-      <footer className="w-full px-6 py-6 text-center text-xs text-stone-400 relative z-10 border-t border-white/5">
-        <p>© 2026 FRS UTH • Student Radio Station • University of Thessaly</p>
+      {/* MINIMAL FOOTER: With the discreet small shield icon next to University of Thessaly */}
+      <footer className="w-full px-6 py-6 text-center text-xs text-[#8C847C] relative z-10 border-t border-black/[0.04]">
+        <p className="flex items-center justify-center flex-wrap gap-1">
+          <span>© 2026 FRS UTH • Student Radio Station •</span>
+          <span className="inline-flex items-center gap-1 text-[#57534E]">
+            University of Thessaly
+            <button
+              type="button"
+              onClick={handleShieldClick}
+              className="p-1 text-stone-400 hover:text-[#ad021a] transition-colors cursor-pointer rounded-md inline-flex items-center align-middle hover:scale-115 active:scale-95"
+              title={isGreek ? "Σύνδεση Διαχειριστή" : "Admin Login"}
+              aria-label={isGreek ? "Σύνδεση Διαχειριστή" : "Admin Login"}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </button>
+          </span>
+        </p>
       </footer>
 
       {/* ADMIN PIN LOGIN MODAL */}
       <AnimatePresence>
         {showPinModal && (
-          <div className="fixed inset-0 z-[10020] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div className="fixed inset-0 z-[10020] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -185,7 +186,7 @@ export default function ComingSoonOverlay({
               </button>
 
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-2xl bg-[#ad021a] text-white flex items-center justify-center shadow-md shadow-[#ad021a]/30">
+                <div className="w-11 h-11 rounded-2xl bg-[#ad021a] text-white flex items-center justify-center shadow-md shadow-[#ad021a]/25">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div>
@@ -193,7 +194,7 @@ export default function ComingSoonOverlay({
                     {isGreek ? "Σύνδεση Διαχειριστή" : "Admin Authentication"}
                   </h3>
                   <p className="text-xs text-[#78716C]">
-                    {isGreek ? "Εισάγετε τον κωδικό διαχειριστή" : "Enter the administrator PIN"}
+                    {isGreek ? "Εισάγετε τον κωδικό PIN" : "Enter the administrator PIN"}
                   </p>
                 </div>
               </div>
@@ -201,7 +202,7 @@ export default function ComingSoonOverlay({
               <form onSubmit={handlePinSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#1C1917] mb-1.5">
-                    {isGreek ? "Κωδικός Admin PIN:" : "Admin PIN Code:"}
+                    {isGreek ? "Κωδικός PIN:" : "PIN Code:"}
                   </label>
                   <input
                     type="password"
