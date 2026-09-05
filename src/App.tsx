@@ -1596,7 +1596,7 @@ export default function App() {
                     <div>
                       <h4 className="font-bold text-sm text-[#1C1917]">Email</h4>
                       <p className="text-xs text-[#6B6560] mt-1">
-                        <a href="mailto:info@frsvolou.gr" className="hover:text-[#ad021a] transition-colors">info@frsvolou.gr</a>
+                        <a href="mailto:foithtikaradioshows@gmail.com" className="hover:text-[#ad021a] transition-colors">foithtikaradioshows@gmail.com</a>
                       </p>
                     </div>
                   </div>
@@ -1644,7 +1644,7 @@ export default function App() {
                         
                         const subject = encodeURIComponent(`[FRS UTH Contact] ${contactForm.category.toUpperCase()} - ${contactForm.name}`);
                         const body = encodeURIComponent(`Name: ${contactForm.name}\nEmail: ${contactForm.email}\nCategory: ${contactForm.category}\n\nMessage:\n${contactForm.message}`);
-                        window.location.href = `mailto:info@frsvolou.gr?subject=${subject}&body=${body}`;
+                        window.location.href = `mailto:foithtikaradioshows@gmail.com?subject=${subject}&body=${body}`;
 
                         setContactLoading(false);
                         setContactSubmitted(true);
@@ -2010,7 +2010,7 @@ export default function App() {
 
                     const subject = encodeURIComponent(`[Open Call 2026 Application] - ${openCallForm.name}`);
                     const body = encodeURIComponent(`Name: ${openCallForm.name}\nEmail: ${openCallForm.email}\nPhone: ${openCallForm.phone}\nGenres: ${openCallForm.musicGenres}\n\nConcept:\n${openCallForm.showConcept}`);
-                    window.location.href = `mailto:studio@frsvolou.gr?subject=${subject}&body=${body}`;
+                    window.location.href = `mailto:foithtikaradioshows@gmail.com?subject=${subject}&body=${body}`;
 
                     setOpenCallLoading(false);
                     setOpenCallSubmitted(true);
