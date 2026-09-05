@@ -490,7 +490,7 @@ export default function App() {
             type="button"
             onClick={() => setActiveTab("home")}
             className="cursor-pointer flex items-center hover:opacity-90 transition-opacity"
-            aria-label="FRS UTH Campus Radio"
+            aria-label="FRS UTH Web Radio"
           >
             <UthLogo size="header" hideTextOnMobile={true} />
           </button>

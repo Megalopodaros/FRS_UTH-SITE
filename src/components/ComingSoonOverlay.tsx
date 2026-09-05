@@ -118,8 +118,8 @@ export default function ComingSoonOverlay({
           className="text-base sm:text-lg md:text-xl text-[#6B6560] font-normal max-w-lg leading-relaxed mb-8"
         >
           {isGreek
-            ? "Ο Φοιτητικός Ραδιοφωνικός Σταθμός του Πανεπιστημίου Θεσσαλίας ανανεώνεται. Η νέα ζωντανή πλατφόρμα έρχεται σύντομα!"
-            : "The Student Radio Station of the University of Thessaly is being refreshed. The new live broadcast platform is coming soon!"}
+            ? "Ο Φοιτητικός Ραδιοφωνικός Σταθμός του Πανεπιστημίου Θεσσαλίας ανανεώνεται. Σύντομα κοντά σας!"
+            : "The Student Radio Station of the University of Thessaly is being refreshed. Coming soon!"}
         </motion.p>
 
         {/* Minimalist Soundwave Visualizer Bars in Glass Capsule */}
