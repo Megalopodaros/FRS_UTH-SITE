@@ -38,7 +38,7 @@ import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
 import ComingSoonOverlay from "./components/ComingSoonOverlay";
 import { subscribeToActivePoll } from "./lib/pollService";
-import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin } from "./lib/adminService";
+import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin, getCachedComingSoon } from "./lib/adminService";
 import { LivePollData, SiteConfig } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
@@ -76,8 +76,17 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Site-Wide Config (Coming Soon) & Admin state
-  const [siteConfig, setSiteConfig] = useState<SiteConfig>({ isComingSoon: false });
+  // Site-Wide Config (Coming Soon) & Admin state (synchronous local cache eliminates any initial flash)
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>(() => {
+    const cached = getCachedComingSoon();
+    return {
+      // Default to true if not cached yet (guarantees zero flash of unlaunched site on first visit)
+      isComingSoon: cached !== null ? cached : true
+    };
+  });
+  const [isConfigReady, setIsConfigReady] = useState<boolean>(() => {
+    return getCachedComingSoon() !== null || isAdminAuthenticated();
+  });
   const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
 
   // Real-time subscription to siteConfig in RTDB
@@ -85,6 +94,7 @@ export default function App() {
     const unsubscribe = subscribeToSiteConfig((config) => {
       if (config) {
         setSiteConfig(config);
+        setIsConfigReady(true);
         if (config.isComingSoon && !isAdminAuthenticated()) {
           // Pause radio playback and close chat if Coming Soon is turned on for non-admin
           setStationPlaying(false);
@@ -95,6 +105,16 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Safety fallback: ensure isConfigReady resolves even if network/RTDB delays
+  useEffect(() => {
+    if (!isConfigReady) {
+      const timer = setTimeout(() => {
+        setIsConfigReady(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isConfigReady]);
 
   // Active day index in weekly program (defaults to current day of week)
   const currentDayIndex = useMemo(() => {
@@ -426,6 +446,30 @@ export default function App() {
       }
     }, activeTab !== "home" ? 150 : 20);
   };
+
+  // 1. Initial configuration gate: if config is still resolving for a first-time visitor and user is not admin, show seamless branded canvas
+  if (!isConfigReady && !isAdmin) {
+    return (
+      <div className="fixed inset-0 z-[99999] bg-[#F7F4EC] flex items-center justify-center select-none">
+        <UthLogo size="header" hideTextOnMobile={false} />
+      </div>
+    );
+  }
+
+  // 2. Coming Soon Gate: if Coming Soon is active globally and user is not authenticated admin, render ONLY the Coming Soon screen
+  if (siteConfig.isComingSoon && !isAdmin) {
+    return (
+      <ComingSoonOverlay
+        isGreek={isGreek}
+        onDeactivate={async () => {
+          await setComingSoonMode(false);
+        }}
+        onAdminAuthenticated={() => {
+          setIsAdmin(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F4EC] text-[#1C1917] flex flex-col selection:bg-[#ad021a]/20 selection:text-[#ad021a] relative">
@@ -2042,19 +2086,6 @@ export default function App() {
         isComingSoon={siteConfig.isComingSoon}
         onToggleComingSoon={setComingSoonMode}
       />
-
-      {/* COMING SOON FULL-SCREEN OVERLAY (Global across all clients, bypassed for authenticated admin) */}
-      {siteConfig.isComingSoon && !isAdmin && (
-        <ComingSoonOverlay
-          isGreek={isGreek}
-          onDeactivate={async () => {
-            await setComingSoonMode(false);
-          }}
-          onAdminAuthenticated={() => {
-            setIsAdmin(true);
-          }}
-        />
-      )}
 
       {/* DISCREET ADMIN PREVIEW BAR (When Coming Soon is active globally but admin is previewing) */}
       {siteConfig.isComingSoon && isAdmin && (

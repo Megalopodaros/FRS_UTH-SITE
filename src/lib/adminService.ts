@@ -43,6 +43,35 @@ export function logoutAdmin(): void {
   sessionStorage.removeItem(PRODUCER_NAME_KEY);
 }
 
+export const COMING_SOON_CACHE_KEY = "frs_cached_coming_soon";
+
+/**
+ * Synchronously retrieves cached Coming Soon state from localStorage.
+ * Returns null if never cached on this browser before.
+ */
+export function getCachedComingSoon(): boolean | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const val = localStorage.getItem(COMING_SOON_CACHE_KEY);
+    if (val === null) return null;
+    return val === "true";
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Cache Coming Soon state locally for instant zero-latency initial renders.
+ */
+export function setCachedComingSoon(isComingSoon: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(COMING_SOON_CACHE_KEY, isComingSoon ? "true" : "false");
+  } catch {
+    // Ignore quota/permission errors
+  }
+}
+
 /**
  * Subscribe to site-wide configuration in Firebase Realtime Database.
  * Uses presence/site_status path which has granted permissions under deployed RTDB rules.
@@ -58,12 +87,15 @@ export function subscribeToSiteConfig(
     (snapshot) => {
       if (snapshot.exists()) {
         const val = snapshot.val();
+        const isComingSoon = !!val?.isComingSoon;
+        setCachedComingSoon(isComingSoon);
         callback({
-          isComingSoon: !!val?.isComingSoon,
+          isComingSoon,
           updatedAt: val?.updatedAt,
           updatedBy: val?.updatedBy
         });
       } else {
+        setCachedComingSoon(false);
         callback({ isComingSoon: false });
       }
     },
@@ -82,6 +114,7 @@ export function subscribeToSiteConfig(
  * Toggle the site-wide Coming Soon screen for all visitors
  */
 export async function setComingSoonMode(enabled: boolean): Promise<void> {
+  setCachedComingSoon(enabled);
   const configRef = ref(rtdb, "presence/site_status");
   await set(configRef, {
     online: true,
