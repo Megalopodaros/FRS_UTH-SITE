@@ -1712,13 +1712,11 @@ export default function App() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setChatOpen(true)}
-            className="fixed bottom-20 right-6 z-30 bg-[#ad021a] hover:bg-[#8f0115] text-white px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-[#ad021a]/30 flex items-center gap-2 cursor-pointer max-w-[280px] sm:max-w-xs transition-all border border-white/20"
+            title={activePoll.question}
+            className="fixed bottom-20 right-6 z-30 bg-[#ad021a] hover:bg-[#8f0115] text-white px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-[#ad021a]/25 flex items-center justify-center gap-2 cursor-pointer transition-all border border-[#ad021a]/30 min-w-[122px] group"
           >
-            <BarChart2 className="w-4 h-4 shrink-0 animate-bounce" />
-            <span className="truncate font-medium">{activePoll.question}</span>
-            <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-full font-mono shrink-0">
-              {isGreek ? "Ψήφος" : "Vote"} →
-            </span>
+            <BarChart2 className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" />
+            <span>Live Poll</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -1736,7 +1734,7 @@ export default function App() {
               setChatOpen(true);
               setHasUnreadChat(false);
             }}
-            className="fixed bottom-6 right-6 z-30 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-black/10 flex items-center gap-2.5 cursor-pointer group"
+            className="fixed bottom-6 right-6 z-30 bg-white hover:bg-[#FAF8F4] text-[#1C1917] border border-black/10 px-4 py-2.5 rounded-full font-bold text-xs shadow-xl shadow-black/10 flex items-center justify-center gap-2 cursor-pointer group min-w-[122px]"
           >
             {hasUnreadChat && (
               <span className="relative flex h-2.5 w-2.5">
@@ -1744,7 +1742,7 @@ export default function App() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ad021a]"></span>
               </span>
             )}
-            <MessageSquare className="w-4 h-4 text-[#ad021a] group-hover:scale-110 transition-transform" />
+            <MessageSquare className="w-4 h-4 text-[#ad021a] group-hover:scale-110 transition-transform shrink-0" />
             <span>Live Chat</span>
           </motion.button>
         )}
