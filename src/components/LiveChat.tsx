@@ -316,7 +316,12 @@ export default function LiveChat({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div 
+        <motion.div 
+          key="chat-modal-wrapper"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           className={`fixed inset-0 z-50 overflow-hidden ${
             isMobile 
               ? "flex justify-end" 
@@ -325,25 +330,31 @@ export default function LiveChat({
         >
           {/* Backdrop */}
           <motion.div
+            key="chat-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity cursor-pointer"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
           />
 
           {/* Chat Window Container */}
           <motion.div
-            initial={isMobile ? { x: "100%" } : { opacity: 0, scale: 0.94, y: 20 }}
+            key="chat-window"
+            initial={isMobile ? { x: "100%" } : { opacity: 0, scale: 0.96, y: 16 }}
             animate={isMobile ? { x: 0 } : { opacity: 1, scale: 1, y: 0 }}
-            exit={isMobile ? { x: "100%" } : { opacity: 0, scale: 0.94, y: 20 }}
-            transition={{
-              type: "spring",
-              damping: isMobile ? 28 : 25,
-              stiffness: isMobile ? 280 : 320
-            }}
+            exit={isMobile ? { x: "100%" } : { opacity: 0, scale: 0.96, y: 14 }}
+            transition={
+              isMobile
+                ? { type: "spring", damping: 30, stiffness: 300 }
+                : { 
+                    duration: 0.26, 
+                    ease: [0.16, 1, 0.3, 1] 
+                  }
+            }
             onClick={(e) => e.stopPropagation()}
-            className={`relative bg-[#F7F4EC] md:bg-[#F7F4EC]/90 md:backdrop-blur-2xl shadow-2xl flex flex-col z-10 ${
+            className={`relative transform-gpu bg-[#F7F4EC] md:bg-[#F7F4EC]/95 md:backdrop-blur-xl shadow-2xl flex flex-col z-10 will-change-transform ${
               isMobile
                 ? "w-full max-w-md h-full border-l border-black/10"
                 : "w-full max-w-3xl lg:max-w-4xl h-[720px] max-h-[88vh] rounded-3xl border border-white/80 overflow-hidden my-auto"
@@ -607,7 +618,7 @@ export default function LiveChat({
             </div>
 
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
