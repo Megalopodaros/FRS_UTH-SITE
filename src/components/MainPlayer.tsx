@@ -249,7 +249,17 @@ export default function MainPlayer({
     ? `${currentLiveShow.host} • ${currentLiveShow.time}` 
     : (isGreek ? "Non-Stop Μουσική 24/7" : "Non-Stop Music 24/7");
 
-  // Audio lifecycle
+  const volumeRef = useRef(volume);
+  const isMutedRef = useRef(isMuted);
+  const stationPlayingRef = useRef(stationPlaying);
+
+  useEffect(() => {
+    volumeRef.current = volume;
+    isMutedRef.current = isMuted;
+    stationPlayingRef.current = stationPlaying;
+  }, [volume, isMuted, stationPlaying]);
+
+  // Audio lifecycle (attached once, avoiding listener re-binding on volume changes)
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
@@ -265,7 +275,7 @@ export default function MainPlayer({
     };
 
     const handleWaiting = () => {
-      if (stationPlaying) {
+      if (stationPlayingRef.current) {
         setIsLoadingAudio?.(true);
       }
     };
@@ -281,8 +291,9 @@ export default function MainPlayer({
     const handleError = (e: any) => {
       setIsLoadingAudio?.(false);
       console.warn("Audio stream fallback notice:", e);
-      if (stationPlaying) {
-        synthEngine.start(isMuted ? 0 : volume);
+      if (stationPlayingRef.current) {
+        const eff = isMutedRef.current ? 0 : volumeRef.current;
+        synthEngine.start(eff);
       }
     };
 
@@ -299,41 +310,52 @@ export default function MainPlayer({
       audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("error", handleError);
     };
-  }, [isMuted, volume, stationPlaying, setIsLoadingAudio]);
+  }, [setIsLoadingAudio]);
 
-  // Handle play/pause
+  // Handle play/pause (strictly when stationPlaying toggles — NEVER re-triggered by volume)
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (stationPlaying) {
-      setIsLoadingAudio?.(true);
+      const eff = isMutedRef.current ? 0 : volumeRef.current;
+      audio.volume = eff;
+
       if (audio.src !== UNIVERSAL_CHANNEL.url) {
+        setIsLoadingAudio?.(true);
         audio.src = UNIVERSAL_CHANNEL.url;
         audio.load();
       }
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsLoadingAudio?.(false);
-          })
-          .catch((err) => {
-            setIsLoadingAudio?.(false);
-            console.warn("Autoplay / network policy fallback to synth:", err);
-            synthEngine.start(isMuted ? 0 : volume);
-          });
+
+      if (audio.paused) {
+        setIsLoadingAudio?.(true);
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsLoadingAudio?.(false);
+            })
+            .catch((err) => {
+              setIsLoadingAudio?.(false);
+              if (err.name !== "AbortError") {
+                console.warn("Autoplay / network policy fallback to synth:", err);
+                synthEngine.start(eff);
+              }
+            });
+        }
       }
     } else {
       setIsLoadingAudio?.(false);
-      audio.pause();
+      if (!audio.paused) {
+        audio.pause();
+      }
       synthEngine.stop();
     }
-  }, [stationPlaying, isMuted, volume, setIsLoadingAudio]);
+  }, [stationPlaying, setIsLoadingAudio]);
 
-  // Sync volume
+  // Sync volume smoothly in real time without restarting or stuttering the stream
   useEffect(() => {
-    const effectiveVol = isMuted ? 0 : volume;
+    const effectiveVol = isMuted ? 0 : Math.max(0, Math.min(1, volume));
     if (audioRef.current) {
       audioRef.current.volume = effectiveVol;
     }
