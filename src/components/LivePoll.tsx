@@ -134,12 +134,20 @@ export default function LivePoll({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   }, [poll, isExpired, now, isGreek]);
 
-  // Determine highest vote count for winning option
-  const winningOptionId = useMemo(() => {
-    if (!poll || !poll.options || poll.options.length === 0) return null;
-    if (poll.totalVotes === 0) return null;
-    const sorted = [...poll.options].sort((a, b) => (b.votes || 0) - (a.votes || 0));
-    return sorted[0]?.votes > 0 ? sorted[0].id : null;
+  // Determine highest vote count and winning option(s) (handling ties)
+  const { winningOptionIds, isTie } = useMemo(() => {
+    if (!poll || !poll.options || poll.options.length === 0 || poll.totalVotes === 0) {
+      return { winningOptionIds: [] as string[], isTie: false };
+    }
+    const maxVotes = Math.max(...poll.options.map((o) => o.votes || 0));
+    if (maxVotes === 0) {
+      return { winningOptionIds: [] as string[], isTie: false };
+    }
+    const winners = poll.options.filter((o) => (o.votes || 0) === maxVotes);
+    return {
+      winningOptionIds: winners.map((w) => w.id),
+      isTie: winners.length > 1
+    };
   }, [poll]);
 
   // Handle Producer PIN Verification
@@ -274,7 +282,7 @@ export default function LivePoll({
                   )}
                 </div>
                 <div className="text-[11px] text-[#78716C] truncate font-medium">
-                  {poll.createdBy} • {poll.totalVotes} {isGreek ? "ψήφοι" : "votes"}
+                  {poll.totalVotes} {isGreek ? "ψήφοι" : "votes"}
                 </div>
               </div>
             </div>
@@ -318,7 +326,7 @@ export default function LivePoll({
                     ? Math.round((voteCount / poll.totalVotes) * 100) 
                     : 0;
                   const isUserPick = userVotedOptionId === option.id;
-                  const isWinner = isExpired && winningOptionId === option.id;
+                  const isWinner = isExpired && winningOptionIds.includes(option.id);
 
                   return (
                     <button
@@ -345,10 +353,13 @@ export default function LivePoll({
                         style={{ width: `${percent}%` }}
                       />
 
-                      {/* Option Text & Winner Icon */}
+                      {/* Option Text & Winner / Tie Badge */}
                       <div className="relative z-10 flex items-center gap-2 min-w-0">
                         {isWinner && (
-                          <Trophy className="w-4 h-4 text-[#ad021a] shrink-0 animate-bounce" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#ad021a] bg-[#FCECEE] px-1.5 py-0.5 rounded-md shrink-0">
+                            <Trophy className="w-3 h-3" />
+                            <span>{isTie ? (isGreek ? "Ισοψηφία" : "Tie") : (isGreek ? "Νικητής" : "Winner")}</span>
+                          </span>
                         )}
                         <span className={`text-xs font-semibold truncate ${
                           isWinner || isUserPick ? "text-[#1C1917] font-bold" : "text-[#3A3532]"
@@ -385,7 +396,12 @@ export default function LivePoll({
                     </span>
                   ) : (
                     <span className="font-bold text-[#ad021a]">
-                      {isGreek ? "Η ψηφοφορία ολοκληρώθηκε." : "The poll has concluded."}
+                      {isTie
+                        ? (isGreek ? "Η ψηφοφορία ολοκληρώθηκε με ισοψηφία!" : "The poll concluded in a tie!")
+                        : poll.totalVotes === 0
+                        ? (isGreek ? "Η ψηφοφορία ολοκληρώθηκε χωρίς ψήφους." : "The poll concluded with no votes.")
+                        : (isGreek ? "Η ψηφοφορία ολοκληρώθηκε." : "The poll has concluded.")
+                      }
                     </span>
                   )}
                 </div>
@@ -663,8 +679,8 @@ export default function LivePoll({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2 mb-2">
-                    {[2, 5, 10, 15].map((mins) => (
+                  <div className="grid grid-cols-4 gap-2">
+                    {[2, 5, 10].map((mins) => (
                       <button
                         key={mins}
                         type="button"
@@ -682,40 +698,40 @@ export default function LivePoll({
                         {mins} {isGreek ? "λεπτά" : "min"}
                       </button>
                     ))}
-                  </div>
 
-                  {/* Custom minutes numeric input */}
-                  <div className="relative flex items-center">
-                    <input
-                      type="number"
-                      min={1}
-                      max={1440}
-                      value={customDurationInput}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setCustomDurationInput(val);
-                        const num = parseInt(val, 10);
-                        if (!isNaN(num) && num > 0) {
-                          setIsCustomDuration(true);
-                        } else if (val === "") {
-                          setIsCustomDuration(false);
-                        }
-                      }}
-                      onFocus={() => {
-                        if (customDurationInput && parseInt(customDurationInput, 10) > 0) {
-                          setIsCustomDuration(true);
-                        }
-                      }}
-                      placeholder={isGreek ? "Ή εισάγετε προσαρμοσμένα λεπτά (π.χ. 3, 7, 30, 60)..." : "Or enter custom minutes (e.g. 3, 7, 30, 60)..."}
-                      className={`field py-2 px-3 text-xs w-full font-medium transition-all ${
-                        isCustomDuration && parseInt(customDurationInput, 10) > 0 ? "border-[#ad021a] ring-2 ring-[#ad021a]/20 bg-white" : ""
-                      }`}
-                    />
-                    {isCustomDuration && parseInt(customDurationInput, 10) > 0 && (
-                      <span className="absolute right-3 text-[11px] font-bold text-[#ad021a] pointer-events-none">
-                        {parseInt(customDurationInput, 10)} {isGreek ? "λεπτά" : "min"}
-                      </span>
-                    )}
+                    {/* 4th Slot: Inline Custom Duration Input */}
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min={1}
+                        max={1440}
+                        value={customDurationInput}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomDurationInput(val);
+                          const num = parseInt(val, 10);
+                          if (!isNaN(num) && num > 0) {
+                            setNewDuration(num);
+                            setIsCustomDuration(true);
+                          } else if (val === "") {
+                            setIsCustomDuration(false);
+                            setNewDuration(5);
+                          }
+                        }}
+                        onFocus={() => {
+                          if (customDurationInput && parseInt(customDurationInput, 10) > 0) {
+                            setIsCustomDuration(true);
+                          }
+                        }}
+                        placeholder={isGreek ? "Custom" : "Custom"}
+                        className={`w-full h-full py-2 px-1 rounded-xl text-xs font-bold text-center border transition-all outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                          isCustomDuration && parseInt(customDurationInput, 10) > 0
+                            ? "bg-[#ad021a] text-white border-[#ad021a] shadow-xs placeholder:text-white/70"
+                            : "bg-stone-50 hover:bg-stone-100 text-[#1C1917] border-black/10 placeholder:text-[#78716C]"
+                        }`}
+                        title={isGreek ? "Εισάγετε προσαρμοσμένα λεπτά" : "Enter custom minutes"}
+                      />
+                    </div>
                   </div>
                 </div>
 

@@ -313,18 +313,31 @@ export default function LiveChat({
     if (!activePoll) return;
     const isOver = Date.now() >= activePoll.expiresAt || !activePoll.isActive;
     if (isOver && !activePoll.announcedResult && activePoll.totalVotes > 0) {
-      const sorted = [...activePoll.options].sort((a, b) => (b.votes || 0) - (a.votes || 0));
-      const winner = sorted[0];
-      if (winner && winner.votes > 0) {
+      const maxVotes = Math.max(...activePoll.options.map((o) => o.votes || 0));
+      if (maxVotes > 0) {
+        const winners = activePoll.options.filter((o) => (o.votes || 0) === maxVotes);
         markPollResultAnnounced().then(() => {
-          const percent = Math.round((winner.votes / activePoll.totalVotes) * 100);
+          const percent = Math.round((maxVotes / activePoll.totalVotes) * 100);
           const now = new Date();
           const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+          
+          let announcementText = "";
+          if (winners.length > 1) {
+            // Tie between 2 or more options
+            const tiedNames = winners.map((w) => `«${w.text}»`).join(" & ");
+            announcementText = isGreek
+              ? `Poll: «${activePoll.question}» • Ισοψηφία: ${tiedNames} (${percent}% έκαστο)`
+              : `Poll: "${activePoll.question}" • Tie: ${winners.map((w) => `"${w.text}"`).join(" & ")} (${percent}% each)`;
+          } else {
+            const winner = winners[0];
+            announcementText = isGreek
+              ? `Poll: «${activePoll.question}» • Νικητής: «${winner.text}» (${percent}%)`
+              : `Poll: "${activePoll.question}" • Winner: "${winner.text}" (${percent}%)`;
+          }
+
           addDoc(collection(db, "messages"), {
             user: "FRS UTH System",
-            text: isGreek
-              ? `Poll: «${activePoll.question}» • Νικητής: «${winner.text}» (${percent}%)`
-              : `Poll: "${activePoll.question}" • Winner: "${winner.text}" (${percent}%)`,
+            text: announcementText,
             timestamp: timeStr,
             isSystem: true,
             avatarColor: "#ad021a",
