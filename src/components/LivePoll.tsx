@@ -190,7 +190,7 @@ export default function LivePoll({
   };
 
   const addOptionField = () => {
-    if (newOptions.length < 5) {
+    if (newOptions.length < 10) {
       setNewOptions([...newOptions, ""]);
     }
   };
@@ -426,11 +426,11 @@ export default function LivePoll({
         {!isProducer ? (
           <button
             onClick={() => setShowAuthModal(true)}
-            className="text-[10px] text-[#9C948D] hover:text-[#ad021a] flex items-center gap-1 transition-colors cursor-pointer p-1"
+            className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-90 transition-all cursor-pointer p-1 rounded-md"
             title={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
+            aria-label={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
           >
-            <ShieldCheck className="w-3 h-3" />
-            <span>{isGreek ? "Είστε Παραγωγός;" : "Producer Mode"}</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
           </button>
         ) : (
           <div className="flex items-center gap-2 text-[10px]">
@@ -597,9 +597,9 @@ export default function LivePoll({
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-bold text-[#1C1917]">
-                      {isGreek ? "Επιλογές Απαντήσεων (2 - 5) *" : "Answer Options (2 - 5) *"}
+                      {isGreek ? "Επιλογές Απαντήσεων (2 - 10) *" : "Answer Options (2 - 10) *"}
                     </label>
-                    {newOptions.length < 5 && (
+                    {newOptions.length < 10 && (
                       <button
                         type="button"
                         onClick={addOptionField}
