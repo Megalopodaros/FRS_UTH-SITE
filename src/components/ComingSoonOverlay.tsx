@@ -84,15 +84,20 @@ export default function ComingSoonOverlay({
 
       {/* MAIN CONTENT: Minimalist, Typographic & Cool Center Stage */}
       <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-10 max-w-2xl mx-auto z-10">
-        {/* Pulsing Status Pill */}
+        {/* Cool Minimalist Editorial Teaser Pill (No dot) */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FCECEE] border border-[#ad021a]/15 text-[#ad021a] text-xs font-bold tracking-wider uppercase mb-6 shadow-2xs"
+          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-black/[0.08] shadow-xs mb-6"
         >
-          <span className="w-2 h-2 rounded-full bg-[#ad021a] animate-ping" />
-          <span>{isGreek ? "ΣΥΝΤΟΜΑ ΚΟΝΤΑ ΣΑΣ" : "COMING SOON"}</span>
+          <span className="text-[11px] font-black tracking-[0.22em] text-[#1C1917] uppercase">
+            {isGreek ? "ΣΥΝΤΟΜΑ ΚΟΝΤΑ ΣΑΣ" : "COMING SOON"}
+          </span>
+          <span className="h-3 w-px bg-black/15" />
+          <span className="text-[10px] font-bold text-[#ad021a] tracking-wider uppercase font-mono">
+            ON AIR 2026
+          </span>
         </motion.div>
 
         {/* Minimal Hero Title */}
