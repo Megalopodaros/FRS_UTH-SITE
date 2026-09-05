@@ -164,6 +164,8 @@ export default function MainPlayer({
 }: MainPlayerProps) {
   const [copiedShare, setCopiedShare] = React.useState(false);
   const [, setTick] = React.useState(Date.now());
+  const [isVolumeHovered, setIsVolumeHovered] = React.useState(false);
+  const [isVolumeDragging, setIsVolumeDragging] = React.useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -431,11 +433,15 @@ export default function MainPlayer({
           {/* Row 2: Red Volume Slider & Share / Live Chat Buttons */}
           <div className="flex items-center justify-between gap-2 sm:gap-3 pt-2 border-t border-black/[0.06]">
             
-            {/* Volume Control */}
-            <div className="flex items-center gap-2">
+            {/* Volume Control with Interactive Animations & Tooltip */}
+            <div 
+              className="relative flex items-center gap-2 group/vol"
+              onMouseEnter={() => setIsVolumeHovered(true)}
+              onMouseLeave={() => setIsVolumeHovered(false)}
+            >
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="text-[#78716C] hover:text-[#DF3B2B] transition-colors cursor-pointer p-1"
+                className="text-[#78716C] hover:text-[#DF3B2B] hover:scale-115 active:scale-85 transition-transform duration-200 cursor-pointer p-1 shrink-0"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
                 {isMuted || volume === 0 ? (
@@ -449,14 +455,33 @@ export default function MainPlayer({
                 )}
               </button>
 
-              {/* Custom styled Red Track Volume Slider */}
+              {/* Custom styled Red Track Volume Slider with Animations */}
               <div className="relative flex items-center">
+                {/* Floating Animated Percentage Badge */}
+                <AnimatePresence>
+                  {(isVolumeHovered || isVolumeDragging) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 5, scale: 0.8 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 28 }}
+                      className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#1C1917] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shadow-lg pointer-events-none z-30 whitespace-nowrap"
+                    >
+                      {isMuted ? (isGreek ? "Σίγαση" : "Muted") : `${Math.round(volume * 100)}%`}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <input
                   type="range"
                   min="0"
                   max="1"
                   step="0.01"
                   value={isMuted ? 0 : volume}
+                  onMouseDown={() => setIsVolumeDragging(true)}
+                  onMouseUp={() => setIsVolumeDragging(false)}
+                  onTouchStart={() => setIsVolumeDragging(true)}
+                  onTouchEnd={() => setIsVolumeDragging(false)}
                   onChange={(e) => {
                     setVolume(parseFloat(e.target.value));
                     if (isMuted) setIsMuted(false);
@@ -464,7 +489,9 @@ export default function MainPlayer({
                   style={{
                     background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
                   }}
-                  className="w-16 sm:w-24 h-2 rounded-lg appearance-none cursor-pointer accent-[#1C1917] transition-all"
+                  className={`w-16 sm:w-24 h-2 group-hover/vol:h-2.5 rounded-lg volume-slider transition-all duration-200 ${
+                    stationPlaying && !isMuted && volume > 0 ? "volume-slider-playing" : ""
+                  }`}
                   aria-label="Volume slider"
                 />
               </div>

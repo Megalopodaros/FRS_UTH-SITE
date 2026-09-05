@@ -593,7 +593,7 @@ export default function LiveChat({
                       style={{
                         background: `linear-gradient(to right, #DF3B2B 0%, #DF3B2B ${effectiveVolPercent}%, #EFECE3 ${effectiveVolPercent}%, #EFECE3 100%)`
                       }}
-                      className="w-16 sm:w-20 h-1.5 rounded-lg appearance-none cursor-pointer accent-[#1C1917]"
+                      className="w-16 sm:w-20 h-1.5 hover:h-2 rounded-lg volume-slider transition-all duration-200"
                       aria-label="Volume in chat"
                     />
                   </div>

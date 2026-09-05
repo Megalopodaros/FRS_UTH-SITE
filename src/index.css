@@ -159,10 +159,75 @@ body {
   color: #9C948D;
 }
 
-/* Range input styling for volume */
+/* Custom Animated Volume Slider */
 input[type="range"] {
   accent-color: #DF3B2B;
 }
+
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease;
+}
+
+/* WebKit (Chrome, Safari, Edge) Thumb Animation & Styling */
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #DF3B2B;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.volume-slider:hover::-webkit-slider-thumb,
+.volume-slider:active::-webkit-slider-thumb {
+  transform: scale(1.4);
+  background: #C62F20;
+  box-shadow: 0 0 0 5px rgba(223, 59, 43, 0.25), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Firefox Thumb Animation & Styling */
+.volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #DF3B2B;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.volume-slider:hover::-moz-range-thumb,
+.volume-slider:active::-moz-range-thumb {
+  transform: scale(1.4);
+  background: #C62F20;
+  box-shadow: 0 0 0 5px rgba(223, 59, 43, 0.25), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Subtle breathing glow when audio is playing */
+@keyframes volume-glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px rgba(223, 59, 43, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 3.5px rgba(223, 59, 43, 0.5));
+  }
+}
+
+.volume-slider-playing {
+  animation: volume-glow-pulse 2.2s ease-in-out infinite;
+}
+
 
 /* Audio animation bars */
 @keyframes soundwave {
