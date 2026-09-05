@@ -203,7 +203,15 @@ export default function LivePoll({
       setNewOptions(["", ""]);
       setNewDuration(5);
     } catch (err: any) {
-      setCreateError(err?.message || (isGreek ? "Αποτυχία δημιουργίας ψηφοφορίας." : "Failed to create poll."));
+      if (err?.message?.includes("PERMISSION_DENIED") || err?.code === "PERMISSION_DENIED") {
+        setCreateError(
+          isGreek
+            ? "Σφάλμα δικαιωμάτων Firebase (Permission Denied). Πρέπει να ενεργοποιήσετε τους κανόνες (Rules: .read: true, .write: true) στο Firebase Console > Realtime Database."
+            : "Firebase Permission Denied. Please enable read/write rules in Firebase Console > Realtime Database > Rules."
+        );
+      } else {
+        setCreateError(err?.message || (isGreek ? "Αποτυχία δημιουργίας ψηφοφορίας." : "Failed to create poll."));
+      }
     } finally {
       setIsCreating(false);
     }
