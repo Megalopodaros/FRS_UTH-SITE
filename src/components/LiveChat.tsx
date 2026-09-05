@@ -462,9 +462,9 @@ export default function LiveChat({
                     <h3 className="font-bold text-base text-[#1C1917]">
                       {isGreek ? "Live Chat Κοινότητας" : "Community Live Chat"}
                     </h3>
-                    <span className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      {onlineCount} {isGreek ? "online" : "online"}
+                    <span className="h-6 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold px-2.5 rounded-full shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <span>{onlineCount} {isGreek ? "online" : "online"}</span>
                     </span>
 
                     {/* PRODUCER SHIELD BUTTON NEXT TO ONLINE BADGE */}
@@ -472,28 +472,28 @@ export default function LiveChat({
                       <button
                         type="button"
                         onClick={() => setShowProducerAuthModal(true)}
-                        className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-1 rounded-md"
+                        className="text-[#9C948D] hover:text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-1 rounded-md shrink-0"
                         title={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
                         aria-label={isGreek ? "Σύνδεση Παραγωγού" : "Producer Login"}
                       >
                         <ShieldCheck className="w-4 h-4" />
                       </button>
                     ) : (
-                      <div className="flex items-center gap-1.5 bg-[#FCECEE] border border-[#ad021a]/25 px-2 py-0.5 rounded-full shadow-2xs">
+                      <div className="h-6 inline-flex items-center gap-1.5 bg-[#FCECEE] border border-[#ad021a]/25 px-2.5 rounded-full shadow-2xs shrink-0 text-[11px] font-bold">
                         <button
                           type="button"
                           onClick={() => setShowProducerCreateModal(true)}
-                          className="text-[#ad021a] hover:scale-115 active:scale-95 transition-all cursor-pointer p-0.5"
+                          className="text-[#ad021a] hover:scale-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
                           title={isGreek ? "Δημιουργία νέου Poll" : "Create new Poll"}
                           aria-label={isGreek ? "Δημιουργία νέου Poll" : "Create new Poll"}
                         >
-                          <ShieldCheck className="w-4 h-4" />
+                          <ShieldCheck className="w-3.5 h-3.5" />
                         </button>
-                        <span className="text-[#ad021a]/30 text-[10px]">•</span>
+                        <span className="text-[#ad021a]/30 text-[10px] leading-none">•</span>
                         <button
                           type="button"
                           onClick={handleProducerLogout}
-                          className="text-[10px] text-[#78716C] hover:text-[#ad021a] transition-colors cursor-pointer font-medium"
+                          className="text-[11px] font-bold text-[#ad021a] hover:text-[#8f0115] transition-colors cursor-pointer leading-none"
                           title={isGreek ? "Αποσύνδεση Παραγωγού" : "Logout Producer"}
                         >
                           {isGreek ? "Έξοδος" : "Exit"}
