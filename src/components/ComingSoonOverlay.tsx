@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, X, AlertCircle } from "lucide-react";
+import { ShieldCheck, X, AlertCircle, Instagram } from "lucide-react";
 import { verifyAdminPin, isAdminAuthenticated, logoutAdmin } from "../lib/adminService";
 import AdminModal from "./AdminModal";
 import UthLogo from "./UthLogo";
@@ -153,6 +153,20 @@ export default function ComingSoonOverlay({
             ? "Βόλος • Λάρισα • Τρίκαλα • Καρδίτσα • Λαμία"
             : "Volos • Larissa • Trikala • Karditsa • Lamia"}
         </p>
+
+        {/* Instagram Follow Pill */}
+        <motion.a
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.25 }}
+          href="https://www.instagram.com/frs_uth.gr/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-full bg-white/80 hover:bg-white border border-black/10 text-xs font-bold text-[#1C1917] hover:text-[#ad021a] transition-all shadow-xs group cursor-pointer"
+        >
+          <Instagram className="w-4 h-4 text-[#ad021a] group-hover:scale-110 transition-transform" />
+          <span>@frs_uth.gr</span>
+        </motion.a>
       </main>
 
       {/* MINIMAL FOOTER: With the discreet small shield icon next to University of Thessaly */}

@@ -29,7 +29,8 @@ import {
   Mic,
   Menu,
   Loader2,
-  BarChart2
+  BarChart2,
+  Instagram
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -1600,6 +1601,25 @@ export default function App() {
                       </p>
                     </div>
                   </div>
+
+                  <div className="warm-card rounded-2xl p-5 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[#FCECEE] text-[#ad021a] flex items-center justify-center shrink-0">
+                      <Instagram className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-[#1C1917]">Instagram</h4>
+                      <p className="text-xs text-[#6B6560] mt-1">
+                        <a 
+                          href="https://www.instagram.com/frs_uth.gr/" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="hover:text-[#ad021a] transition-colors font-medium"
+                        >
+                          @frs_uth.gr
+                        </a>
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Contact Form */}
@@ -1795,15 +1815,26 @@ export default function App() {
               <p className="text-xs text-stone-400 leading-relaxed">
                 {currentT.connectText}
               </p>
-              <a
-                href="https://www.mixcloud.com/frs-volou/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-700 text-white px-4 py-2.5 rounded-full font-bold text-xs transition-all w-fit shadow-md group"
-              >
-                <span className="w-2.5 h-2.5 rounded-full bg-[#ad021a] group-hover:scale-110 transition-transform" />
-                <span>{currentT.mixcloudBtn}</span>
-              </a>
+              <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+                <a
+                  href="https://www.instagram.com/frs_uth.gr/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-stone-900 hover:bg-stone-800 border border-stone-700 text-white px-4 py-2.5 rounded-full font-bold text-xs transition-all w-fit shadow-md group"
+                >
+                  <Instagram className="w-4 h-4 text-[#ad021a] group-hover:scale-110 transition-transform" />
+                  <span>@frs_uth.gr</span>
+                </a>
+                <a
+                  href="https://www.mixcloud.com/frs-volou/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-700 text-white px-4 py-2.5 rounded-full font-bold text-xs transition-all w-fit shadow-md group"
+                >
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#ad021a] group-hover:scale-110 transition-transform" />
+                  <span>{currentT.mixcloudBtn}</span>
+                </a>
+              </div>
             </div>
 
           </div>
