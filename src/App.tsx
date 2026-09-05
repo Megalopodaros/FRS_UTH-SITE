@@ -264,6 +264,7 @@ export default function App() {
       navProgram: "Πρόγραμμα & Εκπομπές",
       navEvents: "Εκδηλώσεις",
       navArchive: "Αρχείο Mixcloud",
+      navContact: "Επικοινωνία",
       listenBtn: "ΑΚΡΟΑΣΗ",
       playingBtn: "ΠΑΙΖΕΙ ΤΩΡΑ",
       heroTitle1: "FRS UTH",
@@ -309,6 +310,7 @@ export default function App() {
       navProgram: "Schedule & Shows",
       navEvents: "Events",
       navArchive: "Mixcloud Archive",
+      navContact: "Contact",
       listenBtn: "LISTEN LIVE",
       playingBtn: "NOW PLAYING",
       heroTitle1: "FRS UTH",
@@ -625,7 +627,7 @@ export default function App() {
                   { id: "program", num: "02", label: currentT.navProgram },
                   { id: "events", num: "03", label: currentT.navEvents },
                   { id: "archive", num: "04", label: currentT.navArchive },
-                  { id: "contact", num: "05", label: isGreek ? "Επικοινωνία" : "Contact" }
+                  { id: "contact", num: "05", label: currentT.navContact }
                 ].map((item) => {
                   const isActive = activeTab === item.id;
                   return (
@@ -1724,6 +1726,11 @@ export default function App() {
                 <li>
                   <button onClick={() => setActiveTab("archive")} className="hover:text-white transition-colors cursor-pointer">
                     {currentT.navArchive}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setActiveTab("contact")} className="hover:text-white transition-colors cursor-pointer">
+                    {currentT.navContact}
                   </button>
                 </li>
               </ul>
