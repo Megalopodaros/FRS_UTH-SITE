@@ -815,14 +815,16 @@ export default function App() {
                   { id: "home", num: "01", label: currentT.navHome },
                   { id: "program", num: "02", label: currentT.navProgram },
                   { id: "events", num: "03", label: currentT.navEvents },
-                  { id: "archive", num: "04", label: currentT.navArchive },
-                  { id: "contact", num: "05", label: currentT.navContact }
+                  { id: "archive", num: "04", label: currentT.navArchive }
                 ].map((item) => {
                   const isActive = activeTab === item.id;
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setActiveTab(item.id as TabId)}
+                      onClick={() => {
+                        setActiveTab(item.id as TabId);
+                        setIsMobileMenuOpen(false);
+                      }}
                       className={`flex items-center justify-between p-4 rounded-2xl transition-all text-left cursor-pointer ${
                         isActive
                           ? "bg-[#ad021a] text-white shadow-md shadow-[#ad021a]/20 font-bold"
