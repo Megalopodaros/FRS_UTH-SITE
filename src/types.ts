@@ -11,6 +11,7 @@ export interface Show {
   tags: string[];
   isLive?: boolean;
   description?: string;
+  image?: string;
 }
 
 export interface DayProgram {

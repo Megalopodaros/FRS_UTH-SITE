@@ -514,7 +514,7 @@ export default function App() {
         host: weeklyShow.host,
         description: weeklyShow.description,
         tags: weeklyShow.tags && weeklyShow.tags.length > 0 ? weeklyShow.tags : (matchingStatic?.tags || ["#Radio", "#FRSUTH"]),
-        image: matchingStatic?.image || "/music-stream.jpg"
+        image: weeklyShow.image || matchingStatic?.image || "/music-stream.jpg"
       };
     }
 
@@ -529,6 +529,10 @@ export default function App() {
     if (show) return show;
 
     if (weeklyShow) {
+      const matchingStatic = showsData.find(s => 
+        s.id === weeklyShow.id || 
+        s.title.toLowerCase().trim() === weeklyShow.title.toLowerCase().trim()
+      );
       return {
         id: weeklyShow.id,
         title: weeklyShow.title,
@@ -539,11 +543,22 @@ export default function App() {
             ? `Ζωντανή εκπομπή "${weeklyShow.title}" στο FRS UTH με παραγωγό ${weeklyShow.host}. Συντονιστείτε για τις καλύτερες μουσικές επιλογές.`
             : `Live show "${weeklyShow.title}" on FRS UTH hosted by ${weeklyShow.host}. Tune in for the finest music rotation.`),
         tags: weeklyShow.tags || ["#Radio", "#FRSUTH"],
-        image: "/music-stream.jpg"
+        image: weeklyShow.image || matchingStatic?.image || "/music-stream.jpg"
       };
     }
 
     return showsData[0];
+  };
+
+  const getShowImage = (show?: { id?: string; title?: string; image?: string } | null): string => {
+    if (!show) return "/music-stream.jpg";
+    if (show.image && show.image.trim()) return show.image;
+    const showsData = isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN;
+    const match = showsData.find(s => 
+      (show.id && s.id === show.id) || 
+      (show.title && s.title.toLowerCase().trim() === show.title.toLowerCase().trim())
+    );
+    return match?.image || "/music-stream.jpg";
   };
 
   const handleOpenShowDescription = (show: { id: string; title: string; host?: string }) => {
@@ -1049,7 +1064,7 @@ export default function App() {
                           setSelectedShowId("stream");
                         }
                       }}
-                      className={`warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] relative overflow-hidden cursor-pointer ${
+                      className={`warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] relative overflow-hidden cursor-pointer group ${
                         currentLiveShow ? "border-l-4 border-l-[#ad021a]" : "border-t-2 border-t-[#ad021a]/40"
                       }`}
                     >
@@ -1063,18 +1078,31 @@ export default function App() {
                           </span>
                         </div>
 
-                        <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
-                          {currentLiveShow ? currentLiveShow.title : currentT.noLiveShow}
-                        </h3>
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
+                              {currentLiveShow ? currentLiveShow.title : currentT.noLiveShow}
+                            </h3>
 
-                        {currentLiveShow && (
-                          <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
-                            <Mic className="w-3.5 h-3.5" />
-                            <span>{currentLiveShow.host}</span>
-                          </span>
-                        )}
+                            {currentLiveShow && (
+                              <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
+                                <Mic className="w-3.5 h-3.5" />
+                                <span>{currentLiveShow.host}</span>
+                              </span>
+                            )}
+                          </div>
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                            <img
+                              src={currentLiveShow ? getShowImage(currentLiveShow) : "/music-stream.jpg"}
+                              alt={currentLiveShow ? currentLiveShow.title : "Live Stream"}
+                              loading="lazy"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                            />
+                          </div>
+                        </div>
 
-                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">
                           {currentLiveShow 
                             ? (currentLiveShow.description || currentLiveShowDetails?.description || `Με παραγωγό ${currentLiveShow.host}`)
                             : currentT.autoStreamDesc}
@@ -1090,7 +1118,7 @@ export default function App() {
                     {/* Card 2: Next Show */}
                     <div 
                       onClick={() => nextShow && handleOpenShowDescription(nextShow)}
-                      className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] cursor-pointer"
+                      className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] cursor-pointer group"
                     >
                       <div className="flex flex-col">
                         <div className="flex items-center justify-between mb-3.5">
@@ -1102,16 +1130,29 @@ export default function App() {
                           </span>
                         </div>
 
-                        <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
-                          {nextShow ? nextShow.title : "Global Grooves"}
-                        </h3>
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
+                              {nextShow ? nextShow.title : "Global Grooves"}
+                            </h3>
 
-                        <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
-                          <Mic className="w-3.5 h-3.5" />
-                          <span>{nextShow ? nextShow.host : "World Tour"}</span>
-                        </span>
+                            <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
+                              <Mic className="w-3.5 h-3.5" />
+                              <span>{nextShow ? nextShow.host : "World Tour"}</span>
+                            </span>
+                          </div>
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                            <img
+                              src={getShowImage(nextShow)}
+                              alt={nextShow ? nextShow.title : "Next Show"}
+                              loading="lazy"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                            />
+                          </div>
+                        </div>
 
-                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">
                           {nextShow?.description || nextShowDetails?.description || (isGreek 
                             ? "Μουσική εκπομπή από την ομάδα του FRS UTH." 
                             : "Radio broadcast from the FRS UTH team.")}
@@ -1127,7 +1168,7 @@ export default function App() {
                     {/* Card 3: Evening / Later Show */}
                     <div 
                       onClick={() => laterShow && handleOpenShowDescription(laterShow)}
-                      className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] cursor-pointer"
+                      className="warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] cursor-pointer group"
                     >
                       <div className="flex flex-col">
                         <div className="flex items-center justify-between mb-3.5">
@@ -1139,16 +1180,29 @@ export default function App() {
                           </span>
                         </div>
 
-                        <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
-                          {laterShow ? laterShow.title : "Lazy Sunday"}
-                        </h3>
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-display font-black text-lg sm:text-xl text-[#1C1917] leading-snug tracking-tight">
+                              {laterShow ? laterShow.title : "Lazy Sunday"}
+                            </h3>
 
-                        <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
-                          <Mic className="w-3.5 h-3.5" />
-                          <span>{laterShow ? laterShow.host : "Chill Crew"}</span>
-                        </span>
+                            <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
+                              <Mic className="w-3.5 h-3.5" />
+                              <span>{laterShow ? laterShow.host : "Chill Crew"}</span>
+                            </span>
+                          </div>
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                            <img
+                              src={getShowImage(laterShow)}
+                              alt={laterShow ? laterShow.title : "Later Show"}
+                              loading="lazy"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                            />
+                          </div>
+                        </div>
 
-                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">
                           {laterShow?.description || laterShowDetails?.description || (isGreek 
                             ? "Μουσική εκπομπή από την ομάδα του FRS UTH." 
                             : "Radio broadcast from the FRS UTH team.")}
@@ -1421,14 +1475,27 @@ export default function App() {
                                 )}
                               </div>
 
-                              <h4 className="font-bold text-xl text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
-                                {show.title}
-                              </h4>
+                              <div className="flex items-start justify-between gap-3 mb-2">
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-bold text-xl text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
+                                    {show.title}
+                                  </h4>
 
-                              <span className="text-xs font-bold text-[#ad021a] mt-1.5 flex items-center gap-1">
-                                <Mic className="w-3.5 h-3.5" />
-                                <span>{show.host}</span>
-                              </span>
+                                  <span className="text-xs font-bold text-[#ad021a] mt-1.5 flex items-center gap-1">
+                                    <Mic className="w-3.5 h-3.5" />
+                                    <span>{show.host}</span>
+                                  </span>
+                                </div>
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                                  <img
+                                    src={getShowImage(show)}
+                                    alt={show.title}
+                                    loading="lazy"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                                  />
+                                </div>
+                              </div>
 
                               {show.description && (
                                 <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
@@ -1499,13 +1566,26 @@ export default function App() {
                                 )}
                               </div>
 
-                              <h5 className="font-bold text-sm text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
-                                {show.title}
-                              </h5>
+                              <div className="flex items-start justify-between gap-2.5 mb-1">
+                                <div className="flex-1 min-w-0">
+                                  <h5 className="font-bold text-sm text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
+                                    {show.title}
+                                  </h5>
 
-                              <span className="text-[11px] font-semibold text-[#ad021a]">
-                                {show.host}
-                              </span>
+                                  <span className="text-[11px] font-semibold text-[#ad021a]">
+                                    {show.host}
+                                  </span>
+                                </div>
+                                <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                                  <img
+                                    src={getShowImage(show)}
+                                    alt={show.title}
+                                    loading="lazy"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                                  />
+                                </div>
+                              </div>
 
                               {show.description && (
                                 <p className="text-xs text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">

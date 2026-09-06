@@ -26,7 +26,9 @@ import {
   Phone,
   RotateCcw,
   Save,
-  RefreshCw
+  RefreshCw,
+  Check,
+  Image as ImageIcon
 } from "lucide-react";
 import { resetChatAndPolls } from "../lib/adminService";
 import { 
@@ -43,23 +45,21 @@ import {
   sortShowsByTime,
   sortScheduleShows
 } from "../lib/contentService";
-import { WEEKLY_SCHEDULE_GR, DEFAULT_EVENTS_GR, SHOWS_DESCRIPTIONS_GR } from "../data/radioData";
+import { WEEKLY_SCHEDULE_GR, DEFAULT_EVENTS_GR, SHOWS_DESCRIPTIONS_GR, SHOW_GALLERY_PRESETS } from "../data/radioData";
 import { DayProgram, Show, StationEvent, OpenCallApplication } from "../types";
 
-// Helper to guarantee every show in draft has its rich description synchronized and is sorted chronologically
+// Helper to guarantee every show in draft has its rich description and image synchronized and is sorted chronologically
 const syncShowsWithDescriptions = (days: DayProgram[]): DayProgram[] => {
   return sortScheduleShows(days.map(day => ({
     ...day,
     shows: day.shows.map(show => {
-      if (show.description && show.description.trim()) {
-        return show;
-      }
       const found = SHOWS_DESCRIPTIONS_GR.find(
         d => d.id === show.id || d.title.trim().toLowerCase() === show.title.trim().toLowerCase()
       );
       return {
         ...show,
-        description: found?.description || show.description || ""
+        description: (show.description && show.description.trim()) ? show.description : (found?.description || ""),
+        image: show.image || found?.image || "/shows/vinyl.jpg"
       };
     })
   })));
@@ -116,6 +116,7 @@ export default function AdminModal({
   );
   const [selectedDayKey, setSelectedDayKey] = useState("Δευ");
   const [editingShow, setEditingShow] = useState<{ isNew: boolean; show: Show } | null>(null);
+  const [showGalleryPicker, setShowGalleryPicker] = useState(false);
   const [isSavingSchedule, setIsSavingSchedule] = useState(false);
   const [isResettingSchedule, setIsResettingSchedule] = useState(false);
 
@@ -805,9 +806,11 @@ export default function AdminModal({
                           title: "",
                           host: "",
                           tags: ["Radio"],
-                          description: ""
+                          description: "",
+                          image: "/shows/vinyl.jpg"
                         }
                       });
+                      setShowGalleryPicker(false);
                     }}
                     className="px-2.5 py-1 rounded-lg bg-[#1C1917] text-white hover:bg-[#302b28] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
                   >
@@ -917,6 +920,101 @@ export default function AdminModal({
                           className="field py-1 px-2.5 text-xs w-full"
                         />
                       </div>
+
+                      {/* Show Artwork Selection */}
+                      <div className="sm:col-span-2 bg-stone-50 border border-stone-200/80 rounded-xl p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-[10px] font-bold text-stone-600 uppercase">
+                            {isGreek ? "Εικόνα Εκπομπής (από public/shows/)" : "Show Artwork (from public/shows/)"}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setShowGalleryPicker(!showGalleryPicker)}
+                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#ad021a] hover:text-[#8f0115] bg-[#FCECEE] hover:bg-[#fbdde1] px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5" />
+                            <span>{showGalleryPicker ? (isGreek ? "Απόκρυψη Συλλογής" : "Hide Gallery") : (isGreek ? "Επιλογή από Συλλογή" : "Choose from Gallery")}</span>
+                          </button>
+                        </div>
+
+                        {/* Current selected photo preview */}
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-12 rounded-lg bg-stone-900 overflow-hidden border border-stone-300 shrink-0 relative">
+                            <img
+                              src={editingShow.show.image || "/shows/vinyl.jpg"}
+                              alt="Show preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = "/shows/vinyl.jpg";
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <input
+                              type="text"
+                              value={editingShow.show.image || ""}
+                              onChange={(e) => setEditingShow({
+                                ...editingShow,
+                                show: { ...editingShow.show, image: e.target.value }
+                              })}
+                              placeholder="/shows/vinyl.jpg ή /shows/το-αρχείο-σας.jpg"
+                              className="field py-1 px-2.5 text-xs w-full font-mono"
+                            />
+                            <p className="text-[10px] text-stone-500 mt-1">
+                              {isGreek 
+                                ? "Πατήστε «Επιλογή από Συλλογή» για να διαλέξετε εικόνα ή πληκτρολογήστε τη διαδρομή (π.χ. /shows/rock.jpg)"
+                                : "Click 'Choose from Gallery' to select an image or type the file path (e.g. /shows/rock.jpg)"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Expandable Gallery Grid */}
+                        {showGalleryPicker && (
+                          <div className="mt-3 pt-3 border-t border-stone-200">
+                            <div className="text-[10.5px] font-bold text-stone-600 mb-2 flex items-center justify-between">
+                              <span>{isGreek ? "Διαθέσιμες Εικόνες Σταθμού" : "Available Station Photos"}</span>
+                              <span className="text-stone-400 font-normal">{SHOW_GALLERY_PRESETS.length} {isGreek ? "επιλογές" : "presets"}</span>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                              {SHOW_GALLERY_PRESETS.map((preset) => {
+                                const isCurrent = (editingShow.show.image || "/shows/vinyl.jpg") === preset.path;
+                                return (
+                                  <button
+                                    key={preset.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingShow({
+                                        ...editingShow,
+                                        show: { ...editingShow.show, image: preset.path }
+                                      });
+                                    }}
+                                    className={`relative aspect-[16/10] rounded-lg overflow-hidden border text-left p-1 transition-all cursor-pointer group ${
+                                      isCurrent ? "border-[#ad021a] ring-2 ring-[#ad021a]/30" : "border-stone-200 hover:border-stone-400"
+                                    }`}
+                                  >
+                                    <img
+                                      src={preset.path}
+                                      alt={preset.name}
+                                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                                    <div className="relative z-10 h-full flex flex-col justify-end p-1 text-white">
+                                      <span className="text-[10px] font-bold truncate leading-tight">{preset.name}</span>
+                                      <span className="text-[8.5px] text-stone-300 truncate">{preset.category}</span>
+                                    </div>
+                                    {isCurrent && (
+                                      <div className="absolute top-1 right-1 z-20 w-4 h-4 rounded-full bg-[#ad021a] text-white flex items-center justify-center shadow-xs">
+                                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                      </div>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-end gap-2 pt-1">
@@ -974,15 +1072,17 @@ export default function AdminModal({
                             type="button"
                             onClick={() => {
                               let showToEdit = { ...s };
-                              if (!showToEdit.description?.trim()) {
-                                const found = SHOWS_DESCRIPTIONS_GR.find(
-                                  d => d.id === s.id || d.title.trim().toLowerCase() === s.title.trim().toLowerCase()
-                                );
-                                if (found?.description) {
-                                  showToEdit.description = found.description;
-                                }
+                              const found = SHOWS_DESCRIPTIONS_GR.find(
+                                d => d.id === s.id || d.title.trim().toLowerCase() === s.title.trim().toLowerCase()
+                              );
+                              if (!showToEdit.description?.trim() && found?.description) {
+                                showToEdit.description = found.description;
+                              }
+                              if (!showToEdit.image) {
+                                showToEdit.image = found?.image || "/shows/vinyl.jpg";
                               }
                               setEditingShow({ isNew: false, show: showToEdit });
+                              setShowGalleryPicker(false);
                             }}
                             className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors cursor-pointer"
                             title={isGreek ? "Επεξεργασία" : "Edit"}
