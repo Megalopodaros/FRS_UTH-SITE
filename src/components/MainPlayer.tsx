@@ -16,6 +16,7 @@ interface MainPlayerProps {
   setIsLoadingAudio?: (loading: boolean) => void;
   activeTrackId?: string;
   currentLiveShow?: any;
+  currentLiveShowImage?: string;
   onOpenChat?: () => void;
   volume: number;
   setVolume: (v: number) => void;
@@ -155,6 +156,7 @@ export default function MainPlayer({
   isLoadingAudio = false,
   setIsLoadingAudio,
   currentLiveShow,
+  currentLiveShowImage,
   onOpenChat,
   volume,
   setVolume,
@@ -243,11 +245,15 @@ export default function MainPlayer({
     };
   }, [currentLiveShow, isGreek, tick, stationPlaying]);
 
-  // Dynamically compute display title and description
+  // Dynamically compute display title, description and artwork
   const displayTitle = currentLiveShow?.title || (isGreek ? UNIVERSAL_CHANNEL.greekName : UNIVERSAL_CHANNEL.name);
   const displaySubtitle = currentLiveShow 
     ? `${currentLiveShow.host} • ${currentLiveShow.time}` 
     : (isGreek ? "Non-Stop Μουσική 24/7" : "Non-Stop Music 24/7");
+
+  const currentImage = currentLiveShow
+    ? (currentLiveShowImage || currentLiveShow.image || "/music-stream.jpg")
+    : "/music-stream.jpg";
 
   const volumeRef = useRef(volume);
   const isMutedRef = useRef(isMuted);
@@ -393,11 +399,11 @@ export default function MainPlayer({
         {/* Top Portion: Studio Photo with Live Now Overlay */}
         <div className="relative aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/9] lg:aspect-[16/8.5] bg-stone-900 overflow-hidden group">
           <img
-            src="/hero-studio.jpg"
-            alt="FRS UTH Radio Broadcast Studio"
+            src={currentImage}
+            alt={displayTitle}
             fetchPriority="high"
             decoding="async"
-            className="w-full h-full object-cover object-[center_55%] group-hover:scale-105 transition-transform duration-700"
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
           />
           {/* Smooth bottom gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />

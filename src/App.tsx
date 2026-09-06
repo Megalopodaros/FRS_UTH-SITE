@@ -484,6 +484,19 @@ export default function App() {
     const showsData = isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN;
     if (!idOrTitle) return showsData[0];
 
+    if (idOrTitle === "stream" || idOrTitle === "autostream" || idOrTitle === "Μουσική Ροή FRS UTH" || idOrTitle === "FRS UTH Music Stream") {
+      return {
+        id: "stream",
+        title: isGreek ? "Μουσική Ροή FRS UTH" : "FRS UTH Music Stream",
+        host: isGreek ? "Ομάδα FRS UTH" : "FRS UTH Team",
+        description: isGreek 
+          ? "Συνεχής μουσική ροή 24/7 με επιλογές από την ομάδα του σταθμού. Lo-fi, Indie, Rock, Electronic και ποιοτικές ραδιοφωνικές παραγωγές χωρίς διακοπή."
+          : "Continuous 24/7 music stream curated by the station team. Lo-fi, Indie, Rock, Electronic and non-stop quality radio selections.",
+        tags: ["#24/7", "#MusicStream", "#FRSUTH"],
+        image: "/music-stream.jpg"
+      };
+    }
+
     const allWeeklyShows = activeSchedule.flatMap(d => d.shows);
     const weeklyShow = allWeeklyShows.find(s => 
       s.id === idOrTitle || 
@@ -501,7 +514,7 @@ export default function App() {
         host: weeklyShow.host,
         description: weeklyShow.description,
         tags: weeklyShow.tags && weeklyShow.tags.length > 0 ? weeklyShow.tags : (matchingStatic?.tags || ["#Radio", "#FRSUTH"]),
-        image: matchingStatic?.image || "/hero-studio.jpg"
+        image: matchingStatic?.image || "/music-stream.jpg"
       };
     }
 
@@ -526,7 +539,7 @@ export default function App() {
             ? `Ζωντανή εκπομπή "${weeklyShow.title}" στο FRS UTH με παραγωγό ${weeklyShow.host}. Συντονιστείτε για τις καλύτερες μουσικές επιλογές.`
             : `Live show "${weeklyShow.title}" on FRS UTH hosted by ${weeklyShow.host}. Tune in for the finest music rotation.`),
         tags: weeklyShow.tags || ["#Radio", "#FRSUTH"],
-        image: "/hero-studio.jpg"
+        image: "/music-stream.jpg"
       };
     }
 
@@ -987,6 +1000,7 @@ export default function App() {
                     setIsLoadingAudio={setIsLoadingAudio}
                     activeTrackId={activeTrackId}
                     currentLiveShow={currentLiveShow}
+                    currentLiveShowImage={currentLiveShowDetails?.image}
                     onOpenChat={() => setChatOpen(true)}
                     volume={volume}
                     setVolume={setVolume}
@@ -1026,7 +1040,13 @@ export default function App() {
                     
                     {/* Card 1: Currently Live / Automated Stream */}
                     <div 
-                      onClick={() => currentLiveShow && handleOpenShowDescription(currentLiveShow)}
+                      onClick={() => {
+                        if (currentLiveShow) {
+                          handleOpenShowDescription(currentLiveShow);
+                        } else {
+                          setSelectedShowId("stream");
+                        }
+                      }}
                       className={`warm-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between min-h-[220px] relative overflow-hidden cursor-pointer ${
                         currentLiveShow ? "border-l-4 border-l-[#ad021a]" : "border-t-2 border-t-[#ad021a]/40"
                       }`}
@@ -2075,7 +2095,7 @@ export default function App() {
                 <div className="flex flex-col gap-4">
                   <div className="aspect-video w-full rounded-2xl overflow-hidden bg-stone-900 border border-black/10">
                     <img
-                      src={selectedShow.image || "/hero-studio.jpg"}
+                      src={selectedShow.image || "/music-stream.jpg"}
                       alt={selectedShow.title}
                       loading="lazy"
                       decoding="async"
