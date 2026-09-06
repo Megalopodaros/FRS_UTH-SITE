@@ -4,6 +4,7 @@
  */
 
 import { DayProgram, ShowDescription, ArchiveItem, StationEvent } from "../types";
+import { SHOW_FILES } from "virtual:show-images";
 
 export interface GalleryImage {
   id: string;
@@ -12,12 +13,36 @@ export interface GalleryImage {
   path: string;
 }
 
-export const SHOW_GALLERY_PRESETS: GalleryImage[] = [
-  { id: "vinyl", name: "Vinyl Player & LP", category: "Μουσική Ροή", path: "/shows/vinyl.jpg" },
-  { id: "studio", name: "Radio Studio & Mic", category: "Broadcast", path: "/shows/studio.jpg" },
-  { id: "on-air", name: "On Air Neon & Mixer", category: "Live Studio", path: "/shows/on-air.png" },
-  { id: "concert", name: "Concert & Party", category: "Live Stage", path: "/shows/concert.jpg" }
-];
+// Known curated names & categories for default images
+const KNOWN_PRESETS: Record<string, { name: string; category: string }> = {
+  "vinyl.jpg": { name: "Vinyl Player & LP", category: "Μουσική Ροή" },
+  "studio.jpg": { name: "Radio Studio & Mic", category: "Broadcast" },
+  "on-air.png": { name: "On Air Neon & Mixer", category: "Live Studio" },
+  "concert.jpg": { name: "Concert & Party", category: "Live Stage" }
+};
+
+function formatImageTitle(fileName: string): string {
+  const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+  return nameWithoutExt
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+const fallbackFiles = ["vinyl.jpg", "studio.jpg", "on-air.png", "concert.jpg"];
+const availableFiles = Array.isArray(SHOW_FILES) && SHOW_FILES.length > 0 ? SHOW_FILES : fallbackFiles;
+
+export const SHOW_GALLERY_PRESETS: GalleryImage[] = availableFiles.map((file) => {
+  const id = file.replace(/\.[^/.]+$/, "");
+  const known = KNOWN_PRESETS[file.toLowerCase()];
+  return {
+    id,
+    name: known ? known.name : formatImageTitle(file),
+    category: known ? known.category : "Σταθμός",
+    path: `/shows/${file}`
+  };
+});
 
 export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
   {

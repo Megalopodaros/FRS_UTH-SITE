@@ -1,11 +1,51 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import fs from 'fs';
 import {defineConfig} from 'vite';
+
+function showImagesPlugin() {
+  const virtualModuleId = 'virtual:show-images';
+  const resolvedVirtualModuleId = '\0' + virtualModuleId;
+
+  return {
+    name: 'show-images-plugin',
+    resolveId(id: string) {
+      if (id === virtualModuleId) {
+        return resolvedVirtualModuleId;
+      }
+    },
+    load(id: string) {
+      if (id === resolvedVirtualModuleId) {
+        const showsDir = path.resolve(__dirname, 'public/shows');
+        let files: string[] = [];
+        if (fs.existsSync(showsDir)) {
+          files = fs.readdirSync(showsDir).filter(f => 
+            /\.(jpg|jpeg|png|webp|svg|gif)$/i.test(f)
+          );
+        }
+        return `export const SHOW_FILES = ${JSON.stringify(files)};`;
+      }
+    },
+    configureServer(server: any) {
+      const showsDir = path.resolve(__dirname, 'public/shows');
+      server.watcher.add(showsDir);
+      server.watcher.on('all', (_event: string, filePath: string) => {
+        if (filePath.replace(/\\/g, '/').includes('public/shows')) {
+          const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
+          if (mod) {
+            server.moduleGraph.invalidateModule(mod);
+          }
+          server.ws.send({ type: 'full-reload' });
+        }
+      });
+    }
+  };
+}
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), showImagesPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
