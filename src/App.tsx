@@ -1022,7 +1022,7 @@ export default function App() {
               <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                 
                 {/* Left Column: Station Events */}
-                <div className="lg:col-span-6 flex flex-col justify-between">
+                <div className="lg:col-span-6 flex flex-col justify-center gap-6">
                   <div>
                     <div className="text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase mb-1">
                       {currentT.eventsTag}
@@ -1030,33 +1030,58 @@ export default function App() {
                     <h2 className="font-display text-3xl sm:text-4xl font-black text-[#1C1917] tracking-tight">
                       {currentT.eventsTitle}
                     </h2>
+                    <p className="text-xs sm:text-sm text-[#6B6560] mt-1.5 line-clamp-2 max-w-lg leading-relaxed">
+                      {currentT.eventsDesc}
+                    </p>
                   </div>
 
                   {/* Events List Cards (Clickable to navigate to Events tab) */}
-                  <div className="mt-6 flex flex-col gap-3.5">
-                    {activeEvents.slice(0, 2).map((ev) => (
+                  <div className="flex flex-col gap-3.5">
+                    {activeEvents.length === 0 ? (
                       <div 
-                        key={ev.id}
                         onClick={() => setActiveTab("events")}
                         className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#ad021a]/40 transition-all"
                       >
                         <div className="flex items-center gap-4 min-w-0">
                           <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9]/60 group-hover:scale-105 transition-transform">
-                            <span className="font-display font-black text-xl leading-none">{ev.dayNum}</span>
-                            <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">{ev.monthStr}</span>
+                            <Calendar className="w-6 h-6" />
                           </div>
                           <div className="flex flex-col min-w-0">
                             <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
-                              {ev.title}
+                              {isGreek ? "Σύντομα νέες εκδηλώσεις & δράσεις" : "New events & activities coming soon"}
                             </h4>
                             <p className="text-xs text-[#6B6560] truncate mt-0.5">
-                              {ev.categoryBadge} • {ev.timeLocation}
+                              {isGreek ? "Μείνετε συντονισμένοι στο web radio του σταθμού!" : "Stay tuned on our live web stream!"}
                             </p>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#ad021a] group-hover:translate-x-1 transition-all shrink-0" />
                       </div>
-                    ))}
+                    ) : (
+                      activeEvents.slice(0, 2).map((ev) => (
+                        <div 
+                          key={ev.id}
+                          onClick={() => setActiveTab("events")}
+                          className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#ad021a]/40 transition-all"
+                        >
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9]/60 group-hover:scale-105 transition-transform">
+                              <span className="font-display font-black text-xl leading-none">{ev.dayNum}</span>
+                              <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">{ev.monthStr}</span>
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
+                                {ev.title}
+                              </h4>
+                              <p className="text-xs text-[#6B6560] truncate mt-0.5">
+                                {ev.categoryBadge} • {ev.timeLocation}
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#ad021a] group-hover:translate-x-1 transition-all shrink-0" />
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -1214,62 +1239,78 @@ export default function App() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {((weeklyScheduleList[selectedProgramDay] || weeklyScheduleList[0])?.shows || []).map((show) => {
-                      const isLive = currentLiveShow?.id === show.id;
-                      return (
-                        <div
-                          key={show.id}
-                          onClick={() => handleOpenShowDescription(show)}
-                          className={`warm-card rounded-3xl p-6 flex flex-col justify-between min-h-[220px] cursor-pointer group relative overflow-hidden ${
-                            isLive ? "border-l-4 border-l-[#ad021a] bg-[#FCECEE]/20" : ""
-                          }`}
-                        >
-                          <div className="flex flex-col">
-                            <div className="flex items-center justify-between mb-3.5">
-                              <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-3 py-1 rounded-lg border border-black/5">
-                                {show.time}
-                              </span>
-                              {isLive && (
-                                <span className="bg-[#FCECEE] text-[#ad021a] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#ad021a] animate-pulse" />
-                                  <span>LIVE</span>
-                                </span>
-                              )}
-                            </div>
-
-                            <h4 className="font-bold text-xl text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
-                              {show.title}
-                            </h4>
-
-                            <span className="text-xs font-bold text-[#ad021a] mt-1.5 flex items-center gap-1">
-                              <Mic className="w-3.5 h-3.5" />
-                              <span>{show.host}</span>
-                            </span>
-                          </div>
-
-                          <div className="mt-6 pt-3.5 border-t border-black/[0.05] flex items-center justify-between gap-2">
-                            <div className="flex flex-wrap gap-1.5">
-                              {show.tags.map(tag => (
-                                <span key={tag} className="text-[10px] bg-[#FAF8F4] text-[#6B6560] px-2.5 py-0.5 rounded-md font-semibold border border-black/5">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTuneChannel(show.id);
-                              }}
-                              className="text-xs font-bold text-[#ad021a] hover:text-[#8f0115] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
-                            >
-                              <span>{isGreek ? "Ακρόαση" : "Listen"}</span>
-                              <Play className="w-3 h-3 fill-current" />
-                            </button>
-                          </div>
+                    {((weeklyScheduleList[selectedProgramDay] || weeklyScheduleList[0])?.shows || []).length === 0 ? (
+                      <div className="col-span-full warm-card rounded-3xl p-10 text-center flex flex-col items-center justify-center gap-3">
+                        <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex items-center justify-center border border-[#F2C4C9]/60 mb-1">
+                          <Radio className="w-6 h-6" />
                         </div>
-                      );
-                    })}
+                        <h4 className="font-display font-bold text-lg text-[#1C1917]">
+                          {isGreek ? "Δεν έχουν προγραμματιστεί εκπομπές για αυτή την ημέρα" : "No shows scheduled for this day"}
+                        </h4>
+                        <p className="text-xs sm:text-sm text-[#6B6560] max-w-md">
+                          {isGreek 
+                            ? "Ο σταθμός μεταδίδει συνεχή μουσική ροή (Non-stop playlist 24/7). Επιλέξτε άλλη ημέρα ή συντονιστείτε στο live stream!" 
+                            : "The station broadcasts non-stop music selection 24/7. Select another day or tune in to the live stream!"}
+                        </p>
+                      </div>
+                    ) : (
+                      ((weeklyScheduleList[selectedProgramDay] || weeklyScheduleList[0])?.shows || []).map((show) => {
+                        const isLive = currentLiveShow?.id === show.id;
+                        return (
+                          <div
+                            key={show.id}
+                            onClick={() => handleOpenShowDescription(show)}
+                            className={`warm-card rounded-3xl p-6 flex flex-col justify-between min-h-[220px] cursor-pointer group relative overflow-hidden ${
+                              isLive ? "border-l-4 border-l-[#ad021a] bg-[#FCECEE]/20" : ""
+                            }`}
+                          >
+                            <div className="flex flex-col">
+                              <div className="flex items-center justify-between mb-3.5">
+                                <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-3 py-1 rounded-lg border border-black/5">
+                                  {show.time}
+                                </span>
+                                {isLive && (
+                                  <span className="bg-[#FCECEE] text-[#ad021a] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#ad021a] animate-pulse" />
+                                    <span>LIVE</span>
+                                  </span>
+                                )}
+                              </div>
+
+                              <h4 className="font-bold text-xl text-[#1C1917] group-hover:text-[#ad021a] transition-colors leading-snug">
+                                {show.title}
+                              </h4>
+
+                              <span className="text-xs font-bold text-[#ad021a] mt-1.5 flex items-center gap-1">
+                                <Mic className="w-3.5 h-3.5" />
+                                <span>{show.host}</span>
+                              </span>
+                            </div>
+
+                            <div className="mt-6 pt-3.5 border-t border-black/[0.05] flex items-center justify-between gap-2">
+                              <div className="flex flex-wrap gap-1.5">
+                                {show.tags.map(tag => (
+                                  <span key={tag} className="text-[10px] bg-[#FAF8F4] text-[#6B6560] px-2.5 py-0.5 rounded-md font-semibold border border-black/5">
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTuneChannel(show.id);
+                                }}
+                                className="text-xs font-bold text-[#ad021a] hover:text-[#8f0115] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                              >
+                                <span>{isGreek ? "Ακρόαση" : "Listen"}</span>
+                                <Play className="w-3 h-3 fill-current" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               )}
@@ -1349,48 +1390,64 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 gap-6 w-full">
-                {activeEvents.map((ev) => (
-                  <div 
-                    key={ev.id}
-                    className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
-                      <span className="font-black text-2xl sm:text-3xl leading-none">{ev.dayNum}</span>
-                      <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">{ev.monthStr}</span>
+                {activeEvents.length === 0 ? (
+                  <div className="warm-card rounded-3xl p-12 text-center flex flex-col items-center justify-center gap-3">
+                    <div className="w-16 h-16 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex items-center justify-center border border-[#F2C4C9]/60 mb-1">
+                      <Calendar className="w-8 h-8" />
                     </div>
-                    
-                    <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                          <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                            {ev.categoryBadge}
-                          </span>
-                          <span className="text-xs font-mono text-[#6B6560]">
-                            {ev.timeLocation}
-                          </span>
-                        </div>
-
-                        <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
-                          {ev.title}
-                        </h3>
-
-                        <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
-                          {ev.description}
-                        </p>
-                      </div>
-
-                      {ev.tags && ev.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
-                          {ev.tags.map((tag) => (
-                            <span key={tag} className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    <h3 className="font-display text-xl font-bold text-[#1C1917]">
+                      {isGreek ? "Δεν υπάρχουν προγραμματισμένες εκδηλώσεις αυτή τη στιγμή" : "No upcoming events scheduled at the moment"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#6B6560] max-w-md leading-relaxed">
+                      {isGreek 
+                        ? "Οι ημερομηνίες για τα επόμενα parties, live sessions και εργαστήρια του σταθμού θα ανακοινωθούν σύντομα."
+                        : "Upcoming dates for station parties, live sessions, and workshops will be announced soon."}
+                    </p>
                   </div>
-                ))}
+                ) : (
+                  activeEvents.map((ev) => (
+                    <div 
+                      key={ev.id}
+                      className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8"
+                    >
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
+                        <span className="font-black text-2xl sm:text-3xl leading-none">{ev.dayNum}</span>
+                        <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">{ev.monthStr}</span>
+                      </div>
+                      
+                      <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                            <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                              {ev.categoryBadge}
+                            </span>
+                            <span className="text-xs font-mono text-[#6B6560]">
+                              {ev.timeLocation}
+                            </span>
+                          </div>
+
+                          <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
+                            {ev.title}
+                          </h3>
+
+                          <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
+                            {ev.description}
+                          </p>
+                        </div>
+
+                        {ev.tags && ev.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
+                            {ev.tags.map((tag) => (
+                              <span key={tag} className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </motion.div>
           )}
