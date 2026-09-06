@@ -1200,9 +1200,6 @@ export default function App() {
             >
               {/* Program Header */}
               <div className="text-center max-w-2xl mx-auto flex flex-col items-center gap-3">
-                <span className="text-xs font-grotesk font-bold text-[#ad021a] tracking-wider uppercase">
-                  {isGreek ? "ΡΟΗ ΕΚΠΟΜΠΩΝ" : "SHOW SCHEDULE"}
-                </span>
                 <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#1C1917] tracking-tight">
                   {isGreek ? "Εβδομαδιαίο Πρόγραμμα" : "Weekly Program"}
                 </h1>
