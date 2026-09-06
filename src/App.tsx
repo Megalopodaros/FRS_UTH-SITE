@@ -1086,7 +1086,9 @@ export default function App() {
                       {currentT.eventsTitle}
                     </h2>
                     <p className="text-xs sm:text-sm text-[#6B6560] mt-1.5 line-clamp-2 max-w-lg leading-relaxed">
-                      {currentT.eventsDesc}
+                      {activeEvents.length === 0 
+                        ? (isGreek ? "Δεν υπάρχουν επερχόμενα πάρτι αυτή τη στιγμή." : "There are no upcoming parties at the moment.") 
+                        : currentT.eventsDesc}
                     </p>
                   </div>
 
@@ -1103,10 +1105,10 @@ export default function App() {
                           </div>
                           <div className="flex flex-col min-w-0">
                             <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
-                              {isGreek ? "Σύντομα νέες εκδηλώσεις & δράσεις" : "New events & activities coming soon"}
+                              {isGreek ? "Δεν υπάρχουν επερχόμενα πάρτι" : "No upcoming parties"}
                             </h4>
                             <p className="text-xs text-[#6B6560] truncate mt-0.5">
-                              {isGreek ? "Μείνετε συντονισμένοι στο web radio του σταθμού!" : "Stay tuned on our live web stream!"}
+                              {isGreek ? "Μείνετε συντονισμένοι, σύντομα θα ανακοινωθούν νέα πάρτι!" : "Stay tuned, new parties will be announced soon!"}
                             </p>
                           </div>
                         </div>
@@ -1463,12 +1465,12 @@ export default function App() {
                       <Calendar className="w-8 h-8" />
                     </div>
                     <h3 className="font-display text-xl font-bold text-[#1C1917]">
-                      {isGreek ? "Δεν υπάρχουν προγραμματισμένες εκδηλώσεις αυτή τη στιγμή" : "No upcoming events scheduled at the moment"}
+                      {isGreek ? "Δεν υπάρχουν επερχόμενα πάρτι αυτή τη στιγμή" : "No upcoming parties at the moment"}
                     </h3>
                     <p className="text-xs sm:text-sm text-[#6B6560] max-w-md leading-relaxed">
                       {isGreek 
-                        ? "Οι ημερομηνίες για τα επόμενα parties, live sessions και εργαστήρια του σταθμού θα ανακοινωθούν σύντομα."
-                        : "Upcoming dates for station parties, live sessions, and workshops will be announced soon."}
+                        ? "Μείνετε συντονισμένοι στο web radio του σταθμού, οι νέες ημερομηνίες και τοποθεσίες για τα επόμενα πάρτι θα ανακοινωθούν σύντομα."
+                        : "Stay tuned to our web radio, dates and locations for our upcoming parties will be announced soon."}
                     </p>
                   </div>
                 ) : (

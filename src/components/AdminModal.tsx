@@ -1216,7 +1216,7 @@ export default function AdminModal({
               {/* Events list */}
               {eventsDraft.length === 0 ? (
                 <div className="py-8 bg-stone-50 rounded-2xl text-center text-xs text-stone-500">
-                  {isGreek ? "Δεν έχουν καταχωρηθεί εκδηλώσεις." : "No events created yet."}
+                  {isGreek ? "Δεν υπάρχουν καταχωρημένα πάρτι / εκδηλώσεις." : "No upcoming parties created yet."}
                 </div>
               ) : (
                 <div className="space-y-2.5">
