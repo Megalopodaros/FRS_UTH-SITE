@@ -1214,8 +1214,8 @@ export default function App() {
                 <div className="lg:col-span-6">
                   <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-black/10 min-h-[300px] h-full flex flex-col justify-end p-6 sm:p-8 group">
                     <img
-                      src="/concert-party.jpg"
-                      alt="Student concert party"
+                      src="/open-call-studio.png"
+                      alt="FRS UTH On Air Studio Open Call"
                       loading="lazy"
                       decoding="async"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
