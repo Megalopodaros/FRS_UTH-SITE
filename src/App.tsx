@@ -1345,8 +1345,8 @@ export default function App() {
                 </h1>
                 <p className="text-sm sm:text-base text-[#6B6560] leading-relaxed font-normal">
                   {isGreek 
-                    ? "Συντονιστείτε στον ηχητικό παλμό της φοιτητικής μας ομάδας. 40+ ραδιοφωνικοί παραγωγοί, εκλεκτικές μουσικές επιλογές και live panels όλη την εβδομάδα."
-                    : "Tune in to the sonic pulse of our student broadcast team. 40+ radio producers, curated rotations, and live panels all week long."}
+                    ? "40+ παραγωγοί. Μουσική από παντού. Όλη την εβδομάδα."
+                    : "40+ producers. Music from everywhere. All week long."}
                 </p>
               </div>
 
