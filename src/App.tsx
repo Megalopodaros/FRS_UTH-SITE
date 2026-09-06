@@ -1735,13 +1735,15 @@ export default function App() {
                         } catch (err) {
                           console.error("Error saving message:", err);
                         }
-                        
-                        const subject = encodeURIComponent(`[FRS UTH Contact] ${contactForm.category.toUpperCase()} - ${contactForm.name}`);
-                        const body = encodeURIComponent(`Name: ${contactForm.name}\nEmail: ${contactForm.email}\nCategory: ${contactForm.category}\n\nMessage:\n${contactForm.message}`);
-                        window.location.href = `mailto:foithtikaradioshows@gmail.com?subject=${subject}&body=${body}`;
 
                         setContactLoading(false);
                         setContactSubmitted(true);
+                        setContactForm({
+                          name: "",
+                          email: "",
+                          category: "general",
+                          message: ""
+                        });
                       }}
                       className="flex flex-col gap-4"
                     >
@@ -2112,12 +2114,15 @@ export default function App() {
                       console.error("Error saving open call application:", err);
                     }
 
-                    const subject = encodeURIComponent(`[Open Call 2026 Application] - ${openCallForm.name}`);
-                    const body = encodeURIComponent(`Name: ${openCallForm.name}\nEmail: ${openCallForm.email}\nPhone: ${openCallForm.phone}\nGenres: ${openCallForm.musicGenres}\n\nConcept:\n${openCallForm.showConcept}`);
-                    window.location.href = `mailto:foithtikaradioshows@gmail.com?subject=${subject}&body=${body}`;
-
                     setOpenCallLoading(false);
                     setOpenCallSubmitted(true);
+                    setOpenCallForm({
+                      name: "",
+                      email: "",
+                      phone: "",
+                      showConcept: "",
+                      musicGenres: ""
+                    });
                   }}
                   className="flex flex-col gap-3.5"
                 >
