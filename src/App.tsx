@@ -1091,15 +1091,20 @@ export default function App() {
                               </span>
                             )}
                           </div>
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
-                            <img
-                              src={currentLiveShow ? getShowImage(currentLiveShow) : "/music-stream.jpg"}
-                              alt={currentLiveShow ? currentLiveShow.title : "Live Stream"}
-                              loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
-                            />
-                          </div>
+                          {currentLiveShow && 
+                           currentLiveShow.id !== "stream" && 
+                           !currentLiveShow.title?.toLowerCase().includes("μουσική ροή") && 
+                           !currentLiveShow.title?.toLowerCase().includes("music stream") && (
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                              <img
+                                src={getShowImage(currentLiveShow)}
+                                alt={currentLiveShow.title}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         <p className="text-xs sm:text-sm text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">
@@ -1141,15 +1146,20 @@ export default function App() {
                               <span>{nextShow ? nextShow.host : "World Tour"}</span>
                             </span>
                           </div>
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
-                            <img
-                              src={getShowImage(nextShow)}
-                              alt={nextShow ? nextShow.title : "Next Show"}
-                              loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
-                            />
-                          </div>
+                          {nextShow && 
+                           nextShow.id !== "stream" && 
+                           !nextShow.title?.toLowerCase().includes("μουσική ροή") && 
+                           !nextShow.title?.toLowerCase().includes("music stream") && (
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                              <img
+                                src={getShowImage(nextShow)}
+                                alt={nextShow ? nextShow.title : "Next Show"}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         <p className="text-xs sm:text-sm text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">
@@ -1191,15 +1201,20 @@ export default function App() {
                               <span>{laterShow ? laterShow.host : "Chill Crew"}</span>
                             </span>
                           </div>
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
-                            <img
-                              src={getShowImage(laterShow)}
-                              alt={laterShow ? laterShow.title : "Later Show"}
-                              loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
-                            />
-                          </div>
+                          {laterShow && 
+                           laterShow.id !== "stream" && 
+                           !laterShow.title?.toLowerCase().includes("μουσική ροή") && 
+                           !laterShow.title?.toLowerCase().includes("music stream") && (
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shrink-0 bg-stone-900 border border-black/10 relative shadow-xs">
+                              <img
+                                src={getShowImage(laterShow)}
+                                alt={laterShow ? laterShow.title : "Later Show"}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/music-stream.jpg"; }}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         <p className="text-xs sm:text-sm text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">
