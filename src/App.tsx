@@ -1086,9 +1086,7 @@ export default function App() {
                       {currentT.eventsTitle}
                     </h2>
                     <p className="text-xs sm:text-sm text-[#6B6560] mt-1.5 line-clamp-2 max-w-lg leading-relaxed">
-                      {activeEvents.length === 0 
-                        ? (isGreek ? "Δεν υπάρχουν επερχόμενα πάρτι αυτή τη στιγμή." : "There are no upcoming parties at the moment.") 
-                        : currentT.eventsDesc}
+                      {currentT.eventsDesc}
                     </p>
                   </div>
 
