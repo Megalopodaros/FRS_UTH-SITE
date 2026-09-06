@@ -39,14 +39,16 @@ import {
   fetchOpenCallApplications, 
   deleteOpenCallApplication,
   getCachedCustomSchedule,
-  getCachedCustomEvents
+  getCachedCustomEvents,
+  sortShowsByTime,
+  sortScheduleShows
 } from "../lib/contentService";
 import { WEEKLY_SCHEDULE_GR, DEFAULT_EVENTS_GR, SHOWS_DESCRIPTIONS_GR } from "../data/radioData";
 import { DayProgram, Show, StationEvent, OpenCallApplication } from "../types";
 
-// Helper to guarantee every show in draft has its rich description synchronized from existing data
+// Helper to guarantee every show in draft has its rich description synchronized and is sorted chronologically
 const syncShowsWithDescriptions = (days: DayProgram[]): DayProgram[] => {
-  return days.map(day => ({
+  return sortScheduleShows(days.map(day => ({
     ...day,
     shows: day.shows.map(show => {
       if (show.description && show.description.trim()) {
@@ -60,7 +62,7 @@ const syncShowsWithDescriptions = (days: DayProgram[]): DayProgram[] => {
         description: found?.description || show.description || ""
       };
     })
-  }));
+  })));
 };
 
 type AdminTab = "status" | "applications" | "schedule" | "events";
@@ -237,9 +239,13 @@ export default function AdminModal({
   };
 
   // --- ACTIONS: SCHEDULE ---
-  const currentDayProgram = scheduleDraft.find(d => d.day === selectedDayKey) || {
+  const rawDayProgram = scheduleDraft.find(d => d.day === selectedDayKey) || {
     day: selectedDayKey,
     shows: []
+  };
+  const currentDayProgram = {
+    ...rawDayProgram,
+    shows: sortShowsByTime(rawDayProgram.shows || [])
   };
 
   const handleSaveShowDraft = () => {
@@ -267,7 +273,7 @@ export default function AdminModal({
         } else {
           updatedShows = updatedShows.map(s => s.id === show.id ? show : s);
         }
-        return { ...dayProg, shows: updatedShows };
+        return { ...dayProg, shows: sortShowsByTime(updatedShows) };
       });
     });
 
@@ -289,7 +295,9 @@ export default function AdminModal({
   const handleSaveAllSchedule = async () => {
     setIsSavingSchedule(true);
     try {
-      await saveCustomSchedule(scheduleDraft);
+      const sortedDraft = sortScheduleShows(scheduleDraft);
+      await saveCustomSchedule(sortedDraft);
+      setScheduleDraft(sortedDraft);
       showNotification(isGreek ? "Το εβδομαδιαίο πρόγραμμα αποθηκεύτηκε επιτυχώς!" : "Weekly schedule saved successfully!");
     } catch (err: any) {
       showNotification(undefined, isGreek ? "Σφάλμα κατά την αποθήκευση του προγράμματος." : "Error saving schedule.");

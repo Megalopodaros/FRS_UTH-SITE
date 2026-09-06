@@ -45,7 +45,8 @@ import {
   subscribeToCustomEvents, 
   saveOpenCallApplication,
   getCachedCustomSchedule,
-  getCachedCustomEvents
+  getCachedCustomEvents,
+  sortShowsByTime
 } from "./lib/contentService";
 import { LivePollData, SiteConfig, DayProgram, StationEvent } from "./types";
 import { 
@@ -105,24 +106,29 @@ export default function App() {
 
   const activeSchedule = useMemo(() => {
     const fallbackShows = isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN;
-    if (customSchedule && customSchedule.length > 0) {
-      return customSchedule.map(day => ({
+    const baseSchedule = (customSchedule && customSchedule.length > 0)
+      ? customSchedule
+      : (isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN);
+
+    return baseSchedule.map(day => {
+      const showsWithDescriptions = (day.shows || []).map(show => {
+        if (show.description && show.description.trim()) {
+          return show;
+        }
+        const found = fallbackShows.find(
+          d => d.id === show.id || d.title.toLowerCase().trim() === show.title.toLowerCase().trim()
+        );
+        return {
+          ...show,
+          description: found?.description || show.description || ""
+        };
+      });
+
+      return {
         ...day,
-        shows: day.shows.map(show => {
-          if (show.description && show.description.trim()) {
-            return show;
-          }
-          const found = fallbackShows.find(
-            d => d.id === show.id || d.title.toLowerCase().trim() === show.title.toLowerCase().trim()
-          );
-          return {
-            ...show,
-            description: found?.description || show.description || ""
-          };
-        })
-      }));
-    }
-    return isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
+        shows: sortShowsByTime(showsWithDescriptions)
+      };
+    });
   }, [customSchedule, isGreek]);
 
   const activeEvents = useMemo(() => {

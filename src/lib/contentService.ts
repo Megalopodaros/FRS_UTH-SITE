@@ -12,12 +12,60 @@ const SCHEDULE_CACHE_KEY = "frs_cached_schedule";
 const EVENTS_CACHE_KEY = "frs_cached_events";
 
 /**
+ * Parses the starting time of a show string (e.g. "11:00 - 13:00", "09:30") into minutes from midnight.
+ */
+export function parseShowStartTime(timeStr: string): number {
+  if (!timeStr || typeof timeStr !== "string") return 0;
+  // Match first time pattern like "11:00", "09:30", "11.00", "14:00"
+  const match = timeStr.match(/(\d{1,2})\s*[:\.]\s*(\d{2})/);
+  if (match) {
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    return hours * 60 + minutes;
+  }
+  // Fallback: match just the first integer as hour (e.g. "11 - 13")
+  const singleMatch = timeStr.match(/(\d{1,2})/);
+  if (singleMatch) {
+    return parseInt(singleMatch[1], 10) * 60;
+  }
+  return 0;
+}
+
+/**
+ * Sorts an array of shows chronologically by their start time.
+ */
+export function sortShowsByTime<T extends { time: string }>(shows: T[]): T[] {
+  if (!Array.isArray(shows)) return [];
+  return [...shows].sort((a, b) => {
+    const startA = parseShowStartTime(a.time);
+    const startB = parseShowStartTime(b.time);
+    return startA - startB;
+  });
+}
+
+/**
+ * Sorts all shows inside each day of a weekly schedule chronologically.
+ */
+export function sortScheduleShows(schedule: DayProgram[]): DayProgram[] {
+  if (!Array.isArray(schedule)) return [];
+  return schedule.map(day => ({
+    ...day,
+    shows: sortShowsByTime(day.shows || [])
+  }));
+}
+
+/**
  * Synchronously retrieves cached custom schedule from localStorage to prevent flash on refresh
  */
 export function getCachedCustomSchedule(): DayProgram[] | null {
   try {
     const raw = localStorage.getItem(SCHEDULE_CACHE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return sortScheduleShows(parsed);
+      }
+    }
   } catch (e) {}
   return null;
 }
@@ -50,16 +98,18 @@ export function subscribeToCustomSchedule(
       if (snapshot.exists()) {
         const val = snapshot.val();
         const sched = val?.schedule || null;
-        if (sched && sched.length > 0) {
+        if (sched && Array.isArray(sched) && sched.length > 0) {
+          const sorted = sortScheduleShows(sched);
           try {
-            localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(sched));
+            localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(sorted));
           } catch (e) {}
+          callback(sorted);
         } else {
           try {
             localStorage.removeItem(SCHEDULE_CACHE_KEY);
           } catch (e) {}
+          callback(null);
         }
-        callback(sched);
       } else {
         try {
           localStorage.removeItem(SCHEDULE_CACHE_KEY);
@@ -80,8 +130,9 @@ export function subscribeToCustomSchedule(
  * Save custom schedule to RTDB under presence/site_schedule
  */
 export async function saveCustomSchedule(schedule: DayProgram[]): Promise<void> {
+  const sortedSchedule = sortScheduleShows(schedule);
   try {
-    localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(schedule));
+    localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(sortedSchedule));
   } catch (e) {}
   const scheduleRef = ref(rtdb, "presence/site_schedule");
   await set(scheduleRef, {
@@ -89,7 +140,7 @@ export async function saveCustomSchedule(schedule: DayProgram[]): Promise<void> 
     lastSeen: Date.now(),
     updatedAt: Date.now(),
     updatedBy: "Administrator",
-    schedule
+    schedule: sortedSchedule
   });
 }
 
