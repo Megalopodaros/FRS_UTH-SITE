@@ -83,3 +83,25 @@ export interface SiteConfig {
   updatedBy?: string;
 }
 
+export interface StationEvent {
+  id: string;
+  dayNum: string; // e.g. "18"
+  monthStr: string; // e.g. "ΜΑΙ"
+  categoryBadge: string; // e.g. "Festival & Outdoor Stage"
+  timeLocation: string; // e.g. "🕒 19:30 • 📍 Πεδίον του Άρεως, Βόλος"
+  title: string;
+  description: string;
+  tags: string[];
+}
+
+export interface OpenCallApplication {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  showConcept: string;
+  musicGenres: string;
+  createdAt?: any;
+}
+
+

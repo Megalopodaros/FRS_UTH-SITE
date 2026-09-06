@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DayProgram, ShowDescription, ArchiveItem } from "../types";
+import { DayProgram, ShowDescription, ArchiveItem, StationEvent } from "../types";
 
 export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
   {
@@ -524,3 +524,70 @@ export const EXTRA_ARCHIVE_ITEMS_GR: ArchiveItem[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA0F5VnEb95pMmoOd7t61PWGX_MujYYBI5bFGarpZ2WMPDlBo-t6c0zYMIyCO2RvOonMCdbTTvMQ-hnVA2N0UWGsCoESpPaTJZLlsksIk6s5VlJB6BO_GWk0mkmxRZTib1a9EQNM2gLigXl0GHtYmcdE-85jLZ4DUpNgcXDfB2IuZpzQDHmB7udf6U1tiwLIEu0ful89iS4_2eECkEr5vmIf38cRnT2j0BZJIIMUMHtfLoGscoW80or4BloZNwQR1RJScM-eN08Uog"
   }
 ];
+
+export const DEFAULT_EVENTS_GR: StationEvent[] = [
+  {
+    id: "ev1",
+    dayNum: "18",
+    monthStr: "ΜΑΙ",
+    categoryBadge: "Festival & Outdoor Stage",
+    timeLocation: "🕒 19:30 • 📍 Πεδίον του Άρεως, Βόλος",
+    title: "Campus Spring Festival 2026",
+    description: "Το μεγαλύτερο φοιτητικό φεστιβάλ του Βόλου επιστρέφει με live bands, indie alternative acts και DJ stages στο Πεδίον του Άρεως. Μια ολόκληρη ημέρα γεμάτη μουσική, live ραδιοφωνικές συνεντεύξεις στον αέρα και ελεύθερη είσοδο για όλη την πανεπιστημιακή κοινότητα.",
+    tags: ["#LiveBands", "#FreeEntry", "#OutdoorStage", "#VolosCampus"]
+  },
+  {
+    id: "ev2",
+    dayNum: "24",
+    monthStr: "ΜΑΙ",
+    categoryBadge: "Workshop & Studio Training",
+    timeLocation: "🕒 17:00 • 📍 FRS Broadcast Studio A",
+    title: "Workshop: Podcast & Audio Production",
+    description: "Εξειδικευμένο εργαστήριο ήχου και παραγωγής εκπομπών από τους τεχνικούς και παραγωγούς του σταθμού. Πρακτική εκπαίδευση σε κονσόλες μίξης, μικροφωνικές τεχνικές, ηχογράφηση φωνής, mastering podcast επεισοδίων και live streaming workflows.",
+    tags: ["#Podcast", "#SoundMixing", "#StudioA", "#RadioSkills"]
+  },
+  {
+    id: "ev3",
+    dayNum: "06",
+    monthStr: "ΙΟΥΝ",
+    categoryBadge: "Vinyl Session & DJ Set",
+    timeLocation: "🕒 21:00 • 📍 Πολυτεχνείο Βόλου",
+    title: "Vinyl Night: Lo-Fi Beats & Analog Sound",
+    description: "Βραδιά αφιερωμένη στον αναλογικό ήχο και τη μαγεία του βινυλίου. Οι DJs του σταθμού επιλέγουν rare grooves, soul, funk και lo-fi hip hop αποκλειστικά από δίσκους βινυλίου με ζωντανή αναμετάδοση στο web stream.",
+    tags: ["#VinylOnly", "#Analog", "#ChillVibes"]
+  }
+];
+
+export const DEFAULT_EVENTS_EN: StationEvent[] = [
+  {
+    id: "ev1",
+    dayNum: "18",
+    monthStr: "MAY",
+    categoryBadge: "Festival & Outdoor Stage",
+    timeLocation: "🕒 19:30 • 📍 Pedion tou Areos, Volos",
+    title: "Campus Spring Festival 2026",
+    description: "The biggest student festival in Volos returns with live bands, indie alternative acts, and DJ stages at Pedion tou Areos. A full day of live music, on-air radio interviews, and free entry for the entire university community.",
+    tags: ["#LiveBands", "#FreeEntry", "#OutdoorStage", "#VolosCampus"]
+  },
+  {
+    id: "ev2",
+    dayNum: "24",
+    monthStr: "MAY",
+    categoryBadge: "Workshop & Studio Training",
+    timeLocation: "🕒 17:00 • 📍 FRS Broadcast Studio A",
+    title: "Workshop: Podcast & Audio Production",
+    description: "Hands-on audio and broadcasting workshop led by station sound engineers and hosts. Practical training in mixing desks, microphone techniques, voice recording, podcast mastering, and live streaming workflows.",
+    tags: ["#Podcast", "#SoundMixing", "#StudioA", "#RadioSkills"]
+  },
+  {
+    id: "ev3",
+    dayNum: "06",
+    monthStr: "JUN",
+    categoryBadge: "Vinyl Session & DJ Set",
+    timeLocation: "🕒 21:00 • 📍 Volos Polytechnic",
+    title: "Vinyl Night: Lo-Fi Beats & Analog Sound",
+    description: "An evening dedicated to analog sound and vinyl groove. Station DJs spin rare grooves, soul, funk, and lo-fi hip hop strictly from vinyl records with live broadcast on the web radio stream.",
+    tags: ["#VinylOnly", "#Analog", "#ChillVibes"]
+  }
+];
+

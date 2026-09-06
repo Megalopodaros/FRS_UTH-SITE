@@ -40,10 +40,13 @@ import LiveChat from "./components/LiveChat";
 import ComingSoonOverlay from "./components/ComingSoonOverlay";
 import { subscribeToActivePoll } from "./lib/pollService";
 import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin, getCachedComingSoon } from "./lib/adminService";
-import { LivePollData, SiteConfig } from "./types";
+import { subscribeToCustomSchedule, subscribeToCustomEvents } from "./lib/contentService";
+import { LivePollData, SiteConfig, DayProgram, StationEvent } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
   WEEKLY_SCHEDULE_EN, 
+  DEFAULT_EVENTS_GR,
+  DEFAULT_EVENTS_EN,
   SHOWS_DESCRIPTIONS_GR, 
   SHOWS_DESCRIPTIONS_EN, 
   ARCHIVE_ITEMS_GR, 
@@ -76,6 +79,37 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Custom schedule & events from RTDB (Zero backend cost, falls back to static defaults)
+  const [customSchedule, setCustomSchedule] = useState<DayProgram[] | null>(null);
+  const [customEvents, setCustomEvents] = useState<StationEvent[] | null>(null);
+
+  useEffect(() => {
+    const unsubSchedule = subscribeToCustomSchedule((sched) => {
+      setCustomSchedule(sched);
+    });
+    const unsubEvents = subscribeToCustomEvents((evts) => {
+      setCustomEvents(evts);
+    });
+    return () => {
+      unsubSchedule();
+      unsubEvents();
+    };
+  }, []);
+
+  const activeSchedule = useMemo(() => {
+    if (customSchedule && customSchedule.length > 0) {
+      return customSchedule;
+    }
+    return isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
+  }, [customSchedule, isGreek]);
+
+  const activeEvents = useMemo(() => {
+    if (customEvents && customEvents.length > 0) {
+      return customEvents;
+    }
+    return isGreek ? DEFAULT_EVENTS_GR : DEFAULT_EVENTS_EN;
+  }, [customEvents, isGreek]);
 
   // Site-Wide Config (Coming Soon) & Admin state (synchronous local cache eliminates any initial flash)
   const [siteConfig, setSiteConfig] = useState<SiteConfig>(() => {
@@ -183,10 +217,11 @@ export default function App() {
     const now = new Date();
     const daysMapEN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const daysMapGR = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"];
-    const todayAbbr = isGreek ? daysMapGR[now.getDay()] : daysMapEN[now.getDay()];
+    const todayAbbrGR = daysMapGR[now.getDay()];
+    const todayAbbrEN = daysMapEN[now.getDay()];
     
-    const currentSchedule = isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
-    const todayProgram = currentSchedule.find(d => d.day === todayAbbr) || currentSchedule[0];
+    const currentSchedule = activeSchedule;
+    const todayProgram = currentSchedule.find(d => d.day === todayAbbrGR || d.day === todayAbbrEN) || currentSchedule[0];
     const shows = todayProgram?.shows || [];
     
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
@@ -419,7 +454,7 @@ export default function App() {
     );
     if (show) return show;
 
-    const allWeeklyShows = (isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN).flatMap(d => d.shows);
+    const allWeeklyShows = activeSchedule.flatMap(d => d.shows);
     const weeklyShow = allWeeklyShows.find(s => s.id === idOrTitle || s.title === idOrTitle);
 
     if (weeklyShow) {
@@ -473,7 +508,7 @@ export default function App() {
     }, 800);
   };
 
-  const weeklyScheduleList = isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
+  const weeklyScheduleList = activeSchedule;
 
   // Precise scrolling to the studio hero card & player view as shown on mobile
   const scrollToLiveStation = () => {
@@ -999,49 +1034,29 @@ export default function App() {
 
                   {/* Events List Cards (Clickable to navigate to Events tab) */}
                   <div className="mt-6 flex flex-col gap-3.5">
-                    {/* Event 1 */}
-                    <div 
-                      onClick={() => setActiveTab("events")}
-                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#ad021a]/40 transition-all"
-                    >
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9]/60 group-hover:scale-105 transition-transform">
-                          <span className="font-display font-black text-xl leading-none">18</span>
-                          <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
+                    {activeEvents.slice(0, 2).map((ev) => (
+                      <div 
+                        key={ev.id}
+                        onClick={() => setActiveTab("events")}
+                        className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#ad021a]/40 transition-all"
+                      >
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9]/60 group-hover:scale-105 transition-transform">
+                            <span className="font-display font-black text-xl leading-none">{ev.dayNum}</span>
+                            <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">{ev.monthStr}</span>
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
+                              {ev.title}
+                            </h4>
+                            <p className="text-xs text-[#6B6560] truncate mt-0.5">
+                              {ev.categoryBadge} • {ev.timeLocation}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-col min-w-0">
-                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
-                            Campus Spring Festival 2026
-                          </h4>
-                          <p className="text-xs text-[#6B6560] truncate mt-0.5">
-                            Live bands & outdoor dj stage στο Πεδίον του Άρεως
-                          </p>
-                        </div>
+                        <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#ad021a] group-hover:translate-x-1 transition-all shrink-0" />
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#ad021a] group-hover:translate-x-1 transition-all shrink-0" />
-                    </div>
-
-                    {/* Event 2 */}
-                    <div 
-                      onClick={() => setActiveTab("events")}
-                      className="warm-card rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group hover:border-[#ad021a]/40 transition-all"
-                    >
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-14 h-14 rounded-2xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9]/60 group-hover:scale-105 transition-transform">
-                          <span className="font-display font-black text-xl leading-none">24</span>
-                          <span className="text-[10px] font-extrabold uppercase mt-0.5 tracking-wider">ΜΑΙ</span>
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <h4 className="font-display font-bold text-sm sm:text-base text-[#1C1917] group-hover:text-[#ad021a] transition-colors truncate tracking-tight">
-                            Workshop: Podcast & Audio Production
-                          </h4>
-                          <p className="text-xs text-[#6B6560] truncate mt-0.5">
-                            Εισαγωγή στη φωνητική τοποθέτηση και μίξη ήχου
-                          </p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-[#78716C] group-hover:text-[#ad021a] group-hover:translate-x-1 transition-all shrink-0" />
-                    </div>
+                    ))}
                   </div>
                 </div>
 
@@ -1175,7 +1190,7 @@ export default function App() {
                               className="absolute inset-0 bg-[#ad021a] rounded-full shadow-md shadow-[#ad021a]/25 -z-10"
                             />
                           )}
-                          <span>{dayProg.fullName}</span>
+                          <span>{dayProg.fullName || dayProg.day}</span>
                           {isToday && (
                             <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#ad021a]"}`} />
                           )}
@@ -1191,15 +1206,15 @@ export default function App() {
                 <div className="w-full flex flex-col gap-6">
                   <div className="flex items-center justify-between border-b border-black/[0.08] pb-3">
                     <h3 className="font-display text-2xl font-black text-[#1C1917] tracking-tight">
-                      {weeklyScheduleList[selectedProgramDay].fullName}
+                      {(weeklyScheduleList[selectedProgramDay] || weeklyScheduleList[0])?.fullName || (weeklyScheduleList[selectedProgramDay] || weeklyScheduleList[0])?.day}
                     </h3>
                     <span className="text-xs font-mono font-bold text-[#6B6560] bg-[#FAF8F4] px-3 py-1 rounded-full border border-black/5">
-                      {weeklyScheduleList[selectedProgramDay].shows.length} {isGreek ? "Εκπομπές" : "Shows"}
+                      {(weeklyScheduleList[selectedProgramDay] || weeklyScheduleList[0])?.shows?.length || 0} {isGreek ? "Εκπομπές" : "Shows"}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {weeklyScheduleList[selectedProgramDay].shows.map((show) => {
+                    {((weeklyScheduleList[selectedProgramDay] || weeklyScheduleList[0])?.shows || []).map((show) => {
                       const isLive = currentLiveShow?.id === show.id;
                       return (
                         <div
@@ -1334,113 +1349,48 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 gap-6 w-full">
-                {/* Event 1 */}
-                <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
-                    <span className="font-black text-2xl sm:text-3xl leading-none">18</span>
-                    <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΜΑΙ</span>
-                  </div>
-                  
-                  <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                          Festival & Outdoor Stage
-                        </span>
-                        <span className="text-xs font-mono text-[#6B6560]">
-                          🕒 19:30 • 📍 Πεδίον του Άρεως, Βόλος
-                        </span>
+                {activeEvents.map((ev) => (
+                  <div 
+                    key={ev.id}
+                    className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8"
+                  >
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
+                      <span className="font-black text-2xl sm:text-3xl leading-none">{ev.dayNum}</span>
+                      <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">{ev.monthStr}</span>
+                    </div>
+                    
+                    <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                            {ev.categoryBadge}
+                          </span>
+                          <span className="text-xs font-mono text-[#6B6560]">
+                            {ev.timeLocation}
+                          </span>
+                        </div>
+
+                        <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
+                          {ev.title}
+                        </h3>
+
+                        <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
+                          {ev.description}
+                        </p>
                       </div>
 
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
-                        Campus Spring Festival 2026
-                      </h3>
-
-                      <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
-                        Το μεγαλύτερο φοιτητικό φεστιβάλ του Βόλου επιστρέφει με live bands, indie alternative acts και DJ stages στο Πεδίον του Άρεως. Μια ολόκληρη ημέρα γεμάτη μουσική, live ραδιοφωνικές συνεντεύξεις στον αέρα και ελεύθερη είσοδο για όλη την πανεπιστημιακή κοινότητα.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#LiveBands</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#FreeEntry</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#OutdoorStage</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#VolosCampus</span>
+                      {ev.tags && ev.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
+                          {ev.tags.map((tag) => (
+                            <span key={tag} className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-
-                {/* Event 2 */}
-                <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
-                    <span className="font-black text-2xl sm:text-3xl leading-none">24</span>
-                    <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΜΑΙ</span>
-                  </div>
-                  
-                  <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                          Workshop & Studio Training
-                        </span>
-                        <span className="text-xs font-mono text-[#6B6560]">
-                          🕒 17:00 • 📍 FRS Broadcast Studio A
-                        </span>
-                      </div>
-
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
-                        Workshop: Podcast & Audio Production
-                      </h3>
-
-                      <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
-                        Εξειδικευμένο εργαστήριο ήχου και παραγωγής εκπομπών από τους τεχνικούς και παραγωγούς του σταθμού. Πρακτική εκπαίδευση σε κονσόλες μίξης, μικροφωνικές τεχνικές, ηχογράφηση φωνής, mastering podcast επεισοδίων και live streaming workflows.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#Podcast</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#SoundMixing</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#StudioA</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#RadioSkills</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Event 3 */}
-                <div className="warm-card rounded-3xl p-6 sm:p-8 md:p-9 flex flex-col md:flex-row items-start gap-6 lg:gap-8">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#FCECEE] text-[#ad021a] flex flex-col items-center justify-center shrink-0 border border-[#F2C4C9] shadow-sm">
-                    <span className="font-black text-2xl sm:text-3xl leading-none">06</span>
-                    <span className="text-xs sm:text-sm font-extrabold uppercase mt-1 tracking-wider">ΙΟΥΝ</span>
-                  </div>
-                  
-                  <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold text-[#ad021a] bg-[#FCECEE] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                          Vinyl Session & DJ Set
-                        </span>
-                        <span className="text-xs font-mono text-[#6B6560]">
-                          🕒 21:00 • 📍 Πολυτεχνείο Βόλου
-                        </span>
-                      </div>
-
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-black text-[#1C1917] leading-tight tracking-tight">
-                        Vinyl Night: Lo-Fi Beats & Analog Sound
-                      </h3>
-
-                      <p className="text-sm sm:text-base text-[#6B6560] mt-2.5 leading-relaxed">
-                        Βραδιά αφιερωμένη στον αναλογικό ήχο και τη μαγεία του βινυλίου. Οι DJs του σταθμού επιλέγουν rare grooves, soul, funk και lo-fi hip hop αποκλειστικά από δίσκους βινυλίου με ζωντανή αναμετάδοση στο web stream.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-3 border-t border-black/[0.06]">
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#VinylOnly</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#Analog</span>
-                      <span className="text-[11px] bg-[#FAF8F4] text-[#6B6560] px-3 py-1 rounded-lg font-semibold border border-black/5">#ChillVibes</span>
-                    </div>
-                  </div>
-                </div>
-
+                ))}
               </div>
             </motion.div>
           )}
@@ -2174,6 +2124,7 @@ export default function App() {
         onUnreadChange={setHasUnreadChat}
         isComingSoon={siteConfig.isComingSoon}
         onToggleComingSoon={setComingSoonMode}
+        isAdmin={isAdmin}
       />
 
       {/* DISCREET ADMIN PREVIEW BAR (When Coming Soon is active globally but admin is previewing) */}

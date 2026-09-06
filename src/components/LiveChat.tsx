@@ -17,11 +17,12 @@ import {
   Pause, 
   Radio,
   Loader2,
-  ShieldCheck
+  ShieldCheck,
+  Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChatMessage, LivePollData } from "../types";
-import { collection, addDoc, query, limit, onSnapshot, serverTimestamp, getDocs, deleteDoc, orderBy } from "firebase/firestore";
+import { collection, addDoc, query, limit, onSnapshot, serverTimestamp, getDocs, deleteDoc, doc, orderBy } from "firebase/firestore";
 import { db, rtdb } from "../lib/firebase";
 import { ref, onValue, onDisconnect, set } from "firebase/database";
 import LivePoll from "./LivePoll";
@@ -48,6 +49,7 @@ interface LiveChatProps {
   onUnreadChange?: (hasUnread: boolean) => void;
   isComingSoon?: boolean;
   onToggleComingSoon?: (enabled: boolean) => Promise<void>;
+  isAdmin?: boolean;
 }
 
 const TAB_NAME_KEY = "frs_tab_user_name";
@@ -109,7 +111,8 @@ export default function LiveChat({
   activePoll = null,
   onUnreadChange,
   isComingSoon = false,
-  onToggleComingSoon
+  onToggleComingSoon,
+  isAdmin: propIsAdmin
 }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -119,12 +122,20 @@ export default function LiveChat({
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [onlineCount, setOnlineCount] = useState(1);
   const [isProducer, setIsProducer] = useState<boolean>(() => isProducerAuthenticated());
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => propIsAdmin ?? isAdminAuthenticated());
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showProducerAuthModal, setShowProducerAuthModal] = useState(false);
   const [showProducerCreateModal, setShowProducerCreateModal] = useState(false);
   const lastSendTimeRef = useRef<number>(0);
   const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
+
+  const handleDeleteMessage = async (msgId: string) => {
+    try {
+      await deleteDoc(doc(db, "messages", msgId));
+    } catch (err) {
+      console.error("Error deleting message:", err);
+    }
+  };
 
   // Unread messages tracking
   const isInitialSnapshotRef = useRef(true);
@@ -156,11 +167,15 @@ export default function LiveChat({
     }
   }, [isOpen]);
 
-  // Sync producer and admin authentication state when chat opens
+  // Sync producer and admin authentication state when chat opens or prop changes
   useEffect(() => {
     setIsProducer(isProducerAuthenticated());
-    setIsAdmin(isAdminAuthenticated());
-  }, [isOpen]);
+    if (typeof propIsAdmin === "boolean") {
+      setIsAdmin(propIsAdmin);
+    } else {
+      setIsAdmin(isAdminAuthenticated());
+    }
+  }, [isOpen, propIsAdmin]);
 
   const handleProducerLogout = () => {
     logoutProducer();
@@ -719,11 +734,21 @@ export default function LiveChat({
                         .trim();
 
                     return (
-                      <div key={msg.id} className="w-full flex items-center gap-3 my-2.5 px-3">
+                      <div key={msg.id} className="w-full flex items-center gap-3 my-2.5 px-3 group">
                         <div className="flex-1 h-px bg-black/[0.06]" />
                         <div className="bg-white/90 border border-black/10 text-[#1C1917] text-[11px] font-medium px-3.5 py-1.5 rounded-full shadow-2xs text-center max-w-[90%] leading-relaxed flex items-center gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#ad021a] shrink-0" />
                           <span>{cleanText}</span>
+                          {isAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              className="text-stone-400 hover:text-red-600 transition-colors p-0.5 rounded cursor-pointer ml-1"
+                              title={isGreek ? "Διαγραφή μηνύματος (Admin)" : "Delete message (Admin)"}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
                         </div>
                         <div className="flex-1 h-px bg-black/[0.06]" />
                       </div>
@@ -746,6 +771,16 @@ export default function LiveChat({
                         <span className="text-[10px] text-[#78716C] font-mono">
                           {msg.timestamp}
                         </span>
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteMessage(msg.id)}
+                            className="text-stone-400 hover:text-red-600 transition-colors p-0.5 rounded cursor-pointer ml-1"
+                            title={isGreek ? "Διαγραφή μηνύματος (Admin)" : "Delete message (Admin)"}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                       <div
                         className={`max-w-[80%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 text-sm shadow-xs break-words leading-relaxed ${
