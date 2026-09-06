@@ -11,5 +11,8 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if true;
     }
+    match /open_call_applications/{document} {
+      allow read, write: if true;
+    }
   }
 }

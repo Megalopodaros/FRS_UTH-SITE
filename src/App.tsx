@@ -40,7 +40,7 @@ import LiveChat from "./components/LiveChat";
 import ComingSoonOverlay from "./components/ComingSoonOverlay";
 import { subscribeToActivePoll } from "./lib/pollService";
 import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin, getCachedComingSoon } from "./lib/adminService";
-import { subscribeToCustomSchedule, subscribeToCustomEvents } from "./lib/contentService";
+import { subscribeToCustomSchedule, subscribeToCustomEvents, saveOpenCallApplication } from "./lib/contentService";
 import { LivePollData, SiteConfig, DayProgram, StationEvent } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
@@ -1977,13 +1977,12 @@ export default function App() {
                     e.preventDefault();
                     setOpenCallLoading(true);
                     try {
-                      await addDoc(collection(db, "open_call_applications"), {
+                      await saveOpenCallApplication({
                         name: openCallForm.name,
                         email: openCallForm.email,
                         showConcept: openCallForm.showConcept,
                         musicGenres: openCallForm.musicGenres,
-                        phone: openCallForm.phone,
-                        createdAt: serverTimestamp()
+                        phone: openCallForm.phone
                       });
                     } catch (err) {
                       console.error("Error saving open call application:", err);

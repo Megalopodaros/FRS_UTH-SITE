@@ -279,7 +279,7 @@ export default function LiveChat({
     const unsubPresence = onValue(allPresenceRef, (snap) => {
       if (snap.exists()) {
         const val = snap.val();
-        const activeKeys = Object.keys(val).filter((k) => k !== "site_status");
+        const activeKeys = Object.keys(val).filter((k) => !k.startsWith("site_"));
         setOnlineCount(Math.max(1, activeKeys.length));
       } else {
         setOnlineCount(1);
