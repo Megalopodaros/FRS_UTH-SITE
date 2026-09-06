@@ -1543,8 +1543,8 @@ export default function App() {
                 </h1>
                 <p className="text-sm text-[#6B6560] leading-relaxed">
                   {isGreek
-                    ? "Βουτήξτε στο αρχείο μας. Παλιές εκπομπές, θρυλικά sets και φοιτητική ραδιοφωνική ιστορία αποθηκευμένα στο επίσημο κανάλι μας."
-                    : "Dive into our vault. Past broadcasts, legendary DJ sets, and student radio history preserved on our Mixcloud channel."}
+                    ? "Ανακαλύψτε το αρχείο μας. Παλιές εκπομπές και φοιτητική ραδιοφωνική ιστορία αποθηκευμένα στο επίσημο κανάλι μας."
+                    : "Discover our vault. Past broadcasts and student radio history preserved on our Mixcloud channel."}
                 </p>
               </div>
 
