@@ -30,7 +30,8 @@ import {
   Menu,
   Loader2,
   BarChart2,
-  Instagram
+  Instagram,
+  ShieldCheck
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -38,6 +39,7 @@ import UthLogo from "./components/UthLogo";
 import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
 import ComingSoonOverlay from "./components/ComingSoonOverlay";
+import AdminModal from "./components/AdminModal";
 import { subscribeToActivePoll } from "./lib/pollService";
 import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin, getCachedComingSoon } from "./lib/adminService";
 import { 
@@ -150,6 +152,16 @@ export default function App() {
     return getCachedComingSoon() !== null || isAdminAuthenticated();
   });
   const [isAdmin, setIsAdmin] = useState<boolean>(() => isAdminAuthenticated());
+  const [showAdminModal, setShowAdminModal] = useState(false);
+
+  // Synchronize admin state across components and sessions
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setIsAdmin(isAdminAuthenticated());
+    };
+    window.addEventListener("frs_admin_auth_changed", handleAuthChange);
+    return () => window.removeEventListener("frs_admin_auth_changed", handleAuthChange);
+  }, []);
 
   // Real-time subscription to siteConfig in RTDB
   useEffect(() => {
@@ -664,10 +676,35 @@ export default function App() {
                 </button>
               );
             })}
+
+            {/* Admin Dashboard Button in Desktop Menu Bar (Only visible when authenticated as Admin) */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowAdminModal(true)}
+                className="h-full flex items-center gap-1.5 px-3.5 rounded-full bg-[#1C1917] hover:bg-[#2e2926] text-white font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95 ml-1 shrink-0"
+                title={isGreek ? "Λειτουργίες Admin" : "Admin Controls"}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#ff4b62]" />
+                <span>Admin</span>
+              </button>
+            )}
           </nav>
 
           {/* Right Actions (Language Pill, Listen Button, Mobile Hamburger) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Mobile Admin Quick Access Button */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowAdminModal(true)}
+                className="md:hidden h-10 px-3 rounded-full bg-[#1C1917] text-[#ff4b62] hover:text-white flex items-center gap-1.5 text-xs font-bold shadow-xs transition-all cursor-pointer active:scale-95 shrink-0"
+                title={isGreek ? "Λειτουργίες Admin" : "Admin Controls"}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span className="text-white text-[11px] font-bold">Admin</span>
+              </button>
+            )}
             {/* Language Switch Pill (with Smooth Sliding Spring Indicator) */}
             <div className="flex items-center h-10 bg-[#EFECE3] p-1 rounded-full text-xs font-bold text-[#6B6560] relative">
               <button
@@ -791,6 +828,33 @@ export default function App() {
                     </button>
                   );
                 })}
+
+                {/* Mobile Admin Controls Button in Menu Drawer */}
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setShowAdminModal(true);
+                    }}
+                    className="flex items-center justify-between p-4 rounded-2xl transition-all text-left cursor-pointer bg-[#1C1917] text-white border border-stone-800 font-bold shadow-md shadow-black/15 mt-2 active:scale-98"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#ff4b62]/20 text-[#ff4b62] flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-editorial text-lg text-white leading-tight">
+                          {isGreek ? "Λειτουργίες Admin" : "Admin Controls"}
+                        </span>
+                        <span className="text-[11px] text-stone-400 font-normal">
+                          {isGreek ? "Πρόγραμμα, Εκδηλώσεις, Αιτήσεις & Chat" : "Schedule, Events, Apps & Chat"}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-stone-400" />
+                  </button>
+                )}
               </nav>
             </div>
 
@@ -1151,7 +1215,7 @@ export default function App() {
                   <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-black/10 min-h-[300px] h-full flex flex-col justify-end p-6 sm:p-8 group">
                     <img
                       src="/concert-party.jpg"
-                      alt="Student DJ concert party"
+                      alt="Student concert party"
                       loading="lazy"
                       decoding="async"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -1550,13 +1614,14 @@ export default function App() {
 
               {/* Search Bar */}
               <div className="relative max-w-md mx-auto w-full">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6560]" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6560] pointer-events-none z-10" />
                 <input
                   type="text"
                   value={archiveSearch}
                   onChange={(e) => setArchiveSearch(e.target.value)}
-                  placeholder={isGreek ? "Αναζήτηση εκπομπών, DJs, ειδών..." : "Search shows, DJs, genres..."}
-                  className="field pl-11 pr-4 py-3 rounded-full text-sm"
+                  placeholder={isGreek ? "Αναζήτηση εκπομπών, παραγωγών, ειδών..." : "Search shows, hosts, genres..."}
+                  className="field !pl-12 pr-4 py-3 rounded-full text-sm"
+                  style={{ paddingLeft: "3rem" }}
                 />
               </div>
 
@@ -1789,7 +1854,7 @@ export default function App() {
                           onChange={(e) => setContactForm({ ...contactForm, category: e.target.value })}
                           className="field cursor-pointer"
                         >
-                          <option value="join">{isGreek ? "Συμμετοχή στο Ραδιόφωνο (Παραγωγός)" : "Join the Radio Crew (Host/DJ)"}</option>
+                          <option value="join">{isGreek ? "Συμμετοχή στο Ραδιόφωνο (Παραγωγός)" : "Join the Radio Crew (Host)"}</option>
                           <option value="general">{isGreek ? "Γενική Ερώτηση" : "General Query"}</option>
                           <option value="technical">{isGreek ? "Τεχνικό Θέμα" : "Technical Support"}</option>
                         </select>
@@ -2256,6 +2321,20 @@ export default function App() {
         isComingSoon={siteConfig.isComingSoon}
         onToggleComingSoon={setComingSoonMode}
         isAdmin={isAdmin}
+      />
+
+      {/* ADMIN CONTROLS MODAL (Accessible directly from navbar when authenticated as admin) */}
+      <AdminModal
+        isGreek={isGreek}
+        isOpen={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+        isComingSoon={siteConfig.isComingSoon}
+        onToggleComingSoon={setComingSoonMode}
+        onLogout={() => {
+          logoutAdmin();
+          setIsAdmin(false);
+          setShowAdminModal(false);
+        }}
       />
 
       {/* DISCREET ADMIN PREVIEW BAR (When Coming Soon is active globally but admin is previewing) */}

@@ -861,7 +861,7 @@ export default function AdminModal({
                             ...editingShow,
                             show: { ...editingShow.show, host: e.target.value }
                           })}
-                          placeholder="π.χ. DJ Alex"
+                          placeholder="π.χ. Alex"
                           className="field py-1 px-2.5 text-xs w-full"
                         />
                       </div>
@@ -1052,7 +1052,7 @@ export default function AdminModal({
                         id: `ev_${Date.now()}`,
                         dayNum: "15",
                         monthStr: isGreek ? "ΙΟΥΝ" : "JUN",
-                        categoryBadge: "DJ Set & Live Party",
+                        categoryBadge: "Live Party",
                         timeLocation: "🕒 21:00 • 📍 Βόλος",
                         title: "",
                         description: "",

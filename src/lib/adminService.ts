@@ -28,6 +28,9 @@ export function verifyAdminPin(pin: string): boolean {
     sessionStorage.setItem(ADMIN_PIN_KEY, "true");
     sessionStorage.setItem(PRODUCER_PIN_KEY, "true");
     sessionStorage.setItem(PRODUCER_NAME_KEY, "Administrator");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("frs_admin_auth_changed"));
+    }
     return true;
   }
   return false;
@@ -41,6 +44,7 @@ export function logoutAdmin(): void {
   sessionStorage.removeItem(ADMIN_PIN_KEY);
   sessionStorage.removeItem(PRODUCER_PIN_KEY);
   sessionStorage.removeItem(PRODUCER_NAME_KEY);
+  window.dispatchEvent(new Event("frs_admin_auth_changed"));
 }
 
 export const COMING_SOON_CACHE_KEY = "frs_cached_coming_soon";

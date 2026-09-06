@@ -14,9 +14,9 @@ export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
         id: "m1",
         title: "Morning Mix",
         time: "10:00 - 12:00",
-        host: "DJ Apollo",
+        host: "Apollo",
         tags: ["#LoFi", "#Chill"],
-        description: "Start your week right with DJ Apollo's hand-picked lo-fi beats, mellow grooves, and smooth transitions. From chilled-out instrumentals to downtempo hip-hop — the perfect companion for Monday morning coffee and campus commutes."
+        description: "Start your week right with Apollo's hand-picked lo-fi beats, mellow grooves, and smooth transitions. From chilled-out instrumentals to downtempo hip-hop — the perfect companion for Monday morning coffee and campus commutes."
       },
       {
         id: "m2",
@@ -30,9 +30,9 @@ export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
         id: "m3",
         title: "Electric Avenue",
         time: "18:00 - 20:00",
-        host: "DJ Nova",
+        host: "Nova",
         tags: ["#Techno", "#Electro"],
-        description: "DJ Nova takes you on an electrifying ride through the best of techno, electro, and synth-driven soundscapes. From pulsing basslines to shimmering arpeggios, Electric Avenue is where the voltage never drops."
+        description: "Nova takes you on an electrifying ride through the best of techno, electro, and synth-driven soundscapes. From pulsing basslines to shimmering arpeggios, Electric Avenue is where the voltage never drops."
       },
       {
         id: "m4",
@@ -60,9 +60,9 @@ export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
         id: "tu2",
         title: "Rock Anthems",
         time: "16:00 - 18:00",
-        host: "DJ George",
+        host: "George",
         tags: ["#Rock", "#Alternative"],
-        description: "DJ George turns the amplifier to 11 with a powerhouse lineup of classic rock, grunge, and modern alternative anthems. From stadium sing-alongs to raw garage riffs — this is the show that shakes your Tuesday."
+        description: "George turns the amplifier to 11 with a powerhouse lineup of classic rock, grunge, and modern alternative anthems. From stadium sing-alongs to raw garage riffs — this is the show that shakes your Tuesday."
       }
     ]
   },
@@ -82,9 +82,9 @@ export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
         id: "w2",
         title: "Bass Drop",
         time: "20:00 - 22:00",
-        host: "DJ Chloe",
+        host: "Chloe",
         tags: ["#Dubstep", "#Bass"],
-        description: "DJ Chloe unleashes bone-rattling dubstep, bass house, and heavy electronic bangers guaranteed to test your speakers. Expect filthy drops, wobbling sub-bass, and festival-grade energy every Wednesday night."
+        description: "Chloe unleashes bone-rattling dubstep, bass house, and heavy electronic bangers guaranteed to test your speakers. Expect filthy drops, wobbling sub-bass, and festival-grade energy every Wednesday night."
       }
     ]
   },
@@ -110,9 +110,9 @@ export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
         id: "f1",
         title: "Club Night",
         time: "22:00 - 00:00",
-        host: "DJ X",
+        host: "Alex",
         tags: ["#House", "#Dance"],
-        description: "The weekend starts here. DJ X spins peak-time house, tech-house bangers, and pulsating dancefloor anthems to kick off your Friday night right. High energy, seamless mixing, and tracks that keep you moving."
+        description: "The weekend starts here. Alex spins peak-time house, tech-house bangers, and pulsating dancefloor anthems to kick off your Friday night right. High energy, seamless mixing, and tracks that keep you moving."
       }
     ]
   },
@@ -155,9 +155,9 @@ export const WEEKLY_SCHEDULE_GR: DayProgram[] = [
         id: "m1",
         title: "Morning Mix",
         time: "10:00 - 12:00",
-        host: "DJ Apollo",
+        host: "Apollo",
         tags: ["#LoFi", "#Chill"],
-        description: "Ξεκίνα τη βδομάδα σου σωστά με τις χειροδιάλεκτες lo-fi επιλογές του DJ Apollo, απαλά grooves και ομαλές μεταβάσεις. Από χαλαρά instrumentals μέχρι downtempo hip-hop — ο τέλειος σύντροφος για τον πρωινό καφέ και τη μετακίνηση στο campus."
+        description: "Ξεκίνα τη βδομάδα σου σωστά με τις χειροδιάλεκτες lo-fi επιλογές του Apollo, απαλά grooves και ομαλές μεταβάσεις. Από χαλαρά instrumentals μέχρι downtempo hip-hop — ο τέλειος σύντροφος για τον πρωινό καφέ και τη μετακίνηση στο campus."
       },
       {
         id: "m2",
@@ -171,9 +171,9 @@ export const WEEKLY_SCHEDULE_GR: DayProgram[] = [
         id: "m3",
         title: "Electric Avenue",
         time: "18:00 - 20:00",
-        host: "DJ Nova",
+        host: "Nova",
         tags: ["#Techno", "#Electro"],
-        description: "Ο DJ Nova σε παίρνει σε μια ηλεκτρισμένη βόλτα μέσα από τα καλύτερα techno, electro και synth-driven ηχοτοπία. Από pulsating basslines μέχρι arpeggios που λάμπουν, το Electric Avenue δεν ρίχνει ποτέ την τάση."
+        description: "Η Nova σε παίρνει σε μια ηλεκτρισμένη βόλτα μέσα από τα καλύτερα techno, electro και synth-driven ηχοτοπία. Από pulsating basslines μέχρι arpeggios που λάμπουν, το Electric Avenue δεν ρίχνει ποτέ την τάση."
       },
       {
         id: "m4",
@@ -201,9 +201,9 @@ export const WEEKLY_SCHEDULE_GR: DayProgram[] = [
         id: "tu2",
         title: "Rock Anthems",
         time: "16:00 - 18:00",
-        host: "DJ George",
+        host: "George",
         tags: ["#Rock", "#Alternative"],
-        description: "Ο DJ George γυρνάει τον ενισχυτή στο 11 με μια δυνατή επιλογή κλασικού rock, grunge και σύγχρονων alternative ύμνων. Από stadium sing-alongs μέχρι ωμά garage riffs — αυτή είναι η εκπομπή που ταρακουνάει κάθε Τρίτη."
+        description: "Ο George γυρνάει τον ενισχυτή στο 11 με μια δυνατή επιλογή κλασικού rock, grunge και σύγχρονων alternative ύμνων. Από stadium sing-alongs μέχρι ωμά garage riffs — αυτή είναι η εκπομπή που ταρακουνάει κάθε Τρίτη."
       }
     ]
   },
@@ -223,9 +223,9 @@ export const WEEKLY_SCHEDULE_GR: DayProgram[] = [
         id: "w2",
         title: "Bass Drop",
         time: "20:00 - 22:00",
-        host: "DJ Chloe",
+        host: "Chloe",
         tags: ["#Dubstep", "#Bass"],
-        description: "Η DJ Chloe ξαπολύει dubstep που σπάει κόκαλα, bass house και βαριά ηλεκτρονικά κομμάτια που θα ταρακουνήσουν τα ηχεία σου. Περίμενε filthy drops, wobbling sub-bass και ενέργεια που μετατρέπει κάθε βράδυ Τετάρτης σε festival."
+        description: "Η Chloe ξαπολύει dubstep που σπάει κόκαλα, bass house και βαριά ηλεκτρονικά κομμάτια που θα ταρακουνήσουν τα ηχεία σου. Περίμενε filthy drops, wobbling sub-bass και ενέργεια που μετατρέπει κάθε βράδυ Τετάρτης σε festival."
       }
     ]
   },
@@ -251,9 +251,9 @@ export const WEEKLY_SCHEDULE_GR: DayProgram[] = [
         id: "f1",
         title: "Club Night",
         time: "22:00 - 00:00",
-        host: "DJ X",
+        host: "Alex",
         tags: ["#House", "#Dance"],
-        description: "Το Σαββατοκύριακο ξεκινάει εδώ. Ο DJ X ρίχνει τα πιο καυτά house κομμάτια, tech-house bangers και dancefloor anthems για να ξεκινήσεις τη Παρασκευή σου. Ενέργεια κορυφής, seamless mixing και sets που σε κρατάνε σε κίνηση."
+        description: "Το Σαββατοκύριακο ξεκινάει εδώ. Ο Alex ρίχνει τα πιο καυτά house κομμάτια, tech-house bangers και dancefloor anthems για να ξεκινήσεις τη Παρασκευή σου. Ενέργεια κορυφής, seamless mixing και sets που σε κρατάνε σε κίνηση."
       }
     ]
   },
@@ -292,8 +292,8 @@ export const SHOWS_DESCRIPTIONS_EN: ShowDescription[] = [
   {
     id: "m1",
     title: "Morning Mix",
-    host: "DJ Apollo",
-    description: "Start your week right with DJ Apollo's hand-picked lo-fi beats, mellow grooves, and smooth transitions. From chilled-out instrumentals to downtempo hip-hop — the perfect companion for Monday morning coffee and campus commutes.",
+    host: "Apollo",
+    description: "Start your week right with Apollo's hand-picked lo-fi beats, mellow grooves, and smooth transitions. From chilled-out instrumentals to downtempo hip-hop — the perfect companion for Monday morning coffee and campus commutes.",
     tags: ["#LoFi", "#Chill"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCRkpMEta5giWfYIsHvpJYy05_hwPOzPQGslC2l0SCEDX_kENK4eVFGmh0ipNzFe1QqFC2YhEtmmF32xLaVbRvxtW466Zfm5yiDJa4F1a78hM0Tz9TRu2WidkdmFr0Za4ji37tH05CETkvXjRpdRALaRfdGgMgr-EQRU7LtsK_lMhgYarLXe4ptZQ7K136bSRGacJRh1zUp3C8bHRNjsWtEoZTk9X8vxIPA8JCiEyjfCmvFDyHmg3y3ZLjRQEMW_AvOZ_0cMeYPA30"
   },
@@ -308,8 +308,8 @@ export const SHOWS_DESCRIPTIONS_EN: ShowDescription[] = [
   {
     id: "m3",
     title: "Electric Avenue",
-    host: "DJ Nova",
-    description: "DJ Nova takes you on an electrifying ride through the best of techno, electro, and synth-driven soundscapes. From pulsing basslines to shimmering arpeggios, Electric Avenue is where the voltage never drops.",
+    host: "Nova",
+    description: "Nova takes you on an electrifying ride through the best of techno, electro, and synth-driven soundscapes. From pulsing basslines to shimmering arpeggios, Electric Avenue is where the voltage never drops.",
     tags: ["#Techno", "#Electro"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
   },
@@ -332,8 +332,8 @@ export const SHOWS_DESCRIPTIONS_EN: ShowDescription[] = [
   {
     id: "tu2",
     title: "Rock Anthems",
-    host: "DJ George",
-    description: "DJ George cranks the amp to eleven with a hard-hitting selection of classic rock, grunge, and modern alternative anthems. From stadium sing-alongs to raw garage riffs — this is the show that rocks the airwaves every Tuesday.",
+    host: "George",
+    description: "George cranks the amp to eleven with a hard-hitting selection of classic rock, grunge, and modern alternative anthems. From stadium sing-alongs to raw garage riffs — this is the show that rocks the airwaves every Tuesday.",
     tags: ["#Rock", "#Alternative"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAdZ0k3ULoZ64vtIC7_Ck6XhJ5mzeQ9650TzbVQr5PX4jm7E874bBfebRKsUhxFMKoEvwXHkxbXZcr0d1HmH0AVFoDtpmoDkRBLO0iyl1FO2Aa9OTkSGz7IkeDuQ7D9FRaA9c89ieiPby8B257N_aZ0haVRBqcSDS62DOTAO_mlCV-8OC50vLryTPkf6Uvfu5sOwwhsPtlvbTvXTxCqh69bjSE77AukiT95yx6NanxvvNo_xPbDpFRfApPJ2SbpvfxdNgPmIeY2iGU"
   },
@@ -348,8 +348,8 @@ export const SHOWS_DESCRIPTIONS_EN: ShowDescription[] = [
   {
     id: "w2",
     title: "Bass Drop",
-    host: "DJ Chloe",
-    description: "DJ Chloe unleashes bone-rattling dubstep, bass house, and heavy electronic cuts that will shake your speakers. Expect filthy drops, wobbling sub-bass, and the kind of energy that turns any Wednesday night into a festival.",
+    host: "Chloe",
+    description: "Chloe unleashes bone-rattling dubstep, bass house, and heavy electronic cuts that will shake your speakers. Expect filthy drops, wobbling sub-bass, and the kind of energy that turns any Wednesday night into a festival.",
     tags: ["#Dubstep", "#Bass"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
   },
@@ -364,8 +364,8 @@ export const SHOWS_DESCRIPTIONS_EN: ShowDescription[] = [
   {
     id: "f1",
     title: "Club Night",
-    host: "DJ X",
-    description: "The weekend starts here. DJ X drops the hottest house music, tech-house bangers, and dancefloor anthems to kick off your Friday night. Peak-time energy, seamless mixing, and the kind of sets that keep you moving until the lights come on.",
+    host: "Alex",
+    description: "The weekend starts here. Alex drops the hottest house music, tech-house bangers, and dancefloor anthems to kick off your Friday night. Peak-time energy, seamless mixing, and the kind of sets that keep you moving until the lights come on.",
     tags: ["#House", "#Dance"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
   },
@@ -413,7 +413,7 @@ export const SHOWS_DESCRIPTIONS_EN: ShowDescription[] = [
   {
     id: "desc4",
     title: "Electronic Avenue",
-    host: "DJ Vector",
+    host: "Vector",
     description: "High-bpm, unapologetic electronic music. From drum and bass to hardcore techno, this is where the campus turns up the tempo and lets loose.",
     tags: ["#Techno", "#DnB"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
@@ -441,8 +441,8 @@ export const SHOWS_DESCRIPTIONS_GR: ShowDescription[] = [
   {
     id: "m1",
     title: "Morning Mix",
-    host: "DJ Apollo",
-    description: "Ξεκίνα τη βδομάδα σου σωστά με τις χειροδιάλεκτες lo-fi επιλογές του DJ Apollo, απαλά grooves και ομαλές μεταβάσεις. Από χαλαρά instrumentals μέχρι downtempo hip-hop — ο τέλειος σύντροφος για τον πρωινό καφέ και τη μετακίνηση στο campus.",
+    host: "Apollo",
+    description: "Ξεκίνα τη βδομάδα σου σωστά με τις χειροδιάλεκτες lo-fi επιλογές του Apollo, απαλά grooves και ομαλές μεταβάσεις. Από χαλαρά instrumentals μέχρι downtempo hip-hop — ο τέλειος σύντροφος για τον πρωινό καφέ και τη μετακίνηση στο campus.",
     tags: ["#LoFi", "#Chill"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCRkpMEta5giWfYIsHvpJYy05_hwPOzPQGslC2l0SCEDX_kENK4eVFGmh0ipNzFe1QqFC2YhEtmmF32xLaVbRvxtW466Zfm5yiDJa4F1a78hM0Tz9TRu2WidkdmFr0Za4ji37tH05CETkvXjRpdRALaRfdGgMgr-EQRU7LtsK_lMhgYarLXe4ptZQ7K136bSRGacJRh1zUp3C8bHRNjsWtEoZTk9X8vxIPA8JCiEyjfCmvFDyHmg3y3ZLjRQEMW_AvOZ_0cMeYPA30"
   },
@@ -457,8 +457,8 @@ export const SHOWS_DESCRIPTIONS_GR: ShowDescription[] = [
   {
     id: "m3",
     title: "Electric Avenue",
-    host: "DJ Nova",
-    description: "Ο DJ Nova σε παίρνει σε μια ηλεκτρισμένη βόλτα μέσα από τα καλύτερα techno, electro και synth-driven ηχοτοπία. Από pulsating basslines μέχρι arpeggios που λάμπουν, το Electric Avenue δεν ρίχνει ποτέ την τάση.",
+    host: "Nova",
+    description: "Η Nova σε παίρνει σε μια ηλεκτρισμένη βόλτα μέσα από τα καλύτερα techno, electro και synth-driven ηχοτοπία. Από pulsating basslines μέχρι arpeggios που λάμπουν, το Electric Avenue δεν ρίχνει ποτέ την τάση.",
     tags: ["#Techno", "#Electro"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
   },
@@ -481,8 +481,8 @@ export const SHOWS_DESCRIPTIONS_GR: ShowDescription[] = [
   {
     id: "tu2",
     title: "Rock Anthems",
-    host: "DJ George",
-    description: "Ο DJ George γυρνάει τον ενισχυτή στο 11 με μια δυνατή επιλογή κλασικού rock, grunge και σύγχρονων alternative ύμνων. Από stadium sing-alongs μέχρι ωμά garage riffs — αυτή είναι η εκπομπή που ταρακουνάει κάθε Τρίτη.",
+    host: "George",
+    description: "Ο George γυρνάει τον ενισχυτή στο 11 με μια δυνατή επιλογή κλασικού rock, grunge και σύγχρονων alternative ύμνων. Από stadium sing-alongs μέχρι ωμά garage riffs — αυτή είναι η εκπομπή που ταρακουνάει κάθε Τρίτη.",
     tags: ["#Rock", "#Alternative"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAdZ0k3ULoZ64vtIC7_Ck6XhJ5mzeQ9650TzbVQr5PX4jm7E874bBfebRKsUhxFMKoEvwXHkxbXZcr0d1HmH0AVFoDtpmoDkRBLO0iyl1FO2Aa9OTkSGz7IkeDuQ7D9FRaA9c89ieiPby8B257N_aZ0haVRBqcSDS62DOTAO_mlCV-8OC50vLryTPkf6Uvfu5sOwwhsPtlvbTvXTxCqh69bjSE77AukiT95yx6NanxvvNo_xPbDpFRfApPJ2SbpvfxdNgPmIeY2iGU"
   },
@@ -497,8 +497,8 @@ export const SHOWS_DESCRIPTIONS_GR: ShowDescription[] = [
   {
     id: "w2",
     title: "Bass Drop",
-    host: "DJ Chloe",
-    description: "Η DJ Chloe ξαπολύει dubstep που σπάει κόκαλα, bass house και βαριά ηλεκτρονικά κομμάτια που θα ταρακουνήσουν τα ηχεία σου. Περίμενε filthy drops, wobbling sub-bass και ενέργεια που μετατρέπει κάθε βράδυ Τετάρτης σε festival.",
+    host: "Chloe",
+    description: "Η Chloe ξαπολύει dubstep που σπάει κόκαλα, bass house και βαριά ηλεκτρονικά κομμάτια που θα ταρακουνήσουν τα ηχεία σου. Περίμενε filthy drops, wobbling sub-bass και ενέργεια που μετατρέπει κάθε βράδυ Τετάρτης σε festival.",
     tags: ["#Dubstep", "#Bass"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
   },
@@ -513,8 +513,8 @@ export const SHOWS_DESCRIPTIONS_GR: ShowDescription[] = [
   {
     id: "f1",
     title: "Club Night",
-    host: "DJ X",
-    description: "Το Σαββατοκύριακο ξεκινάει εδώ. Ο DJ X ρίχνει τα πιο καυτά house κομμάτια, tech-house bangers και dancefloor anthems για να ξεκινήσεις τη Παρασκευή σου. Ενέργεια κορυφής, seamless mixing και sets που σε κρατάνε σε κίνηση.",
+    host: "Alex",
+    description: "Το Σαββατοκύριακο ξεκινάει εδώ. Ο Alex ρίχνει τα πιο καυτά house κομμάτια, tech-house bangers και dancefloor anthems για να ξεκινήσεις τη Παρασκευή σου. Ενέργεια κορυφής, seamless mixing και sets που σε κρατάνε σε κίνηση.",
     tags: ["#House", "#Dance"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
   },
@@ -562,7 +562,7 @@ export const SHOWS_DESCRIPTIONS_GR: ShowDescription[] = [
   {
     id: "desc4",
     title: "Electronic Avenue",
-    host: "DJ Vector",
+    host: "Vector",
     description: "Υψηλό BPM, ασυμβίβαστη ηλεκτρονική μουσική. Από drum and bass μέχρι hardcore techno, εδώ είναι που το campus ανεβάζει την ταχύτητα και ξεσαλώνει.",
     tags: ["#Techno", "#DnB"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCfQcIPRCRZHMyP7lgBeoLWCNigZYS9HGX0Hx1vBCA9KepoZ8uiIHHITJXTIR0pQJDjK63klAJZkUWrD5mFchtDjbBvLGeO1LVchmNBvTC5ZfI94R99GPqt1VuLok94oJFLDEM5R7wwVGve1vdCntt5D0SnL3yQZaSv7xTHVccNp36B0f_ZRPsPJJ-ZXXpk_YbQPQmKjapmI7YdDgQpFqzYecIAMHCUMOvnd9OnCz7QZ7EMUTYjXreqnIfPMS9qDdPNgP2oFJ3thrk"
@@ -590,7 +590,7 @@ export const ARCHIVE_ITEMS_EN: ArchiveItem[] = [
     id: "arc1",
     title: "Midnight Circuits Vol. 4",
     date: "Oct 24, 2024",
-    description: "DJ Vertex tearing through heavy industrial techno cuts and unreleased student demos.",
+    description: "Vertex tearing through heavy industrial techno cuts and unreleased student demos.",
     tags: ["#Techno", "#Underground"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCew2lvki29-0UvxsVFeNF-kjaXUlqf4IiOhuJpu786GZDycUAr1AISsZ1gIFczB-NHo6SfTxnLmm-SYa5gKR_onEnRmKGAiSOqPg5v6QQpLOjQoJxfJ4kE8Ba6dq5iDlZgphOvT43vo2vmtAuLgdjPnLLZJ34RUSMBLWKpge9m3OGmDRxPFb4p1ikwLUO8EvOebTGJ6O_ersz16erBmBbE06P922krmrwO0Gu43L3M3V_7f1aoOrO26-I8sAIEUY0oU00vzYxNsYE"
   },
@@ -617,7 +617,7 @@ export const ARCHIVE_ITEMS_GR: ArchiveItem[] = [
     id: "arc1",
     title: "Midnight Circuits Vol. 4",
     date: "24 Οκτ 2024",
-    description: "Ο DJ Vertex σαρώνει με heavy industrial techno κομμάτια και ακυκλοφόρητα demos φοιτητών.",
+    description: "Ο Vertex σαρώνει με heavy industrial techno κομμάτια και ακυκλοφόρητα demos φοιτητών.",
     tags: ["#Techno", "#Underground"],
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCew2lvki29-0UvxsVFeNF-kjaXUlqf4IiOhuJpu786GZDycUAr1AISsZ1gIFczB-NHo6SfTxnLmm-SYa5gKR_onEnRmKGAiSOqPg5v6QQpLOjQoJxfJ4kE8Ba6dq5iDlZgphOvT43vo2vmtAuLgdjPnLLZJ34RUSMBLWKpge9m3OGmDRxPFb4p1ikwLUO8EvOebTGJ6O_ersz16erBmBbE06P922krmrwO0Gu43L3M3V_7f1aoOrO26-I8sAIEUY0oU00vzYxNsYE"
   },
@@ -701,7 +701,7 @@ export const DEFAULT_EVENTS_GR: StationEvent[] = [
     categoryBadge: "Festival & Outdoor Stage",
     timeLocation: "🕒 19:30 • 📍 Πεδίον του Άρεως, Βόλος",
     title: "Campus Spring Festival 2026",
-    description: "Το μεγαλύτερο φοιτητικό φεστιβάλ του Βόλου επιστρέφει με live bands, indie alternative acts και DJ stages στο Πεδίον του Άρεως. Μια ολόκληρη ημέρα γεμάτη μουσική, live ραδιοφωνικές συνεντεύξεις στον αέρα και ελεύθερη είσοδο για όλη την πανεπιστημιακή κοινότητα.",
+    description: "Το μεγαλύτερο φοιτητικό φεστιβάλ του Βόλου επιστρέφει με live bands, indie alternative acts και live stages στο Πεδίον του Άρεως. Μια ολόκληρη ημέρα γεμάτη μουσική, live ραδιοφωνικές συνεντεύξεις στον αέρα και ελεύθερη είσοδο για όλη την πανεπιστημιακή κοινότητα.",
     tags: ["#LiveBands", "#FreeEntry", "#OutdoorStage", "#VolosCampus"]
   },
   {
@@ -718,10 +718,10 @@ export const DEFAULT_EVENTS_GR: StationEvent[] = [
     id: "ev3",
     dayNum: "06",
     monthStr: "ΙΟΥΝ",
-    categoryBadge: "Vinyl Session & DJ Set",
+    categoryBadge: "Vinyl Session",
     timeLocation: "🕒 21:00 • 📍 Πολυτεχνείο Βόλου",
     title: "Vinyl Night: Lo-Fi Beats & Analog Sound",
-    description: "Βραδιά αφιερωμένη στον αναλογικό ήχο και τη μαγεία του βινυλίου. Οι DJs του σταθμού επιλέγουν rare grooves, soul, funk και lo-fi hip hop αποκλειστικά από δίσκους βινυλίου με ζωντανή αναμετάδοση στο web stream.",
+    description: "Βραδιά αφιερωμένη στον αναλογικό ήχο και τη μαγεία του βινυλίου. Οι παραγωγοί του σταθμού επιλέγουν rare grooves, soul, funk και lo-fi hip hop αποκλειστικά από δίσκους βινυλίου με ζωντανή αναμετάδοση στο web stream.",
     tags: ["#VinylOnly", "#Analog", "#ChillVibes"]
   }
 ];
@@ -734,7 +734,7 @@ export const DEFAULT_EVENTS_EN: StationEvent[] = [
     categoryBadge: "Festival & Outdoor Stage",
     timeLocation: "🕒 19:30 • 📍 Pedion tou Areos, Volos",
     title: "Campus Spring Festival 2026",
-    description: "The biggest student festival in Volos returns with live bands, indie alternative acts, and DJ stages at Pedion tou Areos. A full day of live music, on-air radio interviews, and free entry for the entire university community.",
+    description: "The biggest student festival in Volos returns with live bands, indie alternative acts, and live stages at Pedion tou Areos. A full day of live music, on-air radio interviews, and free entry for the entire university community.",
     tags: ["#LiveBands", "#FreeEntry", "#OutdoorStage", "#VolosCampus"]
   },
   {
@@ -751,10 +751,10 @@ export const DEFAULT_EVENTS_EN: StationEvent[] = [
     id: "ev3",
     dayNum: "06",
     monthStr: "JUN",
-    categoryBadge: "Vinyl Session & DJ Set",
+    categoryBadge: "Vinyl Session",
     timeLocation: "🕒 21:00 • 📍 Volos Polytechnic",
     title: "Vinyl Night: Lo-Fi Beats & Analog Sound",
-    description: "An evening dedicated to analog sound and vinyl groove. Station DJs spin rare grooves, soul, funk, and lo-fi hip hop strictly from vinyl records with live broadcast on the web radio stream.",
+    description: "An evening dedicated to analog sound and vinyl groove. Station producers spin rare grooves, soul, funk, and lo-fi hip hop strictly from vinyl records with live broadcast on the web radio stream.",
     tags: ["#VinylOnly", "#Analog", "#ChillVibes"]
   }
 ];
