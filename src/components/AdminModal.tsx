@@ -118,9 +118,11 @@ export default function AdminModal({
   const [isResettingSchedule, setIsResettingSchedule] = useState(false);
 
   // Events Tab state
-  const [eventsDraft, setEventsDraft] = useState<StationEvent[]>(() => 
-    getCachedCustomEvents() || JSON.parse(JSON.stringify(DEFAULT_EVENTS_GR))
-  );
+  const [eventsDraft, setEventsDraft] = useState<StationEvent[]>(() => {
+    const cached = getCachedCustomEvents();
+    if (cached !== null && Array.isArray(cached)) return cached;
+    return JSON.parse(JSON.stringify(DEFAULT_EVENTS_GR));
+  });
   const [editingEvent, setEditingEvent] = useState<{ isNew: boolean; event: StationEvent } | null>(null);
   const [isSavingEvents, setIsSavingEvents] = useState(false);
   const [isResettingEvents, setIsResettingEvents] = useState(false);
@@ -138,7 +140,7 @@ export default function AdminModal({
     });
 
     const unsubEvents = subscribeToCustomEvents((custom) => {
-      if (custom && custom.length > 0) {
+      if (custom !== null && Array.isArray(custom)) {
         setEventsDraft(custom);
       } else {
         setEventsDraft(JSON.parse(JSON.stringify(DEFAULT_EVENTS_GR)));

@@ -126,7 +126,7 @@ export default function App() {
   }, [customSchedule, isGreek]);
 
   const activeEvents = useMemo(() => {
-    if (customEvents && customEvents.length > 0) {
+    if (customEvents !== null && Array.isArray(customEvents)) {
       return customEvents;
     }
     return isGreek ? DEFAULT_EVENTS_GR : DEFAULT_EVENTS_EN;

@@ -28,7 +28,10 @@ export function getCachedCustomSchedule(): DayProgram[] | null {
 export function getCachedCustomEvents(): StationEvent[] | null {
   try {
     const raw = localStorage.getItem(EVENTS_CACHE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw !== null) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
   } catch (e) {}
   return null;
 }
@@ -114,18 +117,16 @@ export function subscribeToCustomEvents(
     (snapshot) => {
       if (snapshot.exists()) {
         const val = snapshot.val();
-        const evts = val?.events || null;
-        if (evts && evts.length > 0) {
-          try {
-            localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(evts));
-          } catch (e) {}
-        } else {
-          try {
-            localStorage.removeItem(EVENTS_CACHE_KEY);
-          } catch (e) {}
-        }
+        // If snapshot exists, val.events is custom events from admin (even if empty [])
+        const evts: StationEvent[] = val && "events" in val && Array.isArray(val.events) 
+          ? val.events 
+          : (Array.isArray(val?.events) ? val.events : []);
+        try {
+          localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(evts));
+        } catch (e) {}
         callback(evts);
       } else {
+        // Snapshot does not exist -> explicitly reset to code defaults
         try {
           localStorage.removeItem(EVENTS_CACHE_KEY);
         } catch (e) {}
@@ -145,8 +146,9 @@ export function subscribeToCustomEvents(
  * Save custom events to RTDB under presence/site_events
  */
 export async function saveCustomEvents(events: StationEvent[]): Promise<void> {
+  const cleanEvents = Array.isArray(events) ? events : [];
   try {
-    localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(events));
+    localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(cleanEvents));
   } catch (e) {}
   const eventsRef = ref(rtdb, "presence/site_events");
   await set(eventsRef, {
@@ -154,7 +156,7 @@ export async function saveCustomEvents(events: StationEvent[]): Promise<void> {
     lastSeen: Date.now(),
     updatedAt: Date.now(),
     updatedBy: "Administrator",
-    events
+    events: cleanEvents
   });
 }
 
