@@ -37,7 +37,9 @@ import {
   saveCustomEvents, 
   resetCustomEvents,
   fetchOpenCallApplications, 
-  deleteOpenCallApplication 
+  deleteOpenCallApplication,
+  getCachedCustomSchedule,
+  getCachedCustomEvents
 } from "../lib/contentService";
 import { WEEKLY_SCHEDULE_GR, DEFAULT_EVENTS_GR, SHOWS_DESCRIPTIONS_GR } from "../data/radioData";
 import { DayProgram, Show, StationEvent, OpenCallApplication } from "../types";
@@ -108,7 +110,7 @@ export default function AdminModal({
 
   // Schedule Tab state
   const [scheduleDraft, setScheduleDraft] = useState<DayProgram[]>(() => 
-    syncShowsWithDescriptions(JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR)))
+    syncShowsWithDescriptions(getCachedCustomSchedule() || JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR)))
   );
   const [selectedDayKey, setSelectedDayKey] = useState("Δευ");
   const [editingShow, setEditingShow] = useState<{ isNew: boolean; show: Show } | null>(null);
@@ -117,7 +119,7 @@ export default function AdminModal({
 
   // Events Tab state
   const [eventsDraft, setEventsDraft] = useState<StationEvent[]>(() => 
-    JSON.parse(JSON.stringify(DEFAULT_EVENTS_GR))
+    getCachedCustomEvents() || JSON.parse(JSON.stringify(DEFAULT_EVENTS_GR))
   );
   const [editingEvent, setEditingEvent] = useState<{ isNew: boolean; event: StationEvent } | null>(null);
   const [isSavingEvents, setIsSavingEvents] = useState(false);

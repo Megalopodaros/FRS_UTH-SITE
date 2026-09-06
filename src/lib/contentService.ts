@@ -8,6 +8,31 @@ import { collection, getDocs, doc, deleteDoc, addDoc, query, orderBy } from "fir
 import { rtdb, db } from "./firebase";
 import { DayProgram, StationEvent, OpenCallApplication } from "../types";
 
+const SCHEDULE_CACHE_KEY = "frs_cached_schedule";
+const EVENTS_CACHE_KEY = "frs_cached_events";
+
+/**
+ * Synchronously retrieves cached custom schedule from localStorage to prevent flash on refresh
+ */
+export function getCachedCustomSchedule(): DayProgram[] | null {
+  try {
+    const raw = localStorage.getItem(SCHEDULE_CACHE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Synchronously retrieves cached custom events from localStorage to prevent flash on refresh
+ */
+export function getCachedCustomEvents(): StationEvent[] | null {
+  try {
+    const raw = localStorage.getItem(EVENTS_CACHE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+
 /**
  * Subscribe to custom weekly radio schedule in Realtime Database.
  * Uses presence/site_schedule with presence validation (zero security errors & zero cost).
@@ -21,8 +46,21 @@ export function subscribeToCustomSchedule(
     (snapshot) => {
       if (snapshot.exists()) {
         const val = snapshot.val();
-        callback(val?.schedule || null);
+        const sched = val?.schedule || null;
+        if (sched && sched.length > 0) {
+          try {
+            localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(sched));
+          } catch (e) {}
+        } else {
+          try {
+            localStorage.removeItem(SCHEDULE_CACHE_KEY);
+          } catch (e) {}
+        }
+        callback(sched);
       } else {
+        try {
+          localStorage.removeItem(SCHEDULE_CACHE_KEY);
+        } catch (e) {}
         callback(null);
       }
     },
@@ -39,6 +77,9 @@ export function subscribeToCustomSchedule(
  * Save custom schedule to RTDB under presence/site_schedule
  */
 export async function saveCustomSchedule(schedule: DayProgram[]): Promise<void> {
+  try {
+    localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(schedule));
+  } catch (e) {}
   const scheduleRef = ref(rtdb, "presence/site_schedule");
   await set(scheduleRef, {
     online: true,
@@ -53,6 +94,9 @@ export async function saveCustomSchedule(schedule: DayProgram[]): Promise<void> 
  * Reset custom schedule in RTDB (clears it back to static defaults)
  */
 export async function resetCustomSchedule(): Promise<void> {
+  try {
+    localStorage.removeItem(SCHEDULE_CACHE_KEY);
+  } catch (e) {}
   const scheduleRef = ref(rtdb, "presence/site_schedule");
   await set(scheduleRef, null);
 }
@@ -70,8 +114,21 @@ export function subscribeToCustomEvents(
     (snapshot) => {
       if (snapshot.exists()) {
         const val = snapshot.val();
-        callback(val?.events || null);
+        const evts = val?.events || null;
+        if (evts && evts.length > 0) {
+          try {
+            localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(evts));
+          } catch (e) {}
+        } else {
+          try {
+            localStorage.removeItem(EVENTS_CACHE_KEY);
+          } catch (e) {}
+        }
+        callback(evts);
       } else {
+        try {
+          localStorage.removeItem(EVENTS_CACHE_KEY);
+        } catch (e) {}
         callback(null);
       }
     },
@@ -88,6 +145,9 @@ export function subscribeToCustomEvents(
  * Save custom events to RTDB under presence/site_events
  */
 export async function saveCustomEvents(events: StationEvent[]): Promise<void> {
+  try {
+    localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(events));
+  } catch (e) {}
   const eventsRef = ref(rtdb, "presence/site_events");
   await set(eventsRef, {
     online: true,
@@ -102,6 +162,9 @@ export async function saveCustomEvents(events: StationEvent[]): Promise<void> {
  * Reset custom events in RTDB (clears it back to static defaults)
  */
 export async function resetCustomEvents(): Promise<void> {
+  try {
+    localStorage.removeItem(EVENTS_CACHE_KEY);
+  } catch (e) {}
   const eventsRef = ref(rtdb, "presence/site_events");
   await set(eventsRef, null);
 }

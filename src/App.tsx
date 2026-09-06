@@ -40,7 +40,13 @@ import LiveChat from "./components/LiveChat";
 import ComingSoonOverlay from "./components/ComingSoonOverlay";
 import { subscribeToActivePoll } from "./lib/pollService";
 import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin, getCachedComingSoon } from "./lib/adminService";
-import { subscribeToCustomSchedule, subscribeToCustomEvents, saveOpenCallApplication } from "./lib/contentService";
+import { 
+  subscribeToCustomSchedule, 
+  subscribeToCustomEvents, 
+  saveOpenCallApplication,
+  getCachedCustomSchedule,
+  getCachedCustomEvents
+} from "./lib/contentService";
 import { LivePollData, SiteConfig, DayProgram, StationEvent } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
@@ -80,9 +86,9 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Custom schedule & events from RTDB (Zero backend cost, falls back to static defaults)
-  const [customSchedule, setCustomSchedule] = useState<DayProgram[] | null>(null);
-  const [customEvents, setCustomEvents] = useState<StationEvent[] | null>(null);
+  // Custom schedule & events from RTDB with synchronous local cache (eliminates initial flash on refresh)
+  const [customSchedule, setCustomSchedule] = useState<DayProgram[] | null>(() => getCachedCustomSchedule());
+  const [customEvents, setCustomEvents] = useState<StationEvent[] | null>(() => getCachedCustomEvents());
 
   useEffect(() => {
     const unsubSchedule = subscribeToCustomSchedule((sched) => {
@@ -306,8 +312,9 @@ export default function App() {
     if (!next || !later) {
       for (let offset = 1; offset <= 7; offset++) {
         const nextDayIdx = (now.getDay() + offset) % 7;
-        const nextDayAbbr = isGreek ? daysMapGR[nextDayIdx] : daysMapEN[nextDayIdx];
-        const nextDayProgram = currentSchedule.find(d => d.day === nextDayAbbr);
+        const nextDayAbbrGR = daysMapGR[nextDayIdx];
+        const nextDayAbbrEN = daysMapEN[nextDayIdx];
+        const nextDayProgram = currentSchedule.find(d => d.day === nextDayAbbrGR || d.day === nextDayAbbrEN);
         
         if (nextDayProgram && nextDayProgram.shows && nextDayProgram.shows.length > 0) {
           const nextDayShows = nextDayProgram.shows;
