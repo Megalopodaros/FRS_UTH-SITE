@@ -10,6 +10,7 @@ export interface Show {
   host: string;
   tags: string[];
   isLive?: boolean;
+  description?: string;
 }
 
 export interface DayProgram {

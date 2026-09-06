@@ -98,8 +98,23 @@ export default function App() {
   }, []);
 
   const activeSchedule = useMemo(() => {
+    const fallbackShows = isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN;
     if (customSchedule && customSchedule.length > 0) {
-      return customSchedule;
+      return customSchedule.map(day => ({
+        ...day,
+        shows: day.shows.map(show => {
+          if (show.description && show.description.trim()) {
+            return show;
+          }
+          const found = fallbackShows.find(
+            d => d.id === show.id || d.title.toLowerCase().trim() === show.title.toLowerCase().trim()
+          );
+          return {
+            ...show,
+            description: found?.description || show.description || ""
+          };
+        })
+      }));
     }
     return isGreek ? WEEKLY_SCHEDULE_GR : WEEKLY_SCHEDULE_EN;
   }, [customSchedule, isGreek]);
@@ -444,6 +459,27 @@ export default function App() {
     const showsData = isGreek ? SHOWS_DESCRIPTIONS_GR : SHOWS_DESCRIPTIONS_EN;
     if (!idOrTitle) return showsData[0];
 
+    const allWeeklyShows = activeSchedule.flatMap(d => d.shows);
+    const weeklyShow = allWeeklyShows.find(s => 
+      s.id === idOrTitle || 
+      s.title.toLowerCase().trim() === idOrTitle.toLowerCase().trim()
+    );
+
+    if (weeklyShow && weeklyShow.description?.trim()) {
+      const matchingStatic = showsData.find(s => 
+        s.id === weeklyShow.id || 
+        s.title.toLowerCase().trim() === weeklyShow.title.toLowerCase().trim()
+      );
+      return {
+        id: weeklyShow.id,
+        title: weeklyShow.title,
+        host: weeklyShow.host,
+        description: weeklyShow.description,
+        tags: weeklyShow.tags && weeklyShow.tags.length > 0 ? weeklyShow.tags : (matchingStatic?.tags || ["#Radio", "#FRSUTH"]),
+        image: matchingStatic?.image || "/hero-studio.jpg"
+      };
+    }
+
     let show = showsData.find(s => s.id === idOrTitle);
     if (show) return show;
 
@@ -454,17 +490,16 @@ export default function App() {
     );
     if (show) return show;
 
-    const allWeeklyShows = activeSchedule.flatMap(d => d.shows);
-    const weeklyShow = allWeeklyShows.find(s => s.id === idOrTitle || s.title === idOrTitle);
-
     if (weeklyShow) {
       return {
         id: weeklyShow.id,
         title: weeklyShow.title,
         host: weeklyShow.host,
-        description: isGreek 
-          ? `Ζωντανή εκπομπή "${weeklyShow.title}" στο FRS UTH με παραγωγό ${weeklyShow.host}. Συντονιστείτε για τις καλύτερες μουσικές επιλογές.`
-          : `Live show "${weeklyShow.title}" on FRS UTH hosted by ${weeklyShow.host}. Tune in for the finest music rotation.`,
+        description: weeklyShow.description?.trim() 
+          ? weeklyShow.description 
+          : (isGreek 
+            ? `Ζωντανή εκπομπή "${weeklyShow.title}" στο FRS UTH με παραγωγό ${weeklyShow.host}. Συντονιστείτε για τις καλύτερες μουσικές επιλογές.`
+            : `Live show "${weeklyShow.title}" on FRS UTH hosted by ${weeklyShow.host}. Tune in for the finest music rotation.`),
         tags: weeklyShow.tags || ["#Radio", "#FRSUTH"],
         image: "/hero-studio.jpg"
       };

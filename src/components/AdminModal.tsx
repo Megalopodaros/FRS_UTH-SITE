@@ -39,8 +39,27 @@ import {
   fetchOpenCallApplications, 
   deleteOpenCallApplication 
 } from "../lib/contentService";
-import { WEEKLY_SCHEDULE_GR, DEFAULT_EVENTS_GR } from "../data/radioData";
-import { DayProgram, ShowDescription, StationEvent, OpenCallApplication } from "../types";
+import { WEEKLY_SCHEDULE_GR, DEFAULT_EVENTS_GR, SHOWS_DESCRIPTIONS_GR } from "../data/radioData";
+import { DayProgram, Show, StationEvent, OpenCallApplication } from "../types";
+
+// Helper to guarantee every show in draft has its rich description synchronized from existing data
+const syncShowsWithDescriptions = (days: DayProgram[]): DayProgram[] => {
+  return days.map(day => ({
+    ...day,
+    shows: day.shows.map(show => {
+      if (show.description && show.description.trim()) {
+        return show;
+      }
+      const found = SHOWS_DESCRIPTIONS_GR.find(
+        d => d.id === show.id || d.title.trim().toLowerCase() === show.title.trim().toLowerCase()
+      );
+      return {
+        ...show,
+        description: found?.description || show.description || ""
+      };
+    })
+  }));
+};
 
 type AdminTab = "status" | "applications" | "schedule" | "events";
 
@@ -89,10 +108,10 @@ export default function AdminModal({
 
   // Schedule Tab state
   const [scheduleDraft, setScheduleDraft] = useState<DayProgram[]>(() => 
-    JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR))
+    syncShowsWithDescriptions(JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR)))
   );
   const [selectedDayKey, setSelectedDayKey] = useState("Δευ");
-  const [editingShow, setEditingShow] = useState<{ isNew: boolean; show: ShowDescription } | null>(null);
+  const [editingShow, setEditingShow] = useState<{ isNew: boolean; show: Show } | null>(null);
   const [isSavingSchedule, setIsSavingSchedule] = useState(false);
   const [isResettingSchedule, setIsResettingSchedule] = useState(false);
 
@@ -110,9 +129,9 @@ export default function AdminModal({
 
     const unsubSchedule = subscribeToCustomSchedule((custom) => {
       if (custom && custom.length > 0) {
-        setScheduleDraft(custom);
+        setScheduleDraft(syncShowsWithDescriptions(custom));
       } else {
-        setScheduleDraft(JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR)));
+        setScheduleDraft(syncShowsWithDescriptions(JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR))));
       }
     });
 
@@ -222,8 +241,13 @@ export default function AdminModal({
   const handleSaveShowDraft = () => {
     if (!editingShow) return;
     const { isNew, show } = editingShow;
-    if (!show.title.trim() || !show.time.trim()) {
-      showNotification(undefined, isGreek ? "Συμπληρώστε τίτλο και ώρα εκπομπής." : "Please fill show title and time.");
+    if (!show.title.trim() || !show.time.trim() || !show.description?.trim()) {
+      showNotification(
+        undefined, 
+        isGreek 
+          ? "Συμπληρώστε τίτλο, ώρα και περιγραφή εκπομπής (όλα τα πεδία με * είναι υποχρεωτικά)." 
+          : "Please fill show title, time, and description (all fields with * are required)."
+      );
       return;
     }
 
@@ -274,7 +298,7 @@ export default function AdminModal({
     setIsResettingSchedule(true);
     try {
       await resetCustomSchedule();
-      setScheduleDraft(JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR)));
+      setScheduleDraft(syncShowsWithDescriptions(JSON.parse(JSON.stringify(WEEKLY_SCHEDULE_GR))));
       showNotification(isGreek ? "Επαναφορά στο αρχικό προεπιλεγμένο πρόγραμμα!" : "Reset to default weekly schedule!");
     } catch (err: any) {
       showNotification(undefined, isGreek ? "Σφάλμα κατά την επαναφορά του προγράμματος." : "Error resetting schedule.");
@@ -867,16 +891,17 @@ export default function AdminModal({
 
                       <div className="sm:col-span-2">
                         <label className="block text-[10px] font-bold text-stone-500 uppercase mb-0.5">
-                          {isGreek ? "Περιγραφή (Προαιρετικό)" : "Description (Optional)"}
+                          {isGreek ? "Περιγραφή Εκπομπής *" : "Show Description *"}
                         </label>
                         <textarea
-                          rows={2}
+                          rows={3}
+                          required
                           value={editingShow.show.description || ""}
                           onChange={(e) => setEditingShow({
                             ...editingShow,
                             show: { ...editingShow.show, description: e.target.value }
                           })}
-                          placeholder="Σύντομη περιγραφή θεματολογίας εκπομπής..."
+                          placeholder={isGreek ? "Αναλυτική περιγραφή εκπομπής (υποχρεωτικό)..." : "Detailed show description (required)..."}
                           className="field py-1 px-2.5 text-xs w-full"
                         />
                       </div>
@@ -925,12 +950,28 @@ export default function AdminModal({
                           <p className="text-[11px] text-stone-600 truncate">
                             🎙️ {s.host} {s.tags?.length > 0 && `• ${s.tags.join(", ")}`}
                           </p>
+                          {s.description && (
+                            <p className="text-[10.5px] text-stone-500 line-clamp-1 mt-0.5 italic">
+                              {s.description}
+                            </p>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             type="button"
-                            onClick={() => setEditingShow({ isNew: false, show: s })}
+                            onClick={() => {
+                              let showToEdit = { ...s };
+                              if (!showToEdit.description?.trim()) {
+                                const found = SHOWS_DESCRIPTIONS_GR.find(
+                                  d => d.id === s.id || d.title.trim().toLowerCase() === s.title.trim().toLowerCase()
+                                );
+                                if (found?.description) {
+                                  showToEdit.description = found.description;
+                                }
+                              }
+                              setEditingShow({ isNew: false, show: showToEdit });
+                            }}
                             className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors cursor-pointer"
                             title={isGreek ? "Επεξεργασία" : "Edit"}
                           >

@@ -10,54 +10,138 @@ export const WEEKLY_SCHEDULE_EN: DayProgram[] = [
     day: "Mon",
     fullName: "Monday",
     shows: [
-      { id: "m1", title: "Morning Mix", time: "10:00 - 12:00", host: "DJ Apollo", tags: ["#LoFi"] },
-      { id: "m2", title: "Campus Voices", time: "14:00 - 16:00", host: "Student Union", tags: ["#Talk"] },
-      { id: "m3", title: "Electric Avenue", time: "18:00 - 20:00", host: "DJ Nova", tags: ["#Techno"] },
-      { id: "m4", title: "Deep Space", time: "21:00 - 23:00", host: "The Cosmonaut", tags: ["#Ambient"] }
+      {
+        id: "m1",
+        title: "Morning Mix",
+        time: "10:00 - 12:00",
+        host: "DJ Apollo",
+        tags: ["#LoFi", "#Chill"],
+        description: "Start your week right with DJ Apollo's hand-picked lo-fi beats, mellow grooves, and smooth transitions. From chilled-out instrumentals to downtempo hip-hop — the perfect companion for Monday morning coffee and campus commutes."
+      },
+      {
+        id: "m2",
+        title: "Campus Voices",
+        time: "14:00 - 16:00",
+        host: "Student Union",
+        tags: ["#Talk", "#Campus"],
+        description: "The official voice of the student body. Campus Voices brings you in-depth discussions, interviews with faculty and fellow students, university news updates, and debates on the issues that matter most to campus life."
+      },
+      {
+        id: "m3",
+        title: "Electric Avenue",
+        time: "18:00 - 20:00",
+        host: "DJ Nova",
+        tags: ["#Techno", "#Electro"],
+        description: "DJ Nova takes you on an electrifying ride through the best of techno, electro, and synth-driven soundscapes. From pulsing basslines to shimmering arpeggios, Electric Avenue is where the voltage never drops."
+      },
+      {
+        id: "m4",
+        title: "Deep Space",
+        time: "21:00 - 23:00",
+        host: "The Cosmonaut",
+        tags: ["#Ambient", "#Space"],
+        description: "Drift into the cosmos with The Cosmonaut's curated selection of ambient textures, space-age synthesizers, and hypnotic drones. Ideal for late-night studying, meditation, or simply floating through the void."
+      }
     ]
   },
   {
     day: "Tue",
     fullName: "Tuesday",
     shows: [
-      { id: "tu1", title: "Indie Hour", time: "11:00 - 13:00", host: "Sarah V.", tags: ["#Indie"] },
-      { id: "tu2", title: "Rock Anthems", time: "16:00 - 18:00", host: "DJ George", tags: ["#Rock"] }
+      {
+        id: "tu1",
+        title: "Indie Hour",
+        time: "11:00 - 13:00",
+        host: "Sarah V.",
+        tags: ["#Indie", "#DreamPop"],
+        description: "Sarah V. digs through the underground to bring you the freshest indie rock, dream pop, and lo-fi bedroom recordings. Featuring exclusive premieres, vinyl picks, and the occasional live in-studio session from local artists."
+      },
+      {
+        id: "tu2",
+        title: "Rock Anthems",
+        time: "16:00 - 18:00",
+        host: "DJ George",
+        tags: ["#Rock", "#Alternative"],
+        description: "DJ George turns the amplifier to 11 with a powerhouse lineup of classic rock, grunge, and modern alternative anthems. From stadium sing-alongs to raw garage riffs — this is the show that shakes your Tuesday."
+      }
     ]
   },
   {
     day: "Wed",
     fullName: "Wednesday",
     shows: [
-      { id: "w1", title: "Beats & Rhymes", time: "15:00 - 17:00", host: "MC Flow", tags: ["#HipHop"] },
-      { id: "w2", title: "Bass Drop", time: "20:00 - 22:00", host: "DJ Chloe", tags: ["#Dubstep"] }
+      {
+        id: "w1",
+        title: "Beats & Rhymes",
+        time: "15:00 - 17:00",
+        host: "MC Flow",
+        tags: ["#HipHop", "#Rap"],
+        description: "MC Flow delivers a hard-hitting journey through golden-age hip-hop, contemporary rap, and underground boom-bap. Expect deep crate-digging, exclusive freestyles from local artists, and breakdowns of the culture that moves us."
+      },
+      {
+        id: "w2",
+        title: "Bass Drop",
+        time: "20:00 - 22:00",
+        host: "DJ Chloe",
+        tags: ["#Dubstep", "#Bass"],
+        description: "DJ Chloe unleashes bone-rattling dubstep, bass house, and heavy electronic bangers guaranteed to test your speakers. Expect filthy drops, wobbling sub-bass, and festival-grade energy every Wednesday night."
+      }
     ]
   },
   {
     day: "Thu",
     fullName: "Thursday",
     shows: [
-      { id: "th1", title: "Jazz Fusion", time: "20:00 - 22:00", host: "The Quartet", tags: ["#Jazz"] }
+      {
+        id: "th1",
+        title: "Jazz Fusion",
+        time: "20:00 - 22:00",
+        host: "The Quartet",
+        tags: ["#Jazz", "#Fusion"],
+        description: "The Quartet blends timeless jazz standards with modern fusion, funk grooves, and improvisational experimentation. From smoky lounge moods to high-energy brass solos — your Thursday night ticket to sophisticated sound."
+      }
     ]
   },
   {
     day: "Fri",
     fullName: "Friday",
     shows: [
-      { id: "f1", title: "Club Night", time: "22:00 - 00:00", host: "DJ X", tags: ["#House"] }
+      {
+        id: "f1",
+        title: "Club Night",
+        time: "22:00 - 00:00",
+        host: "DJ X",
+        tags: ["#House", "#Dance"],
+        description: "The weekend starts here. DJ X spins peak-time house, tech-house bangers, and pulsating dancefloor anthems to kick off your Friday night right. High energy, seamless mixing, and tracks that keep you moving."
+      }
     ]
   },
   {
     day: "Sat",
     fullName: "Saturday",
     shows: [
-      { id: "sa1", title: "Global Grooves", time: "18:00 - 20:00", host: "World Tour", tags: ["#World"] }
+      {
+        id: "sa1",
+        title: "Global Grooves",
+        time: "18:00 - 20:00",
+        host: "World Tour",
+        tags: ["#World", "#Global"],
+        description: "World Tour takes you on a sonic journey across continents — from Afrobeat rhythms and Latin percussion to Middle Eastern melodies and Asian-inspired electronic fusions. Every Saturday is a passport to new sounds."
+      }
     ]
   },
   {
     day: "Sun",
     fullName: "Sunday",
     shows: [
-      { id: "su1", title: "Lazy Sunday", time: "12:00 - 15:00", host: "Chill Crew", tags: ["#Acoustic"] }
+      {
+        id: "su1",
+        title: "Lazy Sunday",
+        time: "12:00 - 15:00",
+        host: "Chill Crew",
+        tags: ["#Acoustic", "#Folk"],
+        description: "Wind down with the Chill Crew's laid-back selection of acoustic covers, gentle folk melodies, and sun-drenched singer-songwriter tracks. The perfect backdrop for late mornings, studying, and Sunday relaxation."
+      }
     ]
   }
 ];
@@ -67,54 +151,138 @@ export const WEEKLY_SCHEDULE_GR: DayProgram[] = [
     day: "Δευ",
     fullName: "Δευτέρα",
     shows: [
-      { id: "m1", title: "Morning Mix", time: "10:00 - 12:00", host: "DJ Apollo", tags: ["#LoFi"] },
-      { id: "m2", title: "Campus Voices", time: "14:00 - 16:00", host: "Spokesperson", tags: ["#Talk"] },
-      { id: "m3", title: "Electric Avenue", time: "18:00 - 20:00", host: "DJ Nova", tags: ["#Techno"] },
-      { id: "m4", title: "Deep Space", time: "21:00 - 23:00", host: "The Cosmonaut", tags: ["#Ambient"] }
+      {
+        id: "m1",
+        title: "Morning Mix",
+        time: "10:00 - 12:00",
+        host: "DJ Apollo",
+        tags: ["#LoFi", "#Chill"],
+        description: "Ξεκίνα τη βδομάδα σου σωστά με τις χειροδιάλεκτες lo-fi επιλογές του DJ Apollo, απαλά grooves και ομαλές μεταβάσεις. Από χαλαρά instrumentals μέχρι downtempo hip-hop — ο τέλειος σύντροφος για τον πρωινό καφέ και τη μετακίνηση στο campus."
+      },
+      {
+        id: "m2",
+        title: "Campus Voices",
+        time: "14:00 - 16:00",
+        host: "Εκπρόσωπος Φοιτητών",
+        tags: ["#Talk", "#Campus"],
+        description: "Η επίσημη φωνή του φοιτητικού σώματος. Το Campus Voices φέρνει σε βάθος συζητήσεις, συνεντεύξεις με καθηγητές και συμφοιτητές, νέα του πανεπιστημίου και debates για τα θέματα που αφορούν τη φοιτητική ζωή."
+      },
+      {
+        id: "m3",
+        title: "Electric Avenue",
+        time: "18:00 - 20:00",
+        host: "DJ Nova",
+        tags: ["#Techno", "#Electro"],
+        description: "Ο DJ Nova σε παίρνει σε μια ηλεκτρισμένη βόλτα μέσα από τα καλύτερα techno, electro και synth-driven ηχοτοπία. Από pulsating basslines μέχρι arpeggios που λάμπουν, το Electric Avenue δεν ρίχνει ποτέ την τάση."
+      },
+      {
+        id: "m4",
+        title: "Deep Space",
+        time: "21:00 - 23:00",
+        host: "The Cosmonaut",
+        tags: ["#Ambient", "#Space"],
+        description: "Παρασύρσου στον κόσμο με τις επιλεγμένες ambient υφές, space-age synthesizers και υπνωτικά drones του Cosmonaut. Ιδανικό για νυχτερινό διάβασμα, διαλογισμό ή απλά για να πλανιέσαι στο κενό."
+      }
     ]
   },
   {
     day: "Τρι",
     fullName: "Τρίτη",
     shows: [
-      { id: "tu1", title: "Indie Hour", time: "11:00 - 13:00", host: "Sarah V.", tags: ["#Indie"] },
-      { id: "tu2", title: "Rock Anthems", time: "16:00 - 18:00", host: "DJ George", tags: ["#Rock"] }
+      {
+        id: "tu1",
+        title: "Indie Hour",
+        time: "11:00 - 13:00",
+        host: "Sarah V.",
+        tags: ["#Indie", "#DreamPop"],
+        description: "Η Sarah V. σκάβει στο underground για να σου φέρει το πιο φρέσκο indie rock, dream pop και lo-fi bedroom ηχογραφήσεις. Με αποκλειστικές πρεμιέρες, επιλογές βινυλίου και περιστασιακές ζωντανές sessions τοπικών καλλιτεχνών."
+      },
+      {
+        id: "tu2",
+        title: "Rock Anthems",
+        time: "16:00 - 18:00",
+        host: "DJ George",
+        tags: ["#Rock", "#Alternative"],
+        description: "Ο DJ George γυρνάει τον ενισχυτή στο 11 με μια δυνατή επιλογή κλασικού rock, grunge και σύγχρονων alternative ύμνων. Από stadium sing-alongs μέχρι ωμά garage riffs — αυτή είναι η εκπομπή που ταρακουνάει κάθε Τρίτη."
+      }
     ]
   },
   {
     day: "Τετ",
     fullName: "Τετάρτη",
     shows: [
-      { id: "w1", title: "Beats & Rhymes", time: "15:00 - 17:00", host: "MC Flow", tags: ["#HipHop"] },
-      { id: "w2", title: "Bass Drop", time: "20:00 - 22:00", host: "DJ Chloe", tags: ["#Dubstep"] }
+      {
+        id: "w1",
+        title: "Beats & Rhymes",
+        time: "15:00 - 17:00",
+        host: "MC Flow",
+        tags: ["#HipHop", "#Rap"],
+        description: "Ο MC Flow παραδίδει ένα δυναμικό μείγμα golden-age hip-hop, σύγχρονου rap και freestyle sessions. Περίμενε deep crate-digging, αποκλειστικά freestyles τοπικών MCs και αναλύσεις της κουλτούρας που μας κινεί."
+      },
+      {
+        id: "w2",
+        title: "Bass Drop",
+        time: "20:00 - 22:00",
+        host: "DJ Chloe",
+        tags: ["#Dubstep", "#Bass"],
+        description: "Η DJ Chloe ξαπολύει dubstep που σπάει κόκαλα, bass house και βαριά ηλεκτρονικά κομμάτια που θα ταρακουνήσουν τα ηχεία σου. Περίμενε filthy drops, wobbling sub-bass και ενέργεια που μετατρέπει κάθε βράδυ Τετάρτης σε festival."
+      }
     ]
   },
   {
     day: "Πεμ",
     fullName: "Πέμπτη",
     shows: [
-      { id: "th1", title: "Jazz Fusion", time: "20:00 - 22:00", host: "The Quartet", tags: ["#Jazz"] }
+      {
+        id: "th1",
+        title: "Jazz Fusion",
+        time: "20:00 - 22:00",
+        host: "The Quartet",
+        tags: ["#Jazz", "#Fusion"],
+        description: "Το Quartet συνδυάζει κλασικά jazz standards με μοντέρνα fusion, funk και αυτοσχεδιαστικό πειραματισμό. Από smoky lounge vibes μέχρι high-energy solos — ένα βράδυ εκλεπτυσμένης μουσικής κάθε Πέμπτη."
+      }
     ]
   },
   {
     day: "Παρ",
     fullName: "Παρασκευή",
     shows: [
-      { id: "f1", title: "Club Night", time: "22:00 - 00:00", host: "DJ X", tags: ["#House"] }
+      {
+        id: "f1",
+        title: "Club Night",
+        time: "22:00 - 00:00",
+        host: "DJ X",
+        tags: ["#House", "#Dance"],
+        description: "Το Σαββατοκύριακο ξεκινάει εδώ. Ο DJ X ρίχνει τα πιο καυτά house κομμάτια, tech-house bangers και dancefloor anthems για να ξεκινήσεις τη Παρασκευή σου. Ενέργεια κορυφής, seamless mixing και sets που σε κρατάνε σε κίνηση."
+      }
     ]
   },
   {
     day: "Σαβ",
     fullName: "Σάββατο",
     shows: [
-      { id: "sa1", title: "Global Grooves", time: "18:00 - 20:00", host: "World Tour", tags: ["#World"] }
+      {
+        id: "sa1",
+        title: "Global Grooves",
+        time: "18:00 - 20:00",
+        host: "World Tour",
+        tags: ["#World", "#Global"],
+        description: "Το World Tour σε πηγαίνει σε ένα ηχητικό ταξίδι σε ηπείρους — από ρυθμούς Afrobeat και Latin κρουστά μέχρι μελωδίες Μέσης Ανατολής και ηλεκτρονικά fusions ασιατικής έμπνευσης. Κάθε Σάββατο είναι ένα διαβατήριο σε νέο μουσικό προορισμό."
+      }
     ]
   },
   {
     day: "Κυρ",
     fullName: "Κυριακή",
     shows: [
-      { id: "su1", title: "Lazy Sunday", time: "12:00 - 15:00", host: "Chill Crew", tags: ["#Acoustic"] }
+      {
+        id: "su1",
+        title: "Lazy Sunday",
+        time: "12:00 - 15:00",
+        host: "Chill Crew",
+        tags: ["#Acoustic", "#Folk"],
+        description: "Χαλάρωσε με τις laid-back επιλογές του Chill Crew — ακουστικά covers, folk μελωδίες και ηλιόλουστα singer-songwriter κομμάτια. Το τέλειο soundtrack για αργά πρωινά, brunch και ξεκούραση πριν αρχίσει η νέα εβδομάδα."
+      }
     ]
   }
 ];
