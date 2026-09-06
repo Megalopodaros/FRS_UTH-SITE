@@ -344,7 +344,7 @@ export default function App() {
     }
     
     return { currentLiveShow: active, nextShow: next, laterShow: later };
-  }, [isGreek, nowTick]);
+  }, [isGreek, nowTick, activeSchedule]);
 
   // Search & sorting state for Mixcloud Archive
   const [archiveSearch, setArchiveSearch] = useState("");
@@ -513,13 +513,17 @@ export default function App() {
     setSelectedShowId(show.id || show.title);
   };
 
+  const currentLiveShowDetails = useMemo(() => {
+    return currentLiveShow ? getShowDetails(currentLiveShow.id || currentLiveShow.title) : null;
+  }, [currentLiveShow, isGreek, activeSchedule]);
+
   const nextShowDetails = useMemo(() => {
     return nextShow ? getShowDetails(nextShow.id || nextShow.title) : null;
-  }, [nextShow, isGreek]);
+  }, [nextShow, isGreek, activeSchedule]);
 
   const laterShowDetails = useMemo(() => {
     return laterShow ? getShowDetails(laterShow.id || laterShow.title) : null;
-  }, [laterShow, isGreek]);
+  }, [laterShow, isGreek, activeSchedule]);
 
   // Archive data
   const archiveBase = isGreek ? ARCHIVE_ITEMS_GR : ARCHIVE_ITEMS_EN;
@@ -964,13 +968,22 @@ export default function App() {
                           {currentLiveShow ? currentLiveShow.title : currentT.noLiveShow}
                         </h3>
 
-                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2.5 line-clamp-2 leading-relaxed font-medium">
-                          {currentLiveShow ? `Με παραγωγό ${currentLiveShow.host}` : currentT.autoStreamDesc}
+                        {currentLiveShow && (
+                          <span className="text-xs font-bold text-[#ad021a] mt-1 flex items-center gap-1">
+                            <Mic className="w-3.5 h-3.5" />
+                            <span>{currentLiveShow.host}</span>
+                          </span>
+                        )}
+
+                        <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                          {currentLiveShow 
+                            ? (currentLiveShow.description || currentLiveShowDetails?.description || `Με παραγωγό ${currentLiveShow.host}`)
+                            : currentT.autoStreamDesc}
                         </p>
                       </div>
 
                       <div className="mt-5 pt-3.5 border-t border-black/[0.05] flex items-center justify-between text-xs text-[#6B6560] font-semibold">
-                        <span>{isGreek ? "Ζωντανή Ροή" : "Live Stream"}</span>
+                        <span>{currentLiveShow ? (currentLiveShowDetails?.tags?.[0] || (isGreek ? "Ζωντανή Ροή" : "Live Stream")) : (isGreek ? "Ζωντανή Ροή" : "Live Stream")}</span>
                         <span className="w-2 h-2 rounded-full bg-[#ad021a]/70 animate-pulse" />
                       </div>
                     </div>
@@ -1000,7 +1013,7 @@ export default function App() {
                         </span>
 
                         <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
-                          {nextShowDetails?.description || (isGreek 
+                          {nextShow?.description || nextShowDetails?.description || (isGreek 
                             ? "Μουσική εκπομπή από την ομάδα του FRS UTH." 
                             : "Radio broadcast from the FRS UTH team.")}
                         </p>
@@ -1037,7 +1050,7 @@ export default function App() {
                         </span>
 
                         <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
-                          {laterShowDetails?.description || (isGreek 
+                          {laterShow?.description || laterShowDetails?.description || (isGreek 
                             ? "Μουσική εκπομπή από την ομάδα του FRS UTH." 
                             : "Radio broadcast from the FRS UTH team.")}
                         </p>
@@ -1320,6 +1333,12 @@ export default function App() {
                                 <Mic className="w-3.5 h-3.5" />
                                 <span>{show.host}</span>
                               </span>
+
+                              {show.description && (
+                                <p className="text-xs sm:text-sm text-[#6B6560] mt-2 line-clamp-2 leading-relaxed">
+                                  {show.description}
+                                </p>
+                              )}
                             </div>
 
                             <div className="mt-6 pt-3.5 border-t border-black/[0.05] flex items-center justify-between gap-2">
@@ -1391,6 +1410,12 @@ export default function App() {
                               <span className="text-[11px] font-semibold text-[#ad021a]">
                                 {show.host}
                               </span>
+
+                              {show.description && (
+                                <p className="text-xs text-[#6B6560] mt-1 line-clamp-2 leading-relaxed">
+                                  {show.description}
+                                </p>
+                              )}
                             </div>
                           );
                         })}
