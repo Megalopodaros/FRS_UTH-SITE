@@ -40,6 +40,8 @@ import MainPlayer from "./components/MainPlayer";
 import LiveChat from "./components/LiveChat";
 import ComingSoonOverlay from "./components/ComingSoonOverlay";
 import AdminModal from "./components/AdminModal";
+import LegalModal, { LegalTab } from "./components/LegalModal";
+import CookieBanner from "./components/CookieBanner";
 import { subscribeToActivePoll } from "./lib/pollService";
 import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin, getCachedComingSoon } from "./lib/adminService";
 import { 
@@ -217,9 +219,13 @@ export default function App() {
   const [openCallLoading, setOpenCallLoading] = useState(false);
   const [openCallForm, setOpenCallForm] = useState({ name: "", email: "", showConcept: "", musicGenres: "", phone: "" });
 
+  // Legal Modal state (Privacy, Terms, Cookies)
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [legalTab, setLegalTab] = useState<LegalTab>("privacy");
+
   // Prevent background scrolling when modal or mobile menu is open
   useEffect(() => {
-    if (selectedShowId || isOpenCallModalOpen || isMobileMenuOpen) {
+    if (selectedShowId || isOpenCallModalOpen || isMobileMenuOpen || isLegalModalOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -227,7 +233,7 @@ export default function App() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [selectedShowId, isOpenCallModalOpen, isMobileMenuOpen]);
+  }, [selectedShowId, isOpenCallModalOpen, isMobileMenuOpen, isLegalModalOpen]);
 
   // Ticker to re-evaluate live show status every 15 seconds (paused when tab or screen is hidden)
   const [nowTick, setNowTick] = useState(Date.now());
@@ -2105,13 +2111,37 @@ export default function App() {
             <div>
               {currentT.copyright}
             </div>
-            <div className="flex items-center gap-4">
-              <a href="#terms" onClick={(e) => { e.preventDefault(); alert("FRS UTH is an open student radio run under the University of Thessaly."); }} className="hover:text-stone-400 transition-colors">
+            <div className="flex items-center gap-4 flex-wrap">
+              <button 
+                type="button"
+                onClick={() => {
+                  setLegalTab("terms");
+                  setIsLegalModalOpen(true);
+                }} 
+                className="hover:text-stone-300 transition-colors cursor-pointer"
+              >
                 {currentT.terms}
-              </a>
-              <a href="#privacy" onClick={(e) => { e.preventDefault(); alert("FRS UTH preserves privacy and does not track personal identifying data."); }} className="hover:text-stone-400 transition-colors">
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  setLegalTab("privacy");
+                  setIsLegalModalOpen(true);
+                }} 
+                className="hover:text-stone-300 transition-colors cursor-pointer"
+              >
                 {currentT.privacy}
-              </a>
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  setLegalTab("cookies");
+                  setIsLegalModalOpen(true);
+                }} 
+                className="hover:text-stone-300 transition-colors cursor-pointer"
+              >
+                {isGreek ? "Πολιτική Cookies" : "Cookie Policy"}
+              </button>
             </div>
           </div>
 
@@ -2485,6 +2515,23 @@ export default function App() {
           </button>
         </div>
       )}
+
+      {/* LEGAL & PRIVACY MODAL */}
+      <LegalModal
+        isOpen={isLegalModalOpen}
+        onClose={() => setIsLegalModalOpen(false)}
+        initialTab={legalTab}
+        isGreek={isGreek}
+      />
+
+      {/* DISCREET COOKIE & LOCAL STORAGE NOTICE BANNER */}
+      <CookieBanner
+        isGreek={isGreek}
+        onOpenCookies={() => {
+          setLegalTab("cookies");
+          setIsLegalModalOpen(true);
+        }}
+      />
 
     </div>
   );
