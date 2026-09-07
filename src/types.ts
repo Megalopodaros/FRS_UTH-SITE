@@ -79,10 +79,21 @@ export interface LivePollData {
   announcedResult?: boolean;
 }
 
+export interface AdSpaceConfig {
+  enabled: boolean;
+  sponsorName?: string;
+  text?: string;
+  link?: string;
+  badge?: string;
+  imageUrl?: string;
+  updatedAt?: number;
+}
+
 export interface SiteConfig {
   isComingSoon: boolean;
   updatedAt?: number;
   updatedBy?: string;
+  adSpace?: AdSpaceConfig;
 }
 
 export interface StationEvent {

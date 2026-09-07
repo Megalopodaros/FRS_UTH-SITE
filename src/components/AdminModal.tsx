@@ -28,9 +28,17 @@ import {
   Save,
   RefreshCw,
   Check,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Megaphone,
+  ExternalLink
 } from "lucide-react";
 import { resetChatAndPolls } from "../lib/adminService";
+import { 
+  getCachedAdSpace, 
+  saveAdSpaceConfig, 
+  subscribeToAdSpace, 
+  DEFAULT_AD_SPACE_CONFIG 
+} from "../lib/adService";
 import { 
   subscribeToCustomSchedule, 
   saveCustomSchedule, 
@@ -46,7 +54,7 @@ import {
   sortScheduleShows
 } from "../lib/contentService";
 import { WEEKLY_SCHEDULE_GR, DEFAULT_EVENTS_GR, SHOWS_DESCRIPTIONS_GR, SHOW_GALLERY_PRESETS } from "../data/radioData";
-import { DayProgram, Show, StationEvent, OpenCallApplication } from "../types";
+import { DayProgram, Show, StationEvent, OpenCallApplication, AdSpaceConfig } from "../types";
 
 // Helper to guarantee every show in draft has its rich description and image synchronized and is sorted chronologically
 const syncShowsWithDescriptions = (days: DayProgram[]): DayProgram[] => {
@@ -65,7 +73,7 @@ const syncShowsWithDescriptions = (days: DayProgram[]): DayProgram[] => {
   })));
 };
 
-type AdminTab = "status" | "applications" | "schedule" | "events";
+type AdminTab = "status" | "applications" | "schedule" | "events" | "adSpace";
 
 interface AdminModalProps {
   isGreek: boolean;
@@ -130,7 +138,11 @@ export default function AdminModal({
   const [isSavingEvents, setIsSavingEvents] = useState(false);
   const [isResettingEvents, setIsResettingEvents] = useState(false);
 
-  // Subscribe to live custom schedule and events when modal opens
+  // Ad Space Tab state
+  const [adDraft, setAdDraft] = useState<AdSpaceConfig>(() => getCachedAdSpace() || DEFAULT_AD_SPACE_CONFIG);
+  const [isSavingAd, setIsSavingAd] = useState(false);
+
+  // Subscribe to live custom schedule, events and ad space when modal opens
   useEffect(() => {
     if (!isOpen) return;
 
@@ -150,9 +162,16 @@ export default function AdminModal({
       }
     });
 
+    const unsubAd = subscribeToAdSpace((customAd) => {
+      if (customAd) {
+        setAdDraft(customAd);
+      }
+    });
+
     return () => {
       unsubSchedule();
       unsubEvents();
+      unsubAd();
     };
   }, [isOpen]);
 
@@ -369,6 +388,18 @@ export default function AdminModal({
     }
   };
 
+  const handleSaveAd = async () => {
+    setIsSavingAd(true);
+    try {
+      await saveAdSpaceConfig(adDraft);
+      showNotification(isGreek ? "Οι ρυθμίσεις του Ad Space αποθηκεύτηκαν επιτυχώς!" : "Ad space settings saved successfully!");
+    } catch (err: any) {
+      showNotification(undefined, isGreek ? "Σφάλμα κατά την αποθήκευση του Ad Space." : "Error saving ad space.");
+    } finally {
+      setIsSavingAd(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[10010] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
       <motion.div
@@ -463,6 +494,24 @@ export default function AdminModal({
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{isGreek ? "Εκδηλώσεις / Events" : "Events & Parties"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("adSpace")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === "adSpace"
+                ? "bg-[#1C1917] text-white shadow-xs"
+                : "text-stone-600 hover:bg-stone-100"
+            }`}
+          >
+            <Megaphone className="w-3.5 h-3.5" />
+            <span>{isGreek ? "Χορηγός / Ad" : "Sponsor / Ad"}</span>
+            {adDraft.enabled ? (
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Active" />
+            ) : (
+              <span className="w-2 h-2 rounded-full bg-stone-300 shrink-0" title="Disabled" />
+            )}
           </button>
         </div>
 
@@ -1406,6 +1455,190 @@ export default function AdminModal({
                     <Save className="w-4 h-4" />
                   )}
                   <span>{isGreek ? "Αποθήκευση Εκδηλώσεων" : "Save Events"}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: AD SPACE / ΧΟΡΗΓΟΣ */}
+          {activeTab === "adSpace" && (
+            <div className="flex flex-col gap-4">
+              {/* Toggle Switch Card */}
+              <div className="bg-stone-50 rounded-2xl p-4 sm:p-5 border border-stone-200 flex items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-bold text-sm text-[#1C1917]">
+                      {isGreek ? "Ενεργοποίηση Ad Space" : "Enable Ad Space"}
+                    </h4>
+                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                      adDraft.enabled ? "bg-emerald-100 text-emerald-800" : "bg-stone-200 text-stone-600"
+                    }`}>
+                      {adDraft.enabled ? (isGreek ? "ΕΝΕΡΓΟ" : "ACTIVE") : (isGreek ? "ΑΝΕΝΕΡΓΟ / ΚΡΥΦΟ" : "HIDDEN")}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                    {adDraft.enabled 
+                      ? (isGreek ? "Το Ad Space εμφανίζεται διακριτικά στους επισκέπτες." : "The minimalist ad space is currently visible on the site.")
+                      : (isGreek ? "Το Ad Space είναι εντελώς κρυφό. Κανένας επισκέπτης δεν βλέπει διαφήμιση." : "The ad space is completely hidden from all visitors.")}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setAdDraft({ ...adDraft, enabled: !adDraft.enabled })}
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    adDraft.enabled ? "bg-[#ad021a]" : "bg-stone-300"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      adDraft.enabled ? "translate-x-7" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Settings Form */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-stone-200 flex flex-col gap-3.5">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-stone-600 font-mono">
+                    {isGreek ? "Στοιχεία Χορηγού / Διαφήμισης" : "Sponsor Details"}
+                  </h4>
+                  <span className="text-[11px] text-stone-400">
+                    {isGreek ? "Μινιμαλιστική εμφάνιση" : "Minimalist design"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      {isGreek ? "Όνομα Χορηγού / Brand Name" : "Sponsor / Brand Name"}
+                    </label>
+                    <input
+                      type="text"
+                      value={adDraft.sponsorName || ""}
+                      onChange={(e) => setAdDraft({ ...adDraft, sponsorName: e.target.value })}
+                      placeholder="e.g. Volos Coffee Roasters"
+                      className="field"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      {isGreek ? "Ετικέτα Badge" : "Badge Label"}
+                    </label>
+                    <input
+                      type="text"
+                      value={adDraft.badge || ""}
+                      onChange={(e) => setAdDraft({ ...adDraft, badge: e.target.value })}
+                      placeholder="e.g. Υποστηρικτής / Ad / Partner"
+                      className="field"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    {isGreek ? "Σύντομο Κείμενο / Σλόγκαν" : "Tagline / Description"}
+                  </label>
+                  <input
+                    type="text"
+                    value={adDraft.text || ""}
+                    onChange={(e) => setAdDraft({ ...adDraft, text: e.target.value })}
+                    placeholder={isGreek ? "π.χ. Υπερήφανος υποστηρικτής της φοιτητικής μας ομάδας" : "e.g. Proud sponsor of student radio"}
+                    className="field"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      {isGreek ? "Σύνδεσμος / URL (Προαιρετικό)" : "Link / URL (Optional)"}
+                    </label>
+                    <input
+                      type="url"
+                      value={adDraft.link || ""}
+                      onChange={(e) => setAdDraft({ ...adDraft, link: e.target.value })}
+                      placeholder="https://..."
+                      className="field"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      {isGreek ? "Εικόνα / Logo (Προαιρετικό)" : "Image / Logo URL (Optional)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={adDraft.imageUrl || ""}
+                      onChange={(e) => setAdDraft({ ...adDraft, imageUrl: e.target.value })}
+                      placeholder="/shows/vinyl.jpg ή URL εικόνας"
+                      className="field"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Preview Box */}
+              <div className="bg-stone-100 rounded-2xl p-4 border border-stone-200">
+                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-mono">
+                  <Eye className="w-3 h-3" />
+                  <span>{isGreek ? "Ζωντανή Προεπισκόπηση στο Site" : "Live Site Preview"}</span>
+                </div>
+
+                {adDraft.enabled ? (
+                  <div className="bg-white/80 rounded-xl px-4 py-2.5 border border-black/5 flex items-center justify-between gap-3 text-xs shadow-xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {adDraft.imageUrl && (
+                        <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 bg-stone-900 border border-black/10">
+                          <img
+                            src={adDraft.imageUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.currentTarget as HTMLElement).style.display = "none"; }}
+                          />
+                        </div>
+                      )}
+                      <span className="text-[9.5px] font-mono font-black uppercase tracking-wider text-[#ad021a] bg-[#FCECEE] px-2 py-0.5 rounded-full shrink-0">
+                        {adDraft.badge || "Υποστηρικτής"}
+                      </span>
+                      <span className="font-bold text-[#1C1917] truncate">
+                        {adDraft.sponsorName || "Όνομα Χορηγού"}
+                      </span>
+                      {adDraft.text && (
+                        <span className="text-stone-500 hidden sm:inline truncate text-[11px]">
+                          • {adDraft.text}
+                        </span>
+                      )}
+                    </div>
+                    {adDraft.link && (
+                      <span className="text-[11px] font-bold text-[#ad021a] inline-flex items-center gap-1 shrink-0">
+                        <span>{isGreek ? "Επίσκεψη" : "Visit"}</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-xs text-stone-400 italic">
+                    {isGreek ? "Το Ad Space είναι απενεργοποιημένο και δεν εμφανίζεται στο site." : "Ad space is disabled and will not be displayed on the site."}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-200">
+                <button
+                  type="button"
+                  onClick={handleSaveAd}
+                  disabled={isSavingAd}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#ad021a] hover:bg-[#8f0115] text-white shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {isSavingAd ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  <span>{isGreek ? "Αποθήκευση Ρυθμίσεων Χορηγού" : "Save Sponsor Settings"}</span>
                 </button>
               </div>
             </div>

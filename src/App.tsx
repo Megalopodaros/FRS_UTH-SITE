@@ -42,6 +42,8 @@ import ComingSoonOverlay from "./components/ComingSoonOverlay";
 import AdminModal from "./components/AdminModal";
 import LegalModal, { LegalTab } from "./components/LegalModal";
 import CookieBanner from "./components/CookieBanner";
+import AdBanner from "./components/AdBanner";
+import { subscribeToAdSpace, getCachedAdSpace } from "./lib/adService";
 import { subscribeToActivePoll } from "./lib/pollService";
 import { subscribeToSiteConfig, setComingSoonMode, isAdminAuthenticated, logoutAdmin, getCachedComingSoon } from "./lib/adminService";
 import { 
@@ -52,7 +54,7 @@ import {
   getCachedCustomEvents,
   sortShowsByTime
 } from "./lib/contentService";
-import { LivePollData, SiteConfig, DayProgram, StationEvent } from "./types";
+import { LivePollData, SiteConfig, DayProgram, StationEvent, AdSpaceConfig } from "./types";
 import { 
   WEEKLY_SCHEDULE_GR, 
   WEEKLY_SCHEDULE_EN, 
@@ -222,6 +224,16 @@ export default function App() {
   // Legal Modal state (Privacy, Terms, Cookies)
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [legalTab, setLegalTab] = useState<LegalTab>("privacy");
+
+  // Minimalist Ad Space state
+  const [adSpaceConfig, setAdSpaceConfig] = useState<AdSpaceConfig | null>(() => getCachedAdSpace());
+
+  useEffect(() => {
+    const unsub = subscribeToAdSpace((ad) => {
+      setAdSpaceConfig(ad);
+    });
+    return () => unsub();
+  }, []);
 
   // Prevent background scrolling when modal or mobile menu is open
   useEffect(() => {
@@ -2021,6 +2033,9 @@ export default function App() {
 
         </AnimatePresence>
       </main>
+
+      {/* MINIMALIST AD / SPONSOR SPACE (Controlled via Admin Panel) */}
+      <AdBanner config={adSpaceConfig} isGreek={isGreek} />
 
       {/* 4. MODERN DARK FOOTER (Image 4) */}
       <footer className="w-full bg-[#111215] text-stone-300 pt-16 pb-12 mt-auto border-t border-stone-800">
