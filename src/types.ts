@@ -86,6 +86,7 @@ export interface AdSpaceConfig {
   link?: string;
   badge?: string;
   imageUrl?: string;
+  ctaText?: string;
   updatedAt?: number;
 }
 

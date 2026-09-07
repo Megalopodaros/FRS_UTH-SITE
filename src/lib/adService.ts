@@ -11,11 +11,12 @@ export const AD_SPACE_CACHE_KEY = "frs_cached_ad_space";
 
 export const DEFAULT_AD_SPACE_CONFIG: AdSpaceConfig = {
   enabled: false,
-  sponsorName: "FRS Partner",
-  text: "Υποστηρικτής του φοιτητικού ραδιοφώνου",
-  link: "",
-  badge: "Υποστηρικτής",
-  imageUrl: ""
+  sponsorName: "Volos Specialty Coffee & Vinyl",
+  text: "Στηρίζουμε τη φοιτητική κοινότητα του Π.Θ. – 15% έκπτωση σε όλους τους φοιτητές με επίδειξη πάσου!",
+  link: "https://uth.gr",
+  badge: "Επίσημος Χορηγός",
+  imageUrl: "/shows/vinyl.jpg",
+  ctaText: "Επίσκεψη στο Κατάστημα"
 };
 
 /**
@@ -85,6 +86,7 @@ export async function saveAdSpaceConfig(config: AdSpaceConfig): Promise<void> {
     link: config.link?.trim() || "",
     badge: config.badge?.trim() || "Υποστηρικτής",
     imageUrl: config.imageUrl?.trim() || "",
+    ctaText: config.ctaText?.trim() || "",
     updatedAt: Date.now()
   };
 

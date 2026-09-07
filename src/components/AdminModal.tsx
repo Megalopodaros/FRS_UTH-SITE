@@ -1460,13 +1460,14 @@ export default function AdminModal({
             </div>
           )}
 
-          {/* TAB 5: AD SPACE / ΧΟΡΗΓΟΣ */}
+          {/* TAB 5: ΧΟΡΗΓΟΣ / AD SPACE */}
           {activeTab === "adSpace" && (
-            <div className="flex flex-col gap-4">
-              {/* Toggle Switch Card */}
-              <div className="bg-stone-50 rounded-2xl p-4 sm:p-5 border border-stone-200 flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-5">
+              {/* Header Info */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
+                    <Megaphone className="w-4 h-4 text-[#ad021a]" />
                     <h4 className="font-bold text-sm text-[#1C1917]">
                       {isGreek ? "Ενεργοποίηση Ad Space" : "Enable Ad Space"}
                     </h4>
@@ -1478,8 +1479,8 @@ export default function AdminModal({
                   </div>
                   <p className="text-xs text-stone-500 mt-1 leading-relaxed">
                     {adDraft.enabled 
-                      ? (isGreek ? "Το Ad Space εμφανίζεται διακριτικά στους επισκέπτες." : "The minimalist ad space is currently visible on the site.")
-                      : (isGreek ? "Το Ad Space είναι εντελώς κρυφό. Κανένας επισκέπτης δεν βλέπει διαφήμιση." : "The ad space is completely hidden from all visitors.")}
+                      ? (isGreek ? "Το Ad Space εμφανίζεται ζωντανά πάνω από το footer του σταθμού." : "The vibrant sponsor banner is visible above the station footer.")
+                      : (isGreek ? "Το Ad Space είναι εντελώς κρυφό (0px). Κανένας επισκέπτης δεν βλέπει διαφήμιση." : "The ad space is completely hidden from all visitors.")}
                   </p>
                 </div>
 
@@ -1498,6 +1499,88 @@ export default function AdminModal({
                 </button>
               </div>
 
+              {/* Quick Presets for Instant Setup */}
+              <div className="bg-stone-50 rounded-2xl p-4 border border-stone-200 flex flex-col gap-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-stone-600 flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-[#ad021a]" />
+                    <span>{isGreek ? "Γρήγορες Έτοιμες Προτάσεις (1-Click Presets)" : "Quick Presets"}</span>
+                  </span>
+                  <span className="text-[10px] text-stone-400">
+                    {isGreek ? "Κάντε κλικ για άμεση συμπλήρωση" : "Click to auto-fill"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAdDraft({
+                      ...adDraft,
+                      sponsorName: "Volos Specialty Coffee & Roastery",
+                      badge: isGreek ? "Επίσημος Χορηγός" : "Official Partner",
+                      text: isGreek ? "Ο αγαπημένος καφές των φοιτητών στον Βόλο – 15% έκπτωση με φοιτητική ταυτότητα!" : "Student favorite coffee in Volos – 15% student discount!",
+                      link: "https://uth.gr",
+                      imageUrl: "/shows/vinyl.jpg",
+                      ctaText: isGreek ? "Δείτε το Μενού" : "View Menu"
+                    })}
+                    className="p-2.5 bg-white hover:bg-stone-100 rounded-xl border border-stone-200 text-left transition-colors cursor-pointer flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-bold text-[#1C1917]">☕ Cafe & Coffee</span>
+                    <span className="text-[10px] text-stone-500 truncate">Volos Specialty Coffee</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAdDraft({
+                      ...adDraft,
+                      sponsorName: "Stereo Vinyl & Record Shop",
+                      badge: isGreek ? "Μουσικός Υποστηρικτής" : "Music Partner",
+                      text: isGreek ? "Ανακάλυψε σπάνια βινύλια, indie releases και audiophile εξοπλισμό." : "Discover rare vinyl, indie releases, and audiophile gear.",
+                      link: "https://uth.gr",
+                      imageUrl: "/shows/vinyl.jpg",
+                      ctaText: isGreek ? "Επίσκεψη στο Store" : "Visit Store"
+                    })}
+                    className="p-2.5 bg-white hover:bg-stone-100 rounded-xl border border-stone-200 text-left transition-colors cursor-pointer flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-bold text-[#1C1917]">🎵 Vinyl & Records</span>
+                    <span className="text-[10px] text-stone-500 truncate">Stereo Vinyl Shop</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAdDraft({
+                      ...adDraft,
+                      sponsorName: "Street Slice Pizza & Bites",
+                      badge: isGreek ? "Χορηγός Φιλοξενίας" : "Food Partner",
+                      text: isGreek ? "Χειροποίητη ζύμη και craft μπύρες μετά από κάθε ραδιοφωνική εκπομπή!" : "Handcrafted pizza and craft beers after every radio show!",
+                      link: "https://uth.gr",
+                      imageUrl: "/concert-party.jpg",
+                      ctaText: isGreek ? "Παραγγελία Online" : "Order Online"
+                    })}
+                    className="p-2.5 bg-white hover:bg-stone-100 rounded-xl border border-stone-200 text-left transition-colors cursor-pointer flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-bold text-[#1C1917]">🍕 Food & Bites</span>
+                    <span className="text-[10px] text-stone-500 truncate">Street Slice Pizza</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAdDraft({
+                      ...adDraft,
+                      sponsorName: "FRS Official Merch & Apparel",
+                      badge: isGreek ? "Station Store" : "Station Merch",
+                      text: isGreek ? "Υποστηρίξτε τη φωνή των φοιτητών με τα επίσημα FRS συλλεκτικά tees & hoodies." : "Support student radio with official FRS collectible tees & hoodies.",
+                      link: "https://uth.gr",
+                      imageUrl: "/shows/studio.jpg",
+                      ctaText: isGreek ? "Απόκτησέ το" : "Get Merch"
+                    })}
+                    className="p-2.5 bg-white hover:bg-stone-100 rounded-xl border border-stone-200 text-left transition-colors cursor-pointer flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-bold text-[#1C1917]">📻 Station Merch</span>
+                    <span className="text-[10px] text-stone-500 truncate">FRS Apparel</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Settings Form */}
               <div className="bg-white rounded-2xl p-4 sm:p-5 border border-stone-200 flex flex-col gap-3.5">
                 <div className="flex items-center justify-between border-b border-stone-100 pb-2">
@@ -1505,7 +1588,7 @@ export default function AdminModal({
                     {isGreek ? "Στοιχεία Χορηγού / Διαφήμισης" : "Sponsor Details"}
                   </h4>
                   <span className="text-[11px] text-stone-400">
-                    {isGreek ? "Μινιμαλιστική εμφάνιση" : "Minimalist design"}
+                    {isGreek ? "Ζωντανή, μοντέρνα εμφάνιση" : "Vibrant & modern display"}
                   </span>
                 </div>
 
@@ -1518,7 +1601,7 @@ export default function AdminModal({
                       type="text"
                       value={adDraft.sponsorName || ""}
                       onChange={(e) => setAdDraft({ ...adDraft, sponsorName: e.target.value })}
-                      placeholder="e.g. Volos Coffee Roasters"
+                      placeholder="e.g. Volos Specialty Coffee"
                       className="field"
                     />
                   </div>
@@ -1531,7 +1614,7 @@ export default function AdminModal({
                       type="text"
                       value={adDraft.badge || ""}
                       onChange={(e) => setAdDraft({ ...adDraft, badge: e.target.value })}
-                      placeholder="e.g. Υποστηρικτής / Ad / Partner"
+                      placeholder="e.g. Επίσημος Χορηγός / Partner"
                       className="field"
                     />
                   </div>
@@ -1539,21 +1622,21 @@ export default function AdminModal({
 
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
-                    {isGreek ? "Σύντομο Κείμενο / Σλόγκαν" : "Tagline / Description"}
+                    {isGreek ? "Σύντομο Κείμενο / Προσφορά / Σλόγκαν" : "Tagline / Promo / Description"}
                   </label>
                   <input
                     type="text"
                     value={adDraft.text || ""}
                     onChange={(e) => setAdDraft({ ...adDraft, text: e.target.value })}
-                    placeholder={isGreek ? "π.χ. Υπερήφανος υποστηρικτής της φοιτητικής μας ομάδας" : "e.g. Proud sponsor of student radio"}
+                    placeholder={isGreek ? "π.χ. 15% έκπτωση για όλους τους φοιτητές του Π.Θ. με επίδειξη πάσου!" : "e.g. 15% student discount with student ID!"}
                     className="field"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1">
-                      {isGreek ? "Σύνδεσμος / URL (Προαιρετικό)" : "Link / URL (Optional)"}
+                      {isGreek ? "Σύνδεσμος / URL" : "Link / URL"}
                     </label>
                     <input
                       type="url"
@@ -1566,7 +1649,20 @@ export default function AdminModal({
 
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1">
-                      {isGreek ? "Εικόνα / Logo (Προαιρετικό)" : "Image / Logo URL (Optional)"}
+                      {isGreek ? "Κείμενο Κουμπιού (CTA)" : "Button Text (CTA)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={adDraft.ctaText || ""}
+                      onChange={(e) => setAdDraft({ ...adDraft, ctaText: e.target.value })}
+                      placeholder={isGreek ? "Επίσκεψη / Δείτε περισσότερα" : "Visit Website"}
+                      className="field"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      {isGreek ? "Εικόνα Χορηγού (URL)" : "Sponsor Image URL"}
                     </label>
                     <input
                       type="text"
@@ -1580,17 +1676,17 @@ export default function AdminModal({
               </div>
 
               {/* Live Preview Box */}
-              <div className="bg-stone-100 rounded-2xl p-4 border border-stone-200">
-                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-mono">
+              <div className="bg-stone-100 rounded-3xl p-4 sm:p-5 border border-stone-200">
+                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-3 flex items-center gap-1.5 font-mono">
                   <Eye className="w-3 h-3" />
-                  <span>{isGreek ? "Ζωντανή Προεπισκόπηση στο Site" : "Live Site Preview"}</span>
+                  <span>{isGreek ? "Ζωντανή Προεπισκόπηση στο Site (Live Preview)" : "Live Site Preview"}</span>
                 </div>
 
                 {adDraft.enabled ? (
-                  <div className="bg-white/80 rounded-xl px-4 py-2.5 border border-black/5 flex items-center justify-between gap-3 text-xs shadow-xs">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {adDraft.imageUrl && (
-                        <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 bg-stone-900 border border-black/10">
+                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-white/95 via-stone-50/90 to-[#ad021a]/[0.05] border border-black/[0.08] p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-4 min-w-0 w-full md:w-auto text-center sm:text-left">
+                      {adDraft.imageUrl ? (
+                        <div className="w-20 h-20 sm:w-24 sm:h-20 rounded-xl overflow-hidden shrink-0 shadow-sm border border-black/10 bg-stone-900">
                           <img
                             src={adDraft.imageUrl}
                             alt="Preview"
@@ -1598,29 +1694,44 @@ export default function AdminModal({
                             onError={(e) => { (e.currentTarget as HTMLElement).style.display = "none"; }}
                           />
                         </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#ad021a] to-[#8f0115] flex items-center justify-center shrink-0 text-white shadow-xs">
+                          <Sparkles className="w-6 h-6" />
+                        </div>
                       )}
-                      <span className="text-[9.5px] font-mono font-black uppercase tracking-wider text-[#ad021a] bg-[#FCECEE] px-2 py-0.5 rounded-full shrink-0">
-                        {adDraft.badge || "Υποστηρικτής"}
-                      </span>
-                      <span className="font-bold text-[#1C1917] truncate">
-                        {adDraft.sponsorName || "Όνομα Χορηγού"}
-                      </span>
-                      {adDraft.text && (
-                        <span className="text-stone-500 hidden sm:inline truncate text-[11px]">
-                          • {adDraft.text}
-                        </span>
-                      )}
+
+                      <div className="flex flex-col gap-1 min-w-0 flex-1">
+                        <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                          <span className="text-[9.5px] font-mono font-black uppercase tracking-wider text-[#ad021a] bg-[#FCECEE] px-2 py-0.5 rounded-full">
+                            {adDraft.badge || (isGreek ? "Επίσημος Χορηγός" : "Official Partner")}
+                          </span>
+                          <span className="text-[9.5px] font-mono uppercase tracking-wider text-stone-400 font-semibold">
+                            {isGreek ? "Συνεργάτης Σταθμού" : "Station Partner"}
+                          </span>
+                        </div>
+                        <h5 className="font-display font-black text-[#1C1917] text-base truncate">
+                          {adDraft.sponsorName || "Όνομα Χορηγού / Brand Name"}
+                        </h5>
+                        {adDraft.text && (
+                          <p className="text-stone-600 text-xs line-clamp-2 max-w-xl">
+                            {adDraft.text}
+                          </p>
+                        )}
+                      </div>
                     </div>
+
                     {adDraft.link && (
-                      <span className="text-[11px] font-bold text-[#ad021a] inline-flex items-center gap-1 shrink-0">
-                        <span>{isGreek ? "Επίσκεψη" : "Visit"}</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </span>
+                      <div className="shrink-0 w-full sm:w-auto flex justify-center md:justify-end">
+                        <span className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#ad021a] text-white font-bold text-xs shadow-xs">
+                          <span>{adDraft.ctaText || (isGreek ? "Επίσκεψη" : "Visit")}</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-4 text-xs text-stone-400 italic">
-                    {isGreek ? "Το Ad Space είναι απενεργοποιημένο και δεν εμφανίζεται στο site." : "Ad space is disabled and will not be displayed on the site."}
+                  <div className="text-center py-6 text-xs text-stone-400 italic">
+                    {isGreek ? "Το Ad Space είναι απενεργοποιημένο και δεν καταλαμβάνει καθόλου χώρο στο site." : "Ad space is disabled and will not be displayed on the site."}
                   </div>
                 )}
               </div>
