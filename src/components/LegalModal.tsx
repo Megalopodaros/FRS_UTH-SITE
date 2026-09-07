@@ -121,15 +121,7 @@ export default function LegalModal({
 
                 {isGreek ? (
                   <>
-                    <h3 className="font-bold text-base text-[#1C1917]">1. Εισαγωγή & Ανεξάρτητη Λειτουργία</h3>
-                    <p>
-                      Ο Φοιτητικός Ραδιοφωνικός Σταθμός (FRS UTH) λειτουργεί ως αυτόνομη, ανεξάρτητη πρωτοβουλία φοιτητών του Πανεπιστημίου Θεσσαλίας και σέβεται απόλυτα το ιδιωτικό σας απόρρητο. Η πλατφόρμα μας λειτουργεί με γνώμονα τη διαφάνεια και τη μηδενική καταγραφή προσωπικών δεδομένων κατά την απλή περιήγηση ή ακρόαση του σταθμού.
-                    </p>
-                    <p className="text-xs bg-stone-100 p-2.5 rounded-xl border border-stone-200 text-stone-700">
-                      <strong>Σημείωση Ανεξαρτησίας:</strong> Οποιαδήποτε δεδομένα υποβάλλονται στις φόρμες επικοινωνίας ή αιτήσεων διαχειρίζονται αποκλειστικά από την εθελοντική φοιτητική ομάδα συντονισμού του σταθμού και ουδεμία σχέση, διαβίβαση ή διασύνδεση έχουν με τις επίσημες διοικητικές υπηρεσίες ή τα μητρώα του Πανεπιστημίου Θεσσαλίας.
-                    </p>
-
-                    <h3 className="font-bold text-base text-[#1C1917]">2. Ποια δεδομένα συλλέγουμε</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">1. Ποια δεδομένα συλλέγουμε</h3>
                     <p>
                       Δεν απαιτείται εγγραφή λογαριασμού για την ακρόαση του σταθμού. Συλλέγουμε αποκλειστικά τα στοιχεία που μας παρέχετε εσείς οικειοθελώς:
                     </p>
@@ -139,27 +131,19 @@ export default function LegalModal({
                       <li><strong>Live Chat:</strong> Το ψευδώνυμο (nickname) που επιλέγετε ελεύθερα και τα μηνύματα που δημοσιεύετε δημόσια στη συνομιλία.</li>
                     </ul>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">3. Σκοπός Επεξεργασίας</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">2. Σκοπός Επεξεργασίας</h3>
                     <p>
                       Τα στοιχεία επικοινωνίας χρησιμοποιούνται αποκλειστικά για την απάντηση στα μηνύματά σας και τον συντονισμό των ραδιοφωνικών εκπομπών. Δεν πωλούμε, δεν κοινοποιούμε και δεν παραχωρούμε τα στοιχεία σας σε οποιονδήποτε τρίτο ή διαφημιστική εταιρεία.
                     </p>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">4. Δικαιώματα Χρήστη (GDPR)</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">3. Δικαιώματα Χρήστη (GDPR)</h3>
                     <p>
                       Σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (GDPR), έχετε το δικαίωμα πρόσβασης, διόρθωσης ή οριστικής διαγραφής των στοιχείων που έχετε υποβάλει στις φόρμες μας, στέλνοντας ένα απλό email στο <strong>foithtikaradioshows@gmail.com</strong>.
                     </p>
                   </>
                 ) : (
                   <>
-                    <h3 className="font-bold text-base text-[#1C1917]">1. Introduction & Independent Operation</h3>
-                    <p>
-                      FRS UTH operates as an autonomous, independent student initiative created and run by students of the University of Thessaly and is fully committed to protecting your privacy. Our website is built on transparent principles and collects no personal tracking data during casual listening or navigation.
-                    </p>
-                    <p className="text-xs bg-stone-100 p-2.5 rounded-xl border border-stone-200 text-stone-700">
-                      <strong>Independence Notice:</strong> Any personal information submitted through contact or application forms is managed strictly by the volunteer student station team and is never transmitted to or associated with the administrative departments or student records of the University of Thessaly.
-                    </p>
-
-                    <h3 className="font-bold text-base text-[#1C1917]">2. Information We Collect</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">1. Information We Collect</h3>
                     <p>
                       No account registration is required to listen to our broadcast. We collect only information that you voluntarily provide:
                     </p>
@@ -169,12 +153,12 @@ export default function LegalModal({
                       <li><strong>Live Chat:</strong> The display nickname you choose freely and messages submitted publicly.</li>
                     </ul>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">3. Purpose of Processing</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">2. Purpose of Processing</h3>
                     <p>
                       Your information is used strictly to communicate with you and coordinate station broadcasts. We never sell, rent, or distribute your personal details to third parties or marketing entities.
                     </p>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">4. Your Rights (GDPR)</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">3. Your Rights (GDPR)</h3>
                     <p>
                       Under the General Data Protection Regulation (GDPR), you hold full rights to access, rectify, or request deletion of any submitted information by emailing us at <strong>foithtikaradioshows@gmail.com</strong>.
                     </p>
