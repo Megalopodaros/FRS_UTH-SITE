@@ -60,21 +60,6 @@ export default function LegalModal({
             </button>
           </div>
 
-          {/* Independence Disclaimer Banner */}
-          <div className="mt-3 bg-amber-500/10 border border-amber-500/25 rounded-2xl px-3.5 py-2.5 text-[11px] text-amber-950 flex items-start gap-2.5 shrink-0">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="leading-snug">
-              <span className="font-bold">
-                {isGreek ? "Δήλωση Ανεξαρτησίας: " : "Independence Notice: "}
-              </span>
-              <span>
-                {isGreek 
-                  ? "Ο FRS αποτελεί αυτόνομη, ανεξάρτητη φοιτητική πρωτοβουλία. Δεν αποτελεί επίσημο φορέα, όργανο ή εκπρόσωπο της διοίκησης του Πανεπιστημίου Θεσσαλίας."
-                  : "FRS is an autonomous, independent student initiative. It is not an official entity, organ, or representative of the University of Thessaly administration."}
-              </span>
-            </div>
-          </div>
-
           {/* Tab Navigation */}
           <div className="flex items-center gap-2 border-b border-black/[0.06] py-3 shrink-0 overflow-x-auto">
             <button
