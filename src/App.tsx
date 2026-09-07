@@ -432,13 +432,13 @@ export default function App() {
       openCallTitle: "Θέλεις τη δική σου εκπομπή;",
       openCallSub: "Οι αιτήσεις για νέους ραδιοφωνικούς παραγωγούς του επόμενου εξαμήνου άνοιξαν. Γίνε μέλος της ομάδας μας.",
       applyNow: "Κάνε Αίτηση Τώρα",
-      footerDesc: "Φοιτητικός Ραδιοφωνικός Σταθμός από φοιτητές του Πανεπιστημίου Θεσσαλίας. Αυτόνομη έκφραση, μουσική και επικοινωνία φοιτητών από το 2022.",
+      footerDesc: "Ανεξάρτητος Φοιτητικός Ραδιοφωνικός Σταθμός από φοιτητές του Πανεπιστημίου Θεσσαλίας (μη επίσημος φορέας του ιδρύματος). Αυτόνομη έκφραση, μουσική και επικοινωνία φοιτητών από το 2022.",
       cities: "Βόλος • Λάρισα • Τρίκαλα • Καρδίτσα • Λαμία",
       navTitle: "ΠΛΟΗΓΗΣΗ",
       connectTitle: "ΣΥΝΔΕΘΕΙΤΕ",
       connectText: "Ακούστε τα archived sets και podcast επεισόδια στο επίσημο κανάλι μας.",
       mixcloudBtn: "Mixcloud Channel",
-      copyright: "© 2026 FRS UTH • Φοιτητικός Ραδιοφωνικός Σταθμός Πανεπιστημίου Θεσσαλίας.",
+      copyright: "© 2026 FRS UTH • Ανεξάρτητη Φοιτητική Πρωτοβουλία (Μη επίσημος φορέας του Π.Θ.).",
       terms: "Όροι Χρήσης",
       privacy: "Πολιτική Απορρήτου"
     },
@@ -478,13 +478,13 @@ export default function App() {
       openCallTitle: "Want your own radio show?",
       openCallSub: "Applications for new student radio hosts and producers for next semester are now open. Join our team.",
       applyNow: "Apply Now",
-      footerDesc: "Student Radio Station by students of the University of Thessaly. Autonomous expression, music, and student connection since 2022.",
+      footerDesc: "Independent Student Radio Station run by students of the University of Thessaly (not an official university entity). Autonomous expression, music, and student connection since 2022.",
       cities: "Volos • Larissa • Trikala • Karditsa • Lamia",
       navTitle: "NAVIGATION",
       connectTitle: "CONNECT",
       connectText: "Listen to archived sets and podcast episodes on our official channel.",
       mixcloudBtn: "Mixcloud Channel",
-      copyright: "© 2026 FRS UTH • Student Radio Station of the University of Thessaly.",
+      copyright: "© 2026 FRS UTH • Independent Student Radio (Autonomous student initiative).",
       terms: "Terms of Use",
       privacy: "Privacy Policy"
     }
@@ -2123,8 +2123,14 @@ export default function App() {
 
           {/* Bottom Copyright & Legal Links */}
           <div className="pt-8 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-500">
-            <div>
-              {currentT.copyright}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-center sm:text-left">
+              <span>{currentT.copyright}</span>
+              <span className="hidden sm:inline text-stone-700">•</span>
+              <span className="text-stone-400">
+                {isGreek 
+                  ? "Ανεξάρτητη φοιτητική πρωτοβουλία • Χωρίς θεσμική σύνδεση με τη διοίκηση του Π.Θ." 
+                  : "Independent student initiative • Not affiliated with university administration"}
+              </span>
             </div>
             <div className="flex items-center gap-4 flex-wrap">
               <button 

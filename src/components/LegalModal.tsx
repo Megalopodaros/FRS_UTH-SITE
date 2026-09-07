@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Shield, FileText, Cookie, MapPin, Mail, Radio } from "lucide-react";
+import { X, Shield, FileText, Cookie, MapPin, Mail, Radio, AlertTriangle } from "lucide-react";
 
 export type LegalTab = "privacy" | "terms" | "cookies";
 
@@ -60,6 +60,21 @@ export default function LegalModal({
             </button>
           </div>
 
+          {/* Independence Disclaimer Banner */}
+          <div className="mt-3 bg-amber-500/10 border border-amber-500/25 rounded-2xl px-3.5 py-2.5 text-[11px] text-amber-950 flex items-start gap-2.5 shrink-0">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="leading-snug">
+              <span className="font-bold">
+                {isGreek ? "Δήλωση Ανεξαρτησίας: " : "Independence Notice: "}
+              </span>
+              <span>
+                {isGreek 
+                  ? "Ο FRS αποτελεί αυτόνομη, ανεξάρτητη φοιτητική πρωτοβουλία. Δεν αποτελεί επίσημο φορέα, όργανο ή εκπρόσωπο της διοίκησης του Πανεπιστημίου Θεσσαλίας."
+                  : "FRS is an autonomous, independent student initiative. It is not an official entity, organ, or representative of the University of Thessaly administration."}
+              </span>
+            </div>
+          </div>
+
           {/* Tab Navigation */}
           <div className="flex items-center gap-2 border-b border-black/[0.06] py-3 shrink-0 overflow-x-auto">
             <button
@@ -108,7 +123,7 @@ export default function LegalModal({
                 <div className="bg-white/70 p-4 rounded-2xl border border-black/5 flex flex-col gap-1.5 text-xs">
                   <div className="flex items-center gap-2 font-bold text-[#1C1917]">
                     <MapPin className="w-4 h-4 text-[#ad021a]" />
-                    <span>{isGreek ? "Υπεύθυνος Σταθμού" : "Station Operator"}: FRS UTH — Πανεπιστήμιο Θεσσαλίας</span>
+                    <span>{isGreek ? "Υπεύθυνος Σταθμού" : "Station Operator"}: FRS UTH — {isGreek ? "Ανεξάρτητη Φοιτητική Ομάδα (Μη επίσημος φορέας του Π.Θ.)" : "Independent Student Group (Non-official university entity)"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-[#6B6560]">
                     <Mail className="w-4 h-4 text-[#ad021a]" />
@@ -121,9 +136,12 @@ export default function LegalModal({
 
                 {isGreek ? (
                   <>
-                    <h3 className="font-bold text-base text-[#1C1917]">1. Εισαγωγή & Φιλοσοφία</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">1. Εισαγωγή & Ανεξάρτητη Λειτουργία</h3>
                     <p>
-                      Ο Φοιτητικός Ραδιοφωνικός Σταθμός του Πανεπιστημίου Θεσσαλίας (FRS UTH) σέβεται απόλυτα το ιδιωτικό σας απόρρητο. Η πλατφόρμα μας λειτουργεί με γνώμονα τη διαφάνεια και τη μηδενική καταγραφή προσωπικών δεδομένων κατά την απλή περιήγηση ή ακρόαση του σταθμού.
+                      Ο Φοιτητικός Ραδιοφωνικός Σταθμός (FRS UTH) λειτουργεί ως αυτόνομη, ανεξάρτητη πρωτοβουλία φοιτητών του Πανεπιστημίου Θεσσαλίας και σέβεται απόλυτα το ιδιωτικό σας απόρρητο. Η πλατφόρμα μας λειτουργεί με γνώμονα τη διαφάνεια και τη μηδενική καταγραφή προσωπικών δεδομένων κατά την απλή περιήγηση ή ακρόαση του σταθμού.
+                    </p>
+                    <p className="text-xs bg-stone-100 p-2.5 rounded-xl border border-stone-200 text-stone-700">
+                      <strong>Σημείωση Ανεξαρτησίας:</strong> Οποιαδήποτε δεδομένα υποβάλλονται στις φόρμες επικοινωνίας ή αιτήσεων διαχειρίζονται αποκλειστικά από την εθελοντική φοιτητική ομάδα συντονισμού του σταθμού και ουδεμία σχέση, διαβίβαση ή διασύνδεση έχουν με τις επίσημες διοικητικές υπηρεσίες ή τα μητρώα του Πανεπιστημίου Θεσσαλίας.
                     </p>
 
                     <h3 className="font-bold text-base text-[#1C1917]">2. Ποια δεδομένα συλλέγουμε</h3>
@@ -148,9 +166,12 @@ export default function LegalModal({
                   </>
                 ) : (
                   <>
-                    <h3 className="font-bold text-base text-[#1C1917]">1. Introduction & Principles</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">1. Introduction & Independent Operation</h3>
                     <p>
-                      FRS UTH (Student Web Radio of the University of Thessaly) is fully committed to protecting your privacy. Our website is built on transparent principles and collects no personal tracking data during casual listening or navigation.
+                      FRS UTH operates as an autonomous, independent student initiative created and run by students of the University of Thessaly and is fully committed to protecting your privacy. Our website is built on transparent principles and collects no personal tracking data during casual listening or navigation.
+                    </p>
+                    <p className="text-xs bg-stone-100 p-2.5 rounded-xl border border-stone-200 text-stone-700">
+                      <strong>Independence Notice:</strong> Any personal information submitted through contact or application forms is managed strictly by the volunteer student station team and is never transmitted to or associated with the administrative departments or student records of the University of Thessaly.
                     </p>
 
                     <h3 className="font-bold text-base text-[#1C1917]">2. Information We Collect</h3>
@@ -182,12 +203,29 @@ export default function LegalModal({
               <div className="space-y-4">
                 {isGreek ? (
                   <>
-                    <h3 className="font-bold text-base text-[#1C1917]">1. Μη Κερδοσκοπικός Χαρακτήρας</h3>
+                    {/* Explicit Independence Disclaimer Box */}
+                    <div className="bg-amber-500/10 border border-amber-500/25 p-4 rounded-2xl text-amber-950 text-xs space-y-2">
+                      <div className="font-bold text-sm flex items-center gap-1.5 text-amber-900">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>1. Ανεξαρτησία από το Πανεπιστήμιο Θεσσαλίας & Αποποίηση Ευθύνης</span>
+                      </div>
+                      <p>
+                        Ο <strong>FRS (Φοιτητικός Ραδιοφωνικός Σταθμός)</strong> αποτελεί μια <strong>αυτόνομη, ανεξάρτητη και αυτοδιαχειριζόμενη πρωτοβουλία φοιτητών</strong>.
+                      </p>
+                      <p>
+                        <strong>Σε καμία περίπτωση ο σταθμός δεν αποτελεί επίσημο όργανο, επίσημη υπηρεσία, γραφείο τύπου, εκπρόσωπο ή νομικό πρόσωπο της διοίκησης του Πανεπιστημίου Θεσσαλίας.</strong>
+                      </p>
+                      <p>
+                        Το Πανεπιστήμιο Θεσσαλίας <strong>δεν φέρει καμία απολύτως νομική, αστική, ποινική, διοικητική ή συντακτική ευθύνη</strong> για τη λειτουργία του ραδιοφώνου, τις εκπομπές, τις μουσικές μεταδόσεις, τα podcast, τα αναρτώμενα κείμενα ή τις απόψεις που διατυπώνονται από τους ραδιοφωνικούς παραγωγούς και τους χρήστες του Live Chat. Οι εκφραζόμενες απόψεις ανήκουν αποκλειστικά στα φυσικά πρόσωπα που τις εκφέρουν.
+                      </p>
+                    </div>
+
+                    <h3 className="font-bold text-base text-[#1C1917]">2. Μη Κερδοσκοπικός & Πολιτιστικός Χαρακτήρας</h3>
                     <p>
-                      Ο FRS UTH είναι ένας ανοιχτός, ανεξάρτητος φοιτητικός ραδιοφωνικός σταθμός του Πανεπιστημίου Θεσσαλίας. Όλο το πρόγραμμα, η μουσική ροή, τα αρχεία εκπομπών και οι υπηρεσίες του ιστότοπου παρέχονται εντελώς δωρεάν για την εκπαιδευτική, πολιτιστική και ψυχαγωγική κοινότητα των φοιτητών.
+                      Ο FRS UTH λειτουργεί σε αυστηρά εθελοντική και μη κερδοσκοπική βάση. Όλο το ραδιοφωνικό πρόγραμμα, η μουσική ροή, τα αρχεία εκπομπών και οι ψηφιακές λειτουργίες του ιστότοπου παρέχονται εντελώς δωρεάν με αποκλειστικό σκοπό την πολιτιστική, μουσική και ψυχαγωγική έκφραση της φοιτητικής κοινότητας.
                     </p>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">2. Κανόνες Κοινότητας Live Chat</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">3. Κανόνες Κοινότητας Live Chat</h3>
                     <p>
                       Το Live Chat του σταθμού είναι ένας φιλόξενος χώρος διαλόγου και ανταλλαγής μουσικών απόψεων. Οι επισκέπτες οφείλουν να σέβονται τους συνομιλητές τους. Απαγορεύονται ρητά:
                     </p>
@@ -200,19 +238,36 @@ export default function LegalModal({
                       Η διαχειριστική ομάδα του σταθμού διατηρεί το δικαίωμα διαγραφής μηνυμάτων ή προσωρινής απομάκρυνσης χρηστών που παραβιάζουν τους παραπάνω κανόνες.
                     </p>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">3. Πνευματικά Δικαιώματα & Περιεχόμενο</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">4. Πνευματικά Δικαιώματα & Περιεχόμενο</h3>
                     <p>
                       Τα λογότυπα, τα γραφικά, ο πηγαίος κώδικας και οι πρωτότυπες εκπομπές του σταθμού ανήκουν στην ομάδα του FRS UTH. Η μουσική αναπαράγεται στο πλαίσιο της πολιτιστικής προβολής καλλιτεχνών και φοιτητικών εκπομπών.
                     </p>
                   </>
                 ) : (
                   <>
-                    <h3 className="font-bold text-base text-[#1C1917]">1. Non-Commercial University Radio</h3>
+                    {/* Explicit Independence Disclaimer Box */}
+                    <div className="bg-amber-500/10 border border-amber-500/25 p-4 rounded-2xl text-amber-950 text-xs space-y-2">
+                      <div className="font-bold text-sm flex items-center gap-1.5 text-amber-900">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>1. Independence from the University & Disclaimer of Liability</span>
+                      </div>
+                      <p>
+                        <strong>FRS (Student Web Radio)</strong> is an <strong>autonomous, independent, student-run initiative</strong> organized voluntarily by students.
+                      </p>
+                      <p>
+                        <strong>Under no circumstances does FRS represent an official body, administrative department, spokesperson, or legal organ of the University of Thessaly administration.</strong>
+                      </p>
+                      <p>
+                        The University of Thessaly <strong>bears zero legal, civil, penal, administrative, or editorial liability</strong> for station operations, show broadcasts, music transmissions, podcasts, published articles, or viewpoints stated by producers and Live Chat users. All opinions belong solely to the individuals expressing them.
+                      </p>
+                    </div>
+
+                    <h3 className="font-bold text-base text-[#1C1917]">2. Non-Commercial Cultural Character</h3>
                     <p>
-                      FRS UTH is an open, non-profit student radio station run by students of the University of Thessaly. All broadcasts, playlists, archives, and online features are provided completely free of charge for cultural, student, and educational enjoyment.
+                      FRS UTH operates on a strictly non-commercial and voluntary basis. All broadcasts, playlists, archives, and online features are provided completely free of charge for student culture, musical exploration, and educational enjoyment.
                     </p>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">2. Live Chat Community Guidelines</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">3. Live Chat Community Guidelines</h3>
                     <p>
                       The Live Chat is a welcoming student space for music discussions. Listeners are expected to behave with respect. The following are strictly prohibited:
                     </p>
@@ -225,7 +280,7 @@ export default function LegalModal({
                       Station moderators reserve the right to delete messages or restrict users who violate these community standards.
                     </p>
 
-                    <h3 className="font-bold text-base text-[#1C1917]">3. Intellectual Property</h3>
+                    <h3 className="font-bold text-base text-[#1C1917]">4. Intellectual Property</h3>
                     <p>
                       Logos, visuals, source code, and original student broadcasts belong to FRS UTH. Music tracks are streamed for cultural enrichment and student showcase.
                     </p>
